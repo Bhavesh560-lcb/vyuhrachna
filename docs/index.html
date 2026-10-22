@@ -1220,12 +1220,14 @@ async function handleFiles(list,opt={}){
 /* ===================== Rendering ===================== */
 let navDepth=0;
 function goBack(){if(document.querySelector('.ov')){const o=[...document.querySelectorAll('.ov')].pop();if(o.back&&o.back())return;o.close();return;}if(navDepth>0)history.back();else showTab('dash',true);}
+window.addEventListener('pagehide',()=>{try{const nv=JSON.parse(sessionStorage.getItem('tk_nav')||'null');if(nv){nv.y=window.scrollY;sessionStorage.setItem('tk_nav',JSON.stringify(nv));}}catch(_){}});
 function showTab(t,fromPop){
   if(t==='match')t='common';
   if(t!=='dash'&&typeof can==='function'&&AUTH.on&&((t==='admin'&&!isAdmin())||(t!=='admin'&&!can('tab:'+t)))){toast('🔒 આ વિભાગ તમારા માટે બંધ છે');t='dash';}
   const cur=document.querySelector('.tab.on')?.id.replace('tab-','');
   if(!fromPop&&cur!==t){try{history.pushState({t,reg:curReg,rd:typeof rdShown!=='undefined'?rdShown:curReg},'');navDepth++;}catch(_){}}
-  document.body.classList.toggle('home',t==='dash');if(t==='rdash')rdShown=curReg;if(t==='common')markCommonSeen();
+  document.body.classList.toggle('home',t==='dash');if(t==='rdash')rdShown=curReg;
+  try{sessionStorage.setItem('tk_nav',JSON.stringify({t,reg:curReg,rd:rdShown,y:0}));}catch(_){}if(t==='common')markCommonSeen();
   try{rescope();updateNavReg();}catch(_){}document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+t));if(t==='cases')renderCases();if(t==='rdash')renderRegDash();if(t==='sms')renderSms();if(t==='common'){lastCommon=buildCommon();renderCommon();}if(t==='net')renderNet();if(t==='others')renderOthers();if(t==='photos')renderPhotos();if(t==='admin')renderAdmin();if(t==='sms'&&window.AndroidSMS&&AndroidSMS.ready()!=='1'){try{AndroidSMS.requestPerms();}catch(_){}}if(t==='data')renderData();if(t==='set')renderSettings();if(t==='watch')renderWatch();}
 function counts(){const c={};for(const g of sindex.values())c[g.type]=(c[g.type]||0)+1;return c;}
 function fileItem(d){const ms=fileMC?(fileMC.get(d.id)||0):[...sindex.values()].filter(g=>g.docs.has(d.id)&&g.docs.size>1).length;const c={};d.entities.forEach(e=>c[e.type]=(c[e.type]||0)+1);
@@ -2592,7 +2594,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=5;
+const APP_VERSION=6;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
@@ -2841,6 +2843,11 @@ document.body.classList.add('home');
   rebuildCols();
   docs=await DB.all('docs').catch(()=>[]);docs.forEach(d=>docMap.set(d.id,d));await phLoad();
   buildIndex();renderAll();
+  /* રીફ્રેશ પછી જે પેજ પર હતા ત્યાં જ પાછા */
+  try{const nv=JSON.parse(sessionStorage.getItem('tk_nav')||'null');if(nv&&nv.t&&nv.t!=='dash'&&document.getElementById('tab-'+nv.t)){
+    if(REG_DEF[nv.reg]){curReg=nv.reg;rebuildCols();}if(nv.t==='rdash'&&REG_DEF[nv.rd])curReg=nv.rd;
+    showTab(nv.t,true);try{history.replaceState({t:nv.t,reg:curReg,rd:rdShown},'');}catch(_){}
+    if(nv.y)setTimeout(()=>window.scrollTo(0,nv.y),300);}}catch(e){console.warn('nav restore',e);}
   await smsLoad();smsEvents();nativeInit();
   if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))&&!window.AndroidApp)navigator.serviceWorker.register('sw.js').catch(e=>console.warn('sw',e));
   handleShareTarget();
