@@ -273,7 +273,8 @@ body.home main{max-width:none;padding:0}
 .ntree li{margin:6px 0;position:relative}
 .ntree ul ul>li::before{content:"";position:absolute;left:-12px;top:20px;width:10px;border-top:2px dashed color-mix(in srgb,var(--gold) 55%,var(--line))}
 .ntree li.col>ul{display:none}
-.ownc{display:inline-block;font-size:12px;font-weight:600;background:#ede9fe;color:#4c1d95;border-radius:8px;padding:1px 7px;margin-left:4px}.ownc.pr{background:#e0f2fe;color:#075985}.tn .ned{margin-left:auto;flex:none;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px 7px;cursor:pointer;font-size:14px}.tn .ned:hover{background:#fef3c7}
+.ownc{display:inline-block;font-size:12px;font-weight:600;background:#ede9fe;color:#4c1d95;border-radius:8px;padding:1px 7px;margin-left:4px}.ownc.pr{background:#e0f2fe;color:#075985}.nfact{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;background:var(--card)}.nfh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.nfb{margin-left:auto}.nfact .upbox{margin:2px 0}
+.tn .nbtns{margin-left:auto;display:flex;gap:4px;flex:none}.tn .ned.del:hover{background:#fee2e2}.tn .ned{flex:none;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px 7px;cursor:pointer;font-size:14px}.tn .ned:hover{background:#fef3c7}
 .tn{min-width:min(250px,78vw);display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:10px;padding:6px 8px;font-size:13.5px;cursor:pointer;min-width:0}
 .tn:hover{border-color:var(--gold)}
 .tn>span.tx{min-width:0;flex:1;overflow-wrap:anywhere}
@@ -441,6 +442,7 @@ body.locked{overflow:hidden}
   <div id="cRoutes" style="margin:-4px 0 8px"></div>
   <p class="muted" style="font-size:13px;margin:0 0 8px">💡 કોઈ પણ ખાનું ક્લિક કરી સુધારી શકાય છે (સુધારેલાં ખાનાં પીળાં). છેલ્લી કોલમમાં 📤 શેર / PDF, ➕ આરોપીની નવી રો, ↔ બીજા રજીસ્ટરમાં ખસેડો, 🗑️ ડિલીટ. આરોપીની સંખ્યા પર ક્લિક કરતાં આખી યાદી ખુલશે.</p>
   <div class="tablewrap" id="caseTable"></div>
+  <div id="cOthers"></div>
 </section>
 
 <section id="tab-files" class="tab">
@@ -992,7 +994,7 @@ function docxTables(html){
 }
 function parseSheet(input,isText,wbObj){
   const wb=wbObj||XLSX.read(input,isText?{type:'string'}:{type:'array',cellDates:true});
-  const parts=[],units=[],forced=[];
+  const parts=[],units=[],forced=[];const CORD={name:0,phone:1,imei:2};
   for(const sn of wb.SheetNames){
     const pad=n=>String(n).padStart(2,'0');
     const aoa=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:true,defval:''}).map(r=>r.map(c=>c instanceof Date?`${pad(c.getDate())}/${pad(c.getMonth()+1)}/${c.getFullYear()}`+(c.getHours()||c.getMinutes()?` ${pad(c.getHours())}:${pad(c.getMinutes())}`:''):typeof c==='number'?(Number.isInteger(c)?c.toFixed(0):String(c)):c));if(!aoa.length)continue;
@@ -1000,7 +1002,8 @@ function parseSheet(input,isText,wbObj){
     const headers=aoa[hIdx].map(c=>cleanText(c));const ct=headers.map(detectCol);
     parts.push(`### ${sn}`);parts.push(headers.filter(Boolean).join(' | '));
     for(let i=hIdx+1;i<aoa.length;i++){const row=aoa[i];if(!row||!row.some(c=>String(c).trim()))continue;
-      const line=cleanText(row.map((c,j)=>String(c).trim()?`${headers[j]||'કોલમ'+(j+1)}: ${c}`:'').filter(Boolean).join(' | '));
+      const ord=row.map((c,j)=>j).sort((a,b)=>(CORD[ct[a]]??9)-(CORD[ct[b]]??9)||a-b);
+      const line=cleanText(ord.map(j=>{const c=row[j];return String(c).trim()?`${headers[j]||'કોલમ'+(j+1)}: ${c}`:'';}).filter(Boolean).join(' | '));
       const u=`${sn}#${i+1}`;parts.push(line);units.push({u,l:line});
       ct.forEach((t,j)=>{if(!t)return;const v=cleanText(row[j]);if(!v)return;
         if(t==='name'){if(v.length>=3&&!/^\d+$/.test(v))forced.push({type:'name',value:v,unit:u,ctx:line.slice(0,320)});}
@@ -1123,6 +1126,30 @@ function matchCard(g,newSet){
   return `<div class="mcard" style="--c:${t.color}"><div class="mhead"><span class="tbadge">${t.icon} ${t.label}</span><b class="mval" data-ent="${esc(g.k)}">${esc(disp(g))}</b>${vals.length>1?`<small class="muted">(${vals.filter(v=>v!==disp(g)).slice(0,3).map(esc).join(', ')})</small>`:''}<span class="mcount">${g.docs.size} ફાઇલ${g.units.size>g.docs.size?` • ${g.units.size} રેકોર્ડ`:''}</span></div>
   <div class="mfiles">${dl.map(d=>`<span class="fpill ${newSet&&newSet.has(d.id)?'new':''}" data-doc="${d.id}" title="${esc(d.name)}">${newSet&&newSet.has(d.id)?'🆕 ':''}${fileIcon(d.ext)} ${esc(d.name)}</span>`).join('')}</div></div>`;
 }
+/* શોધ / પોપ-અપ: ફાઇલ ઉપરાંત ડેટા (કેસ, અન્ય વ્યક્તિ, B-પાર્ટી) મુજબ કોણ છે / કોની સાથે છે */
+function netFacts(id){const n=NET.nodes.get(id);if(!n)return '';const rows=[];const tl=t=>`<a href="#" data-nn="${esc(t.id)}"><b>${esc(nodeTitle(t))}</b></a>${nodeBadges(t)}${t.x&&t.kind!=='case'?` <small class="muted">${esc(caseShort(t.x))}</small>`:''}`;
+  if(id.startsWith('v:')){const O=ownersOf(id);if(O.length)rows.push(['👤 કોનો છે (માલિક)',O.map(tl).join('<br>')]);
+    const P=pairOf(id);if(P.length)rows.push([n.kind==='phone'?'📟 IMEI':'📱 મોબાઇલ',P.map(t=>esc(t.full||t.label)).join(', ')]);
+    const up=(NET.adj.get(id)||[]).filter(e=>!e.out&&BREL.has(e.rel)).map(e=>NET.nodes.get(e.to)).filter(isPerson);if(up.length)rows.push(['⬆️ કોના B-પાર્ટીમાં છે',up.map(tl).join('<br>')]);
+    const oth=(NET.adj.get(id)||[]).filter(e=>!(!e.out&&(BREL.has(e.rel)||(OWN_REL[n.kind]||[]).includes(e.rel)))&&e.rel!=='pair').map(e=>({t:NET.nodes.get(e.to),e})).filter(x=>x.t);if(oth.length)rows.push(['🔗 બીજું જોડાણ',oth.slice(0,20).map(x=>tl(x.t)+` <small class="muted">${esc(x.e.lab)}</small>`).join('<br>')]);
+    if(O.length===1&&O[0].kind==='other'){const o=O[0].o;if(o.addr)rows.push(['🏠 સરનામું',esc(o.addr)]);if(o.rel)rows.push(['🤝 સંબંધ',esc(o.rel)]);if(o.note)rows.push(['📝 નોંધ',esc(o.note)]);}}
+  else if(isPerson(n)){if(n.x)rows.push(['📁 કેસ',esc(caseShort(n.x))+' • '+(n.kind==='acc'?'પકડાયેલ':'બાકી')]);const own=(NET.adj.get(id)||[]).filter(e=>e.out&&OWN_SET.has(e.rel)).map(e=>NET.nodes.get(e.to));if(own.length)rows.push(['📱 પોતાના નંબર',own.map(t=>esc(t.label)).join(', ')]);
+    const bp=(NET.adj.get(id)||[]).filter(e=>e.out&&BREL.has(e.rel)).length;if(bp)rows.push(['📞 B-પાર્ટી',GU_D(bp)+' નંબર / IMEI']);const up=upHTML(id);if(up)rows.push(['⬆️ ઉપરની પાર્ટી','<div>'+up+'</div>']);
+    if(n.kind==='other'){const o=n.o;if(o.addr)rows.push(['🏠 સરનામું',esc(o.addr)]);if(o.rel)rows.push(['🤝 સંબંધ',esc(o.rel)]);}}
+  else if(n.kind==='case'){rows.push(['📁 કેસ',esc(n.label)]);}
+  return `<div class="nfact"><div class="nfh">${tl(n)}<span class="nfb"><button class="btn sm pri" data-nact="root" data-id="${esc(id)}">🌳 ઝાડ</button> <button class="btn sm" data-nact="edit" data-id="${esc(id)}">✏️ સુધારો</button></span></div>${rows.length?`<div class="kvg">${rows.map(([k,v])=>`<b>${k}</b><span>${v}</span>`).join('')}</div>`:'<div class="muted" style="font-size:13px">હજી કોઈ વ્યક્તિ / કેસ સાથે જોડાયેલ નથી — ✏️ સુધારો દબાવી માલિક / વિગત ઉમેરો</div>'}</div>`;}
+function netIdsFor(q){buildNet();const t=String(q||'').trim();const out=[];
+  for(const type of ['phone','imei','vehicle']){const k=valKey(type,t);if(k&&NET.nodes.has('v:'+type+'|'+k))out.push('v:'+type+'|'+k);}
+  if(!out.length)for(const n of netSearch(t).slice(0,8))out.push(n.id);return out;}
+function netInfoHTML(q,title){const ids=netIdsFor(q);if(!ids.length)return '';return `<div class="card" style="margin-bottom:12px;border-top:4px solid #4f46e5"><h3>${title||'🕸️ ડેટા મુજબ માહિતી (કેસ / અન્ય વ્યક્તિ / B-પાર્ટી)'}</h3>${ids.map(netFacts).join('')}</div>`;}
+function statList(k){if(k==='files'){document.getElementById('fileList')?.scrollIntoView({behavior:'smooth'});return;}if(k==='match'){showTab('common');return;}
+  buildNet();const L=[...sindex.values()].filter(g=>g.type===k).sort((a,b)=>b.docs.size-a.docs.size||b.occ.length-a.occ.length);const T=TYPES[k];
+  const own=g=>{const vk=valKey(k,disp(g));const id=vk&&'v:'+k+'|'+vk;if(!id||!NET.nodes.has(id))return '';const O=ownersOf(id),P=pairOf(id);return [O.length?'👤 '+O.map(t=>esc(t.label)).join(', '):'',P.length?(k==='phone'?'📟 ':'📱 ')+P.map(t=>esc(t.full||t.label)).join(', '):''].filter(Boolean).join(' • ');};
+  const ov=openModal(`<h2>${T.icon} ${T.label} — ${GU_D(L.length)}</h2><input class="inp" id="slQ" placeholder="શોધો…" style="width:100%;margin-bottom:8px"><div class="tablewrap" style="max-height:65vh;overflow:auto"><table><thead><tr><th>#</th><th>${T.label}</th><th>કોનો / જોડી</th><th>ફાઇલ</th><th>વાર</th></tr></thead><tbody id="slB"></tbody></table></div>
+    <div class="mfoot"><button class="btn" id="slX">📊 Excel</button></div>`,{wide:true});
+  const draw=()=>{const q=compact(ov.querySelector('#slQ').value);const F=L.filter(g=>!q||compact(disp(g)).includes(q));ov.querySelector('#slB').innerHTML=F.slice(0,1500).map((g,i)=>`<tr class="click" data-ent="${esc(g.k)}"><td>${i+1}</td><td><b>${esc(disp(g))}</b></td><td>${own(g)||'<span class="muted">—</span>'}</td><td>${g.docs.size}</td><td>${g.occ.length}</td></tr>`).join('')+(F.length>1500?`<tr><td colspan="5" class="muted">…${F.length-1500} વધુ — શોધ વાપરો</td></tr>`:'');};draw();
+  ov.querySelector('#slQ').oninput=draw;ov.querySelector('#slX').onclick=()=>{const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(L.map(g=>({[T.label]:disp(g),'કોનો / જોડી':own(g).replace(/<[^>]+>/g,''),'ફાઇલ':g.docs.size,'વાર':g.occ.length,'ફાઇલો':[...g.docs].map(id=>docMap.get(id)?.name||'').join(' | ')}))),T.label.slice(0,30));XLSX.writeFile(wb,`${T.label}-યાદી.xlsx`);};}
+document.addEventListener('click',e=>{const s=e.target.closest('[data-stk]');if(s)statList(s.dataset.stk);});
 function openEntity(k){
   const g=sindex.get(k)||index.get(k);if(!g){toast('આ માહિતી અવગણેલી છે અથવા મળી નથી');return;}
   const t=TYPES[g.type];const vals=[...g.values.keys()];const byDoc=new Map();
@@ -1130,6 +1157,7 @@ function openEntity(k){
   const watched=settings.watch.some(w=>compact(w.text)===compact(disp(g)));
   const ov=openModal(`<h2>${t.icon} ${esc(disp(g))}</h2>
    <div class="muted" style="font-size:13.5px">${t.label} • ${g.docs.size} ફાઇલમાં • ${g.occ.length} વાર${vals.length>1?` • બીજા સ્પેલિંગ: ${vals.filter(v=>v!==disp(g)).map(esc).join(', ')}`:''}</div>
+   ${netInfoHTML(disp(g),'🕸️ આ કોણ છે / કોની સાથે (ડેટા મુજબ)')}
    <div class="row gap"><button class="btn sm" data-a="copy">📋 કૉપી</button>${watched?'':'<button class="btn sm" data-a="watch">👁️ વોચલિસ્ટમાં ઉમેરો</button>'}<button class="btn sm" data-a="search">🔍 બધે શોધો</button><button class="btn sm danger" data-a="ign">🚫 અવગણો (મેચમાં ન ગણો)</button></div>
    ${[...byDoc.entries()].map(([id,os])=>{const d=docMap.get(id);if(!d)return '';return `<div class="sec">${fileIcon(d.ext)} <span class="of" data-doc="${d.id}" style="cursor:pointer;color:var(--pri)">${esc(d.name)}</span> <small class="muted">${fmtDate(d.addedAt)}</small></div>`+os.slice(0,20).map(o=>`<div class="occ">${unitLabel(o.u)?`<small class="muted">${unitLabel(o.u).slice(3)}</small><br>`:''}${hlCtx(o.ctx,vals)}</div>`).join('')+(os.length>20?`<div class="muted">…અને ${os.length-20} વધુ</div>`:'');}).join('')}`,{wide:true});
   ov.addEventListener('click',async e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;
@@ -1311,7 +1339,7 @@ function renderAll(){
   const ml=matchList();const c=counts();const SD=sdocs();updateNavReg();renderCommonBadge();if($('#tab-common').classList.contains('on'))renderCommon();
   $('#c-files').textContent=SD.length||'';$('#c-others').textContent=(settings.others||[]).length||'';$('#c-photos').textContent=PH.m.size||'';$('#c-watch').textContent=settings.watch.length||'';
   $('#hstats').innerHTML=`<span>${regIcon(curReg)} ${SD.length} ફાઇલ</span><span>🔗 ${ml.length} કોમન</span>`;
-  $('#stats').innerHTML=[['📁 ફાઇલો',SD.length,'#1d3a8a'],['🔗 મેચ',ml.length,'#dc2626'],...['name','phone','vehicle','imei','fir'].map(t=>[TYPES[t].icon+' '+TYPES[t].label,c[t]||0,TYPES[t].color])].map(([l,n,col])=>`<div class="stat" style="--c:${col}"><b>${n}</b><span>${l}</span></div>`).join('');
+  $('#stats').innerHTML=[['📁 ફાઇલો',SD.length,'#1d3a8a'],['🔗 મેચ',ml.length,'#dc2626'],...['name','phone','vehicle','imei','fir'].map(t=>[TYPES[t].icon+' '+TYPES[t].label,c[t]||0,TYPES[t].color])].map(([l,n,col],i)=>`<div class="stat clk" style="--c:${col};cursor:pointer" data-stk="${['files','match','name','phone','vehicle','imei','fir'][i]}"><b>${n}</b><span>${l} <small>▸ યાદી</small></span></div>`).join('');
   $('#topMatches').innerHTML=ml.length?ml.slice(0,8).map(g=>matchCard(g)).join(''):'<div class="empty">હજી કોઈ મેચ નથી. 2 કે વધુ ફાઇલ અપલોડ કરો.</div>';
   $('#recent').innerHTML=SD.length?[...SD].sort((a,b)=>b.addedAt-a.addedAt).slice(0,6).map(fileItem).join(''):'<div class="empty">હજી કોઈ ફાઇલ નથી</div>';
   renderFiles();
@@ -1357,7 +1385,7 @@ function runSearch(){
   const R=lastSearch=terms.map(searchOne);
   const fileBlock=(r)=>r.res.length?r.res.map(({d,sn,cases})=>`<div class="sec"><span data-doc="${d.id}" style="cursor:pointer;color:var(--pri)">${fileIcon(d.ext)} ${esc(d.name)}</span>${cases.length?` <span class="tag ok">📑 કેસ રજીસ્ટરમાં</span>`:''}</div>${sn.map(x=>`<div class="occ">${hlCtx(x,[r.raw])}</div>`).join('')||(cases.length?`<div class="occ">${cases.map(x=>esc([x.r.station&&x.r.station+' પો.સ્ટે.',x.r.fir&&'ગુ.ર.નં. '+x.r.fir.split('\n')[0],x.r.pdate].filter(Boolean).join(' • ')||x.d.name)).join('<br>')}</div>`:'<div class="occ muted">લખાણમાં મળ્યું (અંતર/ચિહ્ન ફેર સાથે)</div>')}`).join(''):'<div class="empty">કંઈ મળ્યું નથી</div>';
   if(R.length===1){const r=R[0];
-    out.innerHTML=`${r.ents.length?`<div class="card" style="margin-bottom:12px"><h3>📌 મળેલ માહિતી</h3>${r.ents.map(chip).join('')}</div>`:''}<div class="card"><h3>📁 ${r.res.length} ફાઇલમાં મળ્યું</h3>${fileBlock(r)}</div>`;return;}
+    out.innerHTML=`${netInfoHTML(r.raw)}${r.ents.length?`<div class="card" style="margin-bottom:12px"><h3>📌 મળેલ માહિતી</h3>${r.ents.map(chip).join('')}</div>`:''}<div class="card"><h3>📁 ${r.res.length} ફાઇલમાં મળ્યું</h3>${fileBlock(r)}</div>`;return;}
   // co-occurrence: files that contain 2+ of the searched terms
   const per=new Map();R.forEach((r,ti)=>r.res.forEach(({d})=>{if(!per.has(d.id))per.set(d.id,new Set());per.get(d.id).add(ti);}));
   const co=[...per.entries()].filter(([,set])=>set.size>=2).sort((a,b)=>b[1].size-a[1].size);
@@ -1365,7 +1393,7 @@ function runSearch(){
   out.innerHTML=`<div class="stats"><div class="stat" style="--c:#1d3a8a"><b>${R.length}</b><span>શોધેલા શબ્દ</span></div><div class="stat" style="--c:#059669"><b>${found}</b><span>✅ મળ્યા</span></div><div class="stat" style="--c:#dc2626"><b>${R.length-found}</b><span>❌ ન મળ્યા</span></div><div class="stat" style="--c:#d97706"><b>${co.length}</b><span>🔗 એક જ ફાઇલમાં સાથે</span></div></div>
    ${co.length?`<div class="card alertm" style="margin-bottom:12px;border-top:4px solid var(--bad)"><h3>🔗 એક જ ફાઇલ / કેસમાં સાથે આવતા</h3>${co.map(([id,set])=>{const d=docMap.get(id);return `<div class="mcard" style="--c:#d97706"><div class="mhead"><span class="fpill" data-doc="${id}">${fileIcon(d.ext)} ${esc(d.name)}</span><span class="mcount">${set.size} શબ્દ</span></div><div class="mfiles">${[...set].map(ti=>`<span class="chip" style="--c:#2563eb">${esc(R[ti].raw)}</span>`).join('')}</div></div>`;}).join('')}</div>`:''}
    <div class="tablewrap" style="margin-bottom:12px"><table><thead><tr><th>#</th><th>શોધેલું</th><th>ફાઇલ</th><th>કેસ રજીસ્ટર</th><th>મળેલ માહિતી</th></tr></thead><tbody>${R.map((r,i)=>`<tr class="click" data-jump="${i}"><td>${i+1}</td><td><b>${esc(r.raw)}</b></td><td>${r.res.length?`<span class="tag ok">${r.res.length}</span>`:'<span class="tag red">મળ્યું નથી</span>'}</td><td>${r.res.reduce((n,x)=>n+x.cases.length,0)||'—'}</td><td>${r.ents.slice(0,4).map(chip).join('')}</td></tr>`).join('')}</tbody></table></div>
-   ${R.map((r,i)=>`<details class="card" id="qd${i}" style="margin-bottom:10px"${r.res.length&&R.length<=5?' open':''}><summary style="cursor:pointer;font-weight:700">${r.res.length?'✅':'❌'} ${esc(r.raw)} — ${r.res.length} ફાઇલ</summary>${fileBlock(r)}</details>`).join('')}`;
+   ${R.map((r,i)=>`<details class="card" id="qd${i}" style="margin-bottom:10px"${r.res.length&&R.length<=5?' open':''}><summary style="cursor:pointer;font-weight:700">${r.res.length?'✅':'❌'} ${esc(r.raw)} — ${r.res.length} ફાઇલ</summary>${netInfoHTML(r.raw)}${fileBlock(r)}</details>`).join('')}`;
 }
 function exportSearch(){
   if(!lastSearch.length){toast('પહેલાં શોધો','err');return;}
@@ -1495,6 +1523,7 @@ function renderCases(){
   $('#cYears').innerHTML=rows.length?'<span class="muted" style="font-size:13px">📅 વર્ષવાર: </span>'+yk.map(y=>`<span class="chip" style="--c:#0f766e" data-year="${y}">${y}<b>${st.years[y]}</b></span>`).join('')+(curReg==='chori'?` <span class="muted" style="font-size:13px;margin-left:8px">⚖️ </span><span class="chip" style="--c:#475569" data-law="ipc" title="તા.30/06/2024 સુધી">IPC<b>${st.ipc}</b></span><span class="chip" style="--c:#475569" data-law="bns" title="તા.01/07/2024 પછી">BNS<b>${st.bns}</b></span>`:'')+(($('#cFrom').value||$('#cTo').value)?' <span class="chip" style="--c:#dc2626" data-year="">✕ તારીખ ફિલ્ટર કાઢો</span>':''):'';
   const rk=Object.entries(st.routes).sort((a,b)=>b[1]-a[1]);
   $('#cRoutes').innerHTML=rk.length?'<span class="muted" style="font-size:13px">🛣️ રૂટ મુજબ: </span>'+rk.map(([r,n])=>`<span class="chip" style="--c:#7c3aed" data-rq="${esc(r.split('|').pop().trim())}">${esc(r.split('|').pop().trim())}<b>${n}</b></span>`).join(''):'';
+  {const co=document.getElementById('cOthers');if(co)co.innerHTML=regOthersHTML();}
   if(!rows.length){$('#caseTable').innerHTML=`<div class="card empty">${docs.length?'ફિલ્ટર મુજબ કોઈ કેસ નથી':'હજી કોઈ કેસ નથી — પ્રેસનોટ / FIR / Excel અપલોડ કરો અથવા ➕ નવો કેસ ઉમેરો'}</div>`;return;}
   const top=[];CASE_COLS.forEach(([k,l,g,,sh,cu])=>{const last=top[top.length-1];if(g){if(last&&last.g===g)last.n++;else top.push({g,n:1});}else top.push({k,l,sh,cu});});
   const head=`<thead><tr><th rowspan="2" class="num-h">અનું<br>નંબર</th>${top.map(t=>t.g?`<th colspan="${t.n}" class="grp grp-${t.g}">${GRP[t.g]}</th>`:`<th rowspan="2" title="${esc(t.l)}"${t.cu?' class="cu"':''}>${esc(t.sh)}</th>`).join('')}<th rowspan="2" class="act-h">ક્રિયા / ફાઇલ</th></tr><tr>${CASE_COLS.filter(c=>c[2]).map(([k,l,g,,sh,cu])=>`<th class="sub sub-${g}${cu?' cu':''}" title="${esc(l)}">${esc(sh)}</th>`).join('')}</tr></thead>`;
@@ -1517,6 +1546,7 @@ function renderCases(){
       if(i===0){const other=curReg==='prohi'?'chori':'prohi';body+=`<td class="c-act" rowspan="${n}"><div class="ract"><button class="ib pr" data-rep="${esc(key)}" title="આ કેસનો અલગ PDF / Word રિપોર્ટ — શેર કરો">📤 શેર / PDF</button><button class="ib" data-form="${esc(key)}" title="આખો કેસ એક ફોર્મમાં ભરો / સુધારો">✏️ આખો કેસ સુધારો</button><button class="ib" data-net="${esc(key)}" title="આ કેસના આરોપી, નંબર, B-પાર્ટી, ગાડી — કોણ કોની સાથે (ઝાડ)">🕸️ સંપર્ક જાળ</button><button class="ib" data-phc="${esc(key)}" title="આરોપી / ગાડી / ફોન / મુદ્દામાલના ફોટા">🖼️ ફોટા${(()=>{const c=casePhotoCount(x);return c?' ('+c+')':'';})()}</button><button class="ib" data-addp="${esc(key)}|acc" title="પકડાયેલ આરોપીની નવી રો">➕ આરોપી</button><button class="ib" data-addp="${esc(key)}|want" title="બાકી આરોપીની નવી રો">➕ બાકી આરોપી</button><button class="ib" data-mvreg="${esc(key)}" title="${esc(REG_DEF[other].label)} રજીસ્ટરમાં ખસેડો">↔ ${esc(REG_DEF[other].icon)} માં ખસેડો</button><button class="ib dl" data-delc="${esc(key)}" title="કેસ કાઢી નાખો">🗑️ ડિલીટ</button></div><span class="fpill" data-doc="${x.d.id}" title="${esc(x.d.name)}">${fileIcon(x.d.ext)} ${esc(x.d.name)}</span>${x.unit!=='_'?`<small class="muted">${esc(unitLabel(x.d.id+'#'+x.unit).slice(3))}</small>`:''}</td>`;}
       body+='</tr>';
     }});
+  {const co=document.getElementById('cOthers');if(co)co.innerHTML=regOthersHTML();}
   $('#caseTable').innerHTML=`<table class="ctab">${head}<tbody>${body}</tbody></table>`+(rows.length>caseShow?`<div style="text-align:center;margin:12px"><span class="muted">${caseShow} / ${rows.length} કેસ બતાવ્યા</span> <button class="btn pri" data-cmore="1">⬇️ વધુ ${Math.min(500,rows.length-caseShow)} કેસ બતાવો</button> <button class="btn" data-cmore="all">બધા બતાવો</button></div>`:'');
 }
 let caseShow=300,caseShowSig='';
@@ -1729,7 +1759,9 @@ function exportCases(){
   for(const [r,c] of G.numCells){const a=XLSX.utils.encode_cell({r:r+2,c});const cell=ws[a];if(cell){cell.t='s';cell.v=String(cell.v??'');cell.z='@';}}
   ws['!cols']=G.head.map((h,i)=>({wch:i===0?6:Math.min(45,Math.max(12,...G.body.slice(0,200).map(r=>String(r[i]??'').split('\n').reduce((m,l)=>Math.max(m,l.length),0))))}));
   ws['!rows']=[{hpt:28},{hpt:70}];
-  XLSX.utils.book_append_sheet(wb,ws,curReg==='chori'?'ચોરી-ધાડ-લૂંટ':'પ્રોહીબીશન');XLSX.writeFile(wb,`${REG_DEF[curReg].file}-${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.utils.book_append_sheet(wb,ws,curReg==='chori'?'ચોરી-ધાડ-લૂંટ':'પ્રોહીબીશન');
+  try{const OR=otherRows().filter(r=>r.L.some(t=>t.reg===curReg)||!r.L.length);if(OR.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(OR.map(({o,L})=>({'નામ':o.name||'','સંબંધ':o.rel||'','મોબાઇલ':(o.mob||[]).join(', '),'વોટ્સએપ':(o.wa||[]).join(', '),'IMEI':(o.imei||[]).join(', '),'ગાડી':(o.veh||[]).join(', '),'B-પાર્ટી મો.':(o.bmob||[]).join(', '),'B-પાર્ટી IMEI':(o.bimei||[]).join(', '),'સરનામું':o.addr||'','નોંધ':o.note||'','કોની સાથે':L.map(t=>t.label+' ('+caseShort(t.x)+')').join(' | ')}))),'અન્ય વ્યક્તિ');}catch(e){console.warn(e);}
+  XLSX.writeFile(wb,`${REG_DEF[curReg].file}-${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 function gridHTML(G){
   const skip=new Set();const span=new Map();
@@ -2153,6 +2185,7 @@ function repPhotosHTML(x){const refs=casePhotoRefs(x);const L=refs.flatMap(r=>PH
 let dataVer=0;
 const NF={mob:['phone','મોબાઇલ'],wa:['phone','વોટ્સએપ'],imei:['imei','IMEI'],gmail:['email','જીમેઇલ'],social:['custom','ઇન્સ્ટા / FB'],jangi:['custom','જંગી'],bmob:['phone','B-પાર્ટી મો.'],bimei:['imei','B-પાર્ટી IMEI'],veh:['vehicle','ગાડી']};
 const BREL=new Set(['bmob','bimei']);
+const OWN_SET=new Set(['mob','wa','imei']);
 const NK_IC={case:'📁',acc:'🧍',want:'🧍',other:'👤',phone:'📱',imei:'📟',vehicle:'🚗',email:'✉️',custom:'🌐'};
 const NK_COL={case:'#9a3412',acc:'#16a34a',want:'#dc2626',other:'#4f46e5',phone:'#0891b2',imei:'#64748b',vehicle:'#d97706',email:'#475569',custom:'#475569'};
 const CM_COL=['#e11d48','#7c3aed','#0d9488','#ea580c','#2563eb','#ca8a04','#db2777','#059669','#9333ea','#0891b2'];
@@ -2211,7 +2244,8 @@ function edgeRank(u,e){const n=NET.nodes.get(u);const t=NET.nodes.get(e.to);let 
 function netBFS(root,{skipUp=false,max=2500}={}){
   const {adj}=NET;const depth=new Map([[root,0]]),parent=new Map(),order=[root],kids=new Map(),oi=new Map([[root,0]]);let q=[root],cut=false;
   while(q.length&&!cut){const nq=[];for(const u of q){const es=[...(adj.get(u)||[])].sort((a,b)=>edgeRank(u,a)-edgeRank(u,b));
-      for(const e of es){if(skipUp&&u===root&&!e.out&&BREL.has(e.rel))continue;if(depth.has(e.to))continue;if(order.length>=max){cut=true;break;}
+      const pu=parent.get(u);const ownUp=u.startsWith('v:')&&pu&&pu.e.out&&OWN_SET.has(pu.e.rel);
+      for(const e of es){if(skipUp&&u===root&&!e.out&&BREL.has(e.rel))continue;if(ownUp&&!e.out&&BREL.has(e.rel))continue;if(depth.has(e.to))continue;if(order.length>=max){cut=true;break;}
         depth.set(e.to,depth.get(u)+1);parent.set(e.to,{u,e});oi.set(e.to,order.length);order.push(e.to);if(!kids.has(u))kids.set(u,[]);kids.get(u).push({id:e.to,e});nq.push(e.to);}if(cut)break;}q=nq;}
   const stubs=new Map();
   for(const u of order)for(const e of (adj.get(u)||[])){const w=e.to;if(!depth.has(w))continue;const pu=parent.get(u),pw=parent.get(w);if(pu&&pu.u===w)continue;if(pw&&pw.u===u)continue;
@@ -2240,12 +2274,15 @@ function ownChip(id){if(!id.startsWith('v:'))return '';const O=ownersOf(id);cons
   if(P.length)h+=` <span class="ownc pr">${NET.nodes.get(id).kind==='phone'?'📟 IMEI':'📱 નં.'} ${P.slice(0,2).map(t=>esc(t.full||t.label)).join(', ')}</span>`;return h;}
 function treeHTML(T){const root=T.root;netPal=new Map();
   let keep=null;if(netOnlyCommon){keep=new Set();const walk=id=>{let k=id===root||NET.common.has(id)||NET.same.has(id);for(const c of (T.kids.get(id)||[]))if(walk(c.id))k=true;for(const s of (T.stubs.get(id)||[]))if(NET.common.has(s.id)||NET.same.has(s.id))k=true;if(k)keep.add(id);return k;};walk(root);}
-  const card=(id,e,stub,hasKids)=>{const n=NET.nodes.get(id);const col=cmColor(id);const dep=T.depth.get(id);
+  const card=(id,e,stub,hasKids,par)=>{const n=NET.nodes.get(id);const col=cmColor(id);const dep=T.depth.get(id);
     const cmTxt=NET.common.has(id)?'કોમન':NET.same.has(id)?'સરખું નામ':'';
-    return `<div class="tn n-${n.kind}${id===root?' root':''}${col?' cm':''}${stub?' stub':''}" ${col?`style="--cc:${col}"`:''} data-nn="${esc(id)}">${hasKids?'<button class="tg" data-tg title="ખોલો / બંધ કરો">▾</button>':'<span class="tgs"></span>'}${netPhotos?nodeAvatar(n):`<span class="ti">${NK_IC[n.kind]}</span>`}<span class="tx"><b>${esc(n.label)}</b>${nodeBadges(n)}${cmTxt?`<span class="cb" style="--cc:${col}">${cmTxt}</span>`:''}${stub?'<span class="loopm">↺ ઉપર આવી ગયું</span>':''}${ownChip(id)}<div><span class="src">સ્તર ${GU_D(dep+1)}${e?' • '+esc(relText(id,e)):''}</span></div></span><button class="ib ned" data-nact="edit" data-id="${esc(id)}" title="સુધારો / વિગત ઉમેરો">✏️</button></div>`;};
-  const rec=(id,e)=>{if(keep&&!keep.has(id))return '';const ks=(T.kids.get(id)||[]).filter(c=>!keep||keep.has(c.id));const ss=(T.stubs.get(id)||[]).filter(s=>!keep||NET.common.has(s.id)||NET.same.has(s.id));
-    const inner=ks.map(c=>rec(c.id,c.e)).join('')+ss.map(s=>`<li>${card(s.id,s.e,true,false)}</li>`).join('');
-    return `<li>${card(id,e,false,!!inner)}${inner?`<ul>${inner}</ul>`:''}</li>`;};
+    return `<div class="tn n-${n.kind}${id===root?' root':''}${col?' cm':''}${stub?' stub':''}" ${col?`style="--cc:${col}"`:''} data-nn="${esc(id)}">${hasKids?'<button class="tg" data-tg title="ખોલો / બંધ કરો">▾</button>':'<span class="tgs"></span>'}${netPhotos?nodeAvatar(n):`<span class="ti">${NK_IC[n.kind]}</span>`}<span class="tx"><b>${esc(n.label)}</b>${nodeBadges(n)}${cmTxt?`<span class="cb" style="--cc:${col}">${cmTxt}</span>`:''}${stub?'<span class="loopm">↺ ઉપર આવી ગયું</span>':''}${ownChip(id)}<div><span class="src">સ્તર ${GU_D(dep+1)}${e?' • '+esc(relText(id,e)):''}</span></div></span><span class="nbtns"><button class="ib ned" data-nact="edit" data-id="${esc(id)}" title="સુધારો / વિગત ઉમેરો">✏️</button>${par&&e&&canUnlink(par,id)?`<button class="ib ned del" data-unl="${esc(par)}" data-id="${esc(id)}" title="આ જોડાણ કાઢી નાખો">🗑️</button>`:''}</span></div>`;};
+  const rec=(id,e,par)=>{if(keep&&!keep.has(id))return '';let ks=(T.kids.get(id)||[]).filter(c=>!keep||keep.has(c.id));let ss=(T.stubs.get(id)||[]).filter(s=>!keep||NET.common.has(s.id)||NET.same.has(s.id));
+    /* એક જ હરોળના IMEI↔નંબર: નંબર સાથે જ IMEI બતાવો, IMEI ની અલગ લાઇન નહીં */
+    const sib=new Set([...ks.map(c=>c.id),...ss.map(c=>c.id),...(par?[par]:[])]);const hid=c=>{const n=NET.nodes.get(c.id);return n&&n.kind==='imei'&&pairOf(c.id).some(t=>sib.has(t.id));};
+    ks=ks.filter(c=>!hid(c));ss=ss.filter(c=>!hid(c)&&!(c.e&&c.e.rel==='pair'));
+    const inner=ks.map(c=>rec(c.id,c.e,id)).join('')+ss.map(s=>`<li>${card(s.id,s.e,true,false,id)}</li>`).join('');
+    return `<li>${card(id,e,false,!!inner,par)}${inner?`<ul>${inner}</ul>`:''}</li>`;};
   return `<ul>${rec(root,null)}</ul>`;}
 function personTreeHTML(id){buildNet();if(!NET.nodes.has(id))return '';const T=netBFS(id);const n=NET.nodes.get(id);
   const others=T.order.filter(i=>i!==id&&isPerson(NET.nodes.get(i))).length,cms=T.order.filter(i=>NET.common.has(i)).length;
@@ -2375,6 +2412,24 @@ async function nodeAction(a,id){const n=NET.nodes.get(id);if(!n)return;document.
   if(a==='sms'){if(!smsNumbers().some(o=>o.n===n.key)){smsLog.push({id:uid(),kind:'manualnum',manual:true,num:n.key,name:'સંપર્ક જાળમાંથી',at:Date.now(),text:''});smsSave();}smsSel.add(n.key);showTab('sms');smsScope='all';smsQ=n.key;$('#smsQ').value=n.key;renderSms();return;}
   if(a==='name'){const links=(NET.adj.get(id)||[]).filter(e=>!e.out&&isPerson(NET.nodes.get(e.to))).map(e=>{const t=NET.nodes.get(e.to);return t.kind==='other'?null:{ref:t.ref,ck:t.ck,g:t.kind,name:t.label};}).filter(Boolean);otherForm(null,{mob:[n.key],links});}}
 
+/* જાળમાંથી એક જોડાણ કાઢવું (દા.ત. B-પાર્ટી નંબર) — મૂળ વ્યક્તિની વિગતમાંથી પણ નીકળી જાય */
+const PFIELDS=new Set(['mob','wa','imei','bmob','bimei','veh','gmail','social','jangi']);
+function unlinkEdges(a,b){return (NET.adj.get(a)||[]).filter(e=>e.to===b&&(PFIELDS.has(e.rel)||e.rel==='link'));}
+function canUnlink(a,b){return unlinkEdges(a,b).some(e=>{const A=NET.nodes.get(a),B=NET.nodes.get(b);if(e.rel==='link')return A.kind==='other'||B.kind==='other';return isPerson(A)||isPerson(B);});}
+async function unlinkNode(a,b){buildNet();const A=NET.nodes.get(a),B=NET.nodes.get(b);if(!A||!B)return;const E=unlinkEdges(a,b);if(!E.length){toast('આ જોડાણ અહીંથી કાઢી શકાતું નથી — મૂળ ફાઇલ / કેસમાંથી સુધારો','err',5000);return;}
+  if(!confirm(`"${nodeTitle(B)}" ને "${nodeTitle(A)}" માંથી કાઢી નાખવું છે?`))return;let n=0;
+  for(const e of E){
+    if(e.rel==='link'){const O=A.kind==='other'?A:B.kind==='other'?B:null;const T=O===A?B:A;if(!O)continue;const o=settings.others.find(x=>x.id===O.o.id);if(!o)continue;const before=(o.links||[]).length;o.links=(o.links||[]).filter(L=>!(T.ref&&L.ref===T.ref)&&!(T.kind==='case'&&L.ck===T.ck&&!L.ref)&&!(L.ck===T.ck&&compact(stripAge(L.name||''))===compact(T.label)));if(o.links.length<before){o.updatedAt=Date.now();n++;}continue;}
+    const P=isPerson(A)?A:B,V=P===A?B:A;if(!V.id.startsWith('v:'))continue;const f=e.rel;
+    /* નંબર કાઢો તો તેની સાથેનો (એક જ હરોળનો) IMEI પણ કાઢો */
+    const PI=V.kind==='phone'?pairOf(V.id).filter(t=>t.kind==='imei').map(t=>t.key):[];const f2={bmob:'bimei',mob:'imei'}[f];
+    const keep=x=>{const k1=valKey(V.kind,NUM_F.has(f)?cleanNum(x):x);return k1!==V.key;};const keep2=x=>!PI.includes(valKey('imei',cleanNum(x)));
+    if(f2&&PI.length){if(P.kind==='other'){const o=settings.others.find(x=>x.id===P.o.id);if(o)o[f2]=(o[f2]||[]).filter(keep2);}}
+    if(P.kind==='other'){const o=settings.others.find(x=>x.id===P.o.id);if(!o)continue;const b4=(o[f]||[]).length;o[f]=(o[f]||[]).filter(keep);if(o[f].length<b4){o.updatedAt=Date.now();n++;}}
+    else{const F=findRow(P.ck);if(!F)continue;const {d,unit,row}=F;const L=(row.r[P.kind]||[]).map(x=>JSON.parse(JSON.stringify(x)));const p=L[P.i];if(!p)continue;const b4=(p[f]||[]).length;p[f]=(p[f]||[]).filter(keep);if(f2&&PI.length)p[f2]=(p[f2]||[]).filter(keep2);if(p[f].length<b4){d.caseEdit=d.caseEdit||{};const ce=d.caseEdit[unit]=d.caseEdit[unit]||{};ce[P.kind]=L;d.updatedAt=Date.now();await saveDoc(d);n++;}}}
+  if(E.some(e=>true))await saveOthers();buildIndex();renderAll();if($('#tab-net').classList.contains('on'))renderNet();toast(n?'🗑️ જોડાણ કાઢી નાખ્યું':'કંઈ બદલાયું નહીં',n?'ok':'');}
+document.addEventListener('click',e=>{const u=e.target.closest('[data-unl]');if(!u)return;e.stopPropagation();unlinkNode(u.dataset.unl,u.dataset.id);},true);
+
 /* નંબર / IMEI / ગાડી — સુધારો: માલિક હોય તો તેની વિગત ખોલો, નહીં તો નવો માલિક (અન્ય વ્યક્તિ) બનાવો */
 function valuePreset(id){const n=NET.nodes.get(id);const pre={mob:[],imei:[],veh:[]};const put=(t,v)=>{if(t.kind==='phone')pre.mob.push(t.key);else if(t.kind==='imei')pre.imei.push(t.full||t.label);else if(t.kind==='vehicle')pre.veh.push(t.label);};
   put(n);for(const t of pairOf(id))put(t);
@@ -2403,8 +2458,25 @@ function otherForm(id,preset){settings.others=settings.others||[];const isNew=!i
       <label class="pf wide"><span>સંબંધ</span><input class="inp" data-os="rel" value="${esc(o.rel)}"><div class="rchips">${OREL.map(r=>`<button type="button" class="rchip" data-orel="${esc(r)}">${esc(r)}</button>`).join('')}</div></label>
       <label class="pf wide"><span>નોંધ</span><textarea class="inp" data-os="note" rows="2">${esc(o.note)}</textarea></label></div>
     <div class="phgrp">🔗 કોની સાથે (આરોપી)</div><div id="oLinks"></div><div class="row gap"><input class="inp grow" id="oLinkIn" list="oLinkL" placeholder="આરોપીનું નામ લખો અને યાદીમાંથી પસંદ કરો"><datalist id="oLinkL">${[...opts.keys()].slice(0,4000).map(l=>`<option value="${esc(l)}">`).join('')}</datalist><button class="btn" data-a="link">＋ જોડો</button></div>
+    <div class="phgrp">📎 ફાઇલો (PDF / Word / Excel / CDR / IPDR…)</div><div class="muted" style="font-size:12.5px">ફાઇલ ઉમેરતાં તેમાંના નંબર / IMEI / ગાડી આ વ્યક્તિમાં ઉમેરવાનું પૂછશે. એક જ હરોળમાં IMEI અને નંબર હોય તો બંને જોડાયેલા રહેશે.</div>
+    <div id="oFiles"></div><label class="btn" style="margin-top:6px">📎 ફાઇલ ઉમેરો<input type="file" id="oFileIn" multiple hidden accept=".pdf,.doc,.docx,.xls,.xlsx,.xlsm,.csv,.ods,.txt,.json,.html,.htm,.png,.jpg,.jpeg,.webp,.bmp"></label>
     <div class="phgrp">🖼️ ફોટા</div>${photoStrip('o:'+o.id,{kind:'person'})}
     <div class="mfoot"><button class="btn pri" data-a="save">💾 સેવ</button>${isNew?'':'<button class="btn" data-a="net">🕸️ સંપર્ક જાળ</button><button class="btn danger" data-a="del">🗑️ કાઢી નાખો</button>'}</div>`,{wide:true});
+  const oref='o:'+o.id;
+  const drawF=()=>{const F=docs.filter(d=>d.owner===oref);ov.querySelector('#oFiles').innerHTML=F.length?F.map(d=>`<div class="occ" style="margin:3px 0;display:flex;gap:8px;align-items:center"><span data-doc="${d.id}" style="cursor:pointer;color:var(--pri);flex:1">${fileIcon(d.ext)} ${esc(d.name)} <small class="muted">${fmtSize(d.size||0)} • ${d.entities.length} વિગત</small></span><button class="btn sm" data-ofadd="${d.id}" title="આ ફાઇલના નંબર ફરી ઉમેરો">➕ નંબર</button><button class="btn sm danger" data-ofdel="${d.id}" title="ફાઇલ કાઢો">🗑️</button></div>`).join(''):'<div class="muted" style="font-size:13px">હજી કોઈ ફાઇલ નથી</div>';};drawF();
+  const addFrom=(dl)=>{const own=new Set([...(o.mob||[]),...(o.wa||[])].map(x=>valKey('phone',x)));const cur=f=>new Set(ov.querySelector(`[data-of=${f}]`).value.split(/\n|,/).map(x=>x.trim()).filter(Boolean));
+    const P=new Map(),I=new Map(),V=new Map();for(const d of dl)for(const e of d.entities){if(e.type==='phone'){const k=valKey('phone',e.value);if(k&&!own.has(k))P.set(k,k);}else if(e.type==='imei'){const k=valKey('imei',e.value);if(k)I.set(k,String(e.value).replace(/\D/g,''));}else if(e.type==='vehicle'){const k=valKey('vehicle',e.value);if(k)V.set(k,k);}}
+    if(!P.size&&!I.size&&!V.size){toast('ફાઇલમાં કોઈ નંબર / IMEI / ગાડી મળ્યા નથી','',5000);return;}
+    if(!confirm(`ફાઇલમાંથી મળ્યું:\n📱 ${P.size} મોબાઇલ\n📟 ${I.size} IMEI\n🚗 ${V.size} ગાડી\n\nOK = મોબાઇલ "B-પાર્ટી મો." માં, IMEI "B-પાર્ટી IMEI" માં અને ગાડી "ગાડી નંબર" માં ઉમેરો.\n(પછી 💾 સેવ દબાવજો)`))return;
+    const put=(f,vals)=>{const ta=ov.querySelector(`[data-of=${f}]`);const c=cur(f);const add=[...vals].filter(v=>!c.has(v));if(add.length)ta.value=[...c,...add].join('\n');return add.length;};
+    const n=put('bmob',P.values())+put('bimei',I.values())+put('veh',V.values());toast(`➕ ${GU_D(n)} વિગત ઉમેરી — હવે 💾 સેવ દબાવો`,'ok',6000);};
+  ov.querySelector('#oFileIn').addEventListener('change',async e=>{const fl=[...e.target.files];e.target.value='';if(!fl.length)return;const made=[];
+    for(let i=0;i<fl.length;i++){const f=fl[i];progress(true,i/fl.length*100,`(${i+1}/${fl.length}) ${f.name} વાંચી રહ્યા છીએ…`);
+      try{const d=await processFile(f,m=>progress(true,null,`${f.name} — ${m}`));d.owner=oref;d.ownerName=ov.querySelector('[data-os=name]').value.trim()||o.name||'';docs.push(d);docMap.set(d.id,d);await saveDoc(d);if(settings.keepBlob&&f.size<600e6)await saveBlob(d.id,f);made.push(d);}
+      catch(err){console.error(err);toast(`${f.name}: ભૂલ — ${err.message}`,'err',6000);}}
+    progress(true,100,'પૂરું થયું ✔');setTimeout(()=>progress(false),900);buildIndex();drawF();if(made.length){toast(`📎 ${made.length} ફાઇલ ઉમેરાઈ`,'ok');addFrom(made);}});
+  ov.addEventListener('click',async e=>{const fa=e.target.closest('[data-ofadd]');if(fa){const d=docMap.get(fa.dataset.ofadd);if(d)addFrom([d]);return;}
+    const fd=e.target.closest('[data-ofdel]');if(fd){e.stopPropagation();const d=docMap.get(fd.dataset.ofdel);if(!d||!confirm(`"${d.name}" ફાઇલ કાઢી નાખવી છે?\n(તેમાંથી ઉમેરેલા નંબર વ્યક્તિમાં રહેશે — જોઈએ તો ખાનામાંથી કાઢો)`))return;await deleteDoc(d.id,true);drawF();}});
   const drawL=()=>{ov.querySelector('#oLinks').innerHTML=o.links.length?o.links.map((L,i)=>`<div class="occ" style="margin:3px 0">${esc(linkLabel(L))} <button class="btn sm danger" data-ul="${i}">✕</button></div>`).join(''):'<div class="muted" style="font-size:13px">હજી કોઈ સાથે જોડેલ નથી (નંબર સરખા હશે તો જાળમાં આપમેળે જોડાશે)</div>';};drawL();
   ov.addEventListener('click',async e=>{const r=e.target.closest('[data-orel]');if(r){ov.querySelector('[data-os=rel]').value=r.dataset.orel;return;}
     const ul=e.target.closest('[data-ul]');if(ul){o.links.splice(+ul.dataset.ul,1);drawL();return;}
@@ -2420,10 +2492,22 @@ function otherRows(){const N=buildNet();return (settings.others||[]).map(o=>{con
     const L=[...conn.values()];return {o,L,cases:new Set(L.map(t=>t.ck)).size};});}
 function unknownBParty(){const N=buildNet();const out=[];for(const n of N.nodes.values()){if(n.kind!=='phone')continue;const A=N.adj.get(n.id);if(A.some(e=>!e.out&&['mob','wa'].includes(e.rel)))continue;const L=A.filter(e=>!e.out&&BREL.has(e.rel)).map(e=>N.nodes.get(e.to)).filter(t=>t&&(t.kind==='acc'||t.kind==='want'));if(!L.length)continue;out.push({n,L,cases:new Set(L.map(t=>t.ck)).size});}
   return out.sort((a,b)=>b.L.length-a.L.length);}
+function othersTableHTML(R){const tagP=t=>`<span style="white-space:nowrap;cursor:pointer" data-nn="${esc(t.id)}">${esc(t.label)} <span class="tag ${t.kind==='acc'?'t-a':'t-w'}">${t.kind==='acc'?'પકડા.':'બાકી'}</span></span>`;
+  const ls=(a,max=6)=>{a=a||[];return a.length?esc(a.slice(0,max).join('\n'))+(a.length>max?`\n<small class="muted">…${a.length-max} વધુ</small>`:''):'<span class="muted">—</span>';};
+  const nf=docs.filter(d=>d.owner).reduce((m,d)=>(m[d.owner]=(m[d.owner]||0)+1,m),{});
+  return `<div class="card" style="padding:0;overflow:auto"><table class="otbl"><thead><tr><th></th><th>નામ / સંબંધ</th><th>મોબાઇલ / વોટ્સએપ</th><th>IMEI</th><th>ગાડી</th><th>B-પાર્ટી મો.</th><th>B-પાર્ટી IMEI</th><th>સરનામું / નોંધ</th><th>કોની સાથે</th><th></th></tr></thead><tbody>${R.map(({o,L,cases})=>{const ph=PH.first('o:'+o.id);return `<tr><td style="width:44px">${ph?`<img class="av" style="--bc:#4f46e5" src="${ph.thumb}">`:'<span style="font-size:24px">👤</span>'}</td><td><b class="click" data-oed="${o.id}" style="cursor:pointer">${esc(o.name||'નામ અજાણ')}</b>${o.rel?`<br><small class="muted">${esc(o.rel)}</small>`:''}${cases>=2?`<br><span class="pill hit">${GU_D(cases)} કેસ</span>`:''}${nf['o:'+o.id]?`<br><small>📎 ${GU_D(nf['o:'+o.id])} ફાઇલ</small>`:''}</td><td style="white-space:pre-line">${ls(o.mob)}${(o.wa||[]).length?`\n<small>વોટ્સએપ:</small> ${esc(o.wa.join(', '))}`:''}</td><td style="white-space:pre-line">${ls(o.imei)}</td><td style="white-space:pre-line">${ls(o.veh)}</td><td style="white-space:pre-line">${ls(o.bmob)}</td><td style="white-space:pre-line">${ls(o.bimei)}</td><td style="white-space:pre-line;min-width:160px">${esc(o.addr||'')}${o.addr&&o.note?'\n':''}${o.note?`<small class="muted">${esc(o.note)}</small>`:''}${!o.addr&&!o.note?'<span class="muted">—</span>':''}</td><td>${L.slice(0,8).map(tagP).join('<br>')||'<span class="muted">—</span>'}${L.length>8?`<br><small>…${L.length-8} વધુ</small>`:''}</td><td style="white-space:nowrap"><button class="btn sm" data-oed="${o.id}" title="સુધારો">✏️</button> <button class="btn sm" data-onet="${o.id}" title="સંપર્ક જાળ">🕸️</button> <button class="btn sm danger" data-odel="${o.id}" title="કાઢી નાખો">🗑️</button></td></tr>`;}).join('')}</tbody></table></div>`;}
+async function deleteOther(id){const o=(settings.others||[]).find(x=>x.id===id);if(!o)return;if(!confirm(`"${o.name||'નામ અજાણ'}" ને અન્ય વ્યક્તિમાંથી કાઢી નાખવા છે?`))return;settings.others=settings.others.filter(x=>x.id!==id);await saveOthers();renderAll();if($('#tab-others').classList.contains('on'))renderOthers();if($('#tab-cases').classList.contains('on'))renderCases();toast('કાઢી નાખ્યું','ok');}
+document.addEventListener('click',e=>{const d=e.target.closest('[data-odel]');if(d){e.stopPropagation();deleteOther(d.dataset.odel);return;}
+  if(!e.target.closest('#cOthers'))return;const ed=e.target.closest('[data-oed]');if(ed){otherForm(ed.dataset.oed);return;}const nt=e.target.closest('[data-onet]');if(nt){openNet('o:'+nt.dataset.onet);return;}if(e.target.closest('[data-oadd]')){otherForm(null);return;}if(e.target.closest('[data-oall]')){cOthAll=!cOthAll;renderCases();}},true);
+let cOthAll=false;
+/* રજીસ્ટરમાં પણ અન્ય વ્યક્તિ — આ રજીસ્ટરના કેસ સાથે જોડાયેલ (અથવા બધા) */
+function regOthersHTML(){const all=otherRows();const R=cOthAll?all:all.filter(r=>r.L.some(t=>t.reg===curReg)||!r.L.length);
+  return `<div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between;margin:0;gap:8px;flex-wrap:wrap"><h3 style="margin:0">👥 અન્ય વ્યક્તિ ${cOthAll?'(બધા)':'— આ રજીસ્ટર સાથે જોડાયેલ'} (${GU_D(R.length)})</h3><span><button class="btn sm pri" data-oadd>➕ વ્યક્તિ ઉમેરો</button> <button class="btn sm" data-oall>${cOthAll?'ફક્ત આ રજીસ્ટરના':'બધા બતાવો'} (${GU_D(all.length)})</button></span></div>
+    <div class="muted" style="font-size:12.5px;margin:4px 0 8px">જે પકડાયેલ કે બાકી આરોપી નથી પણ સંપર્કમાં છે — B-પાર્ટી, સપ્લાયર, વાહન માલિક…</div>${R.length?othersTableHTML(R):'<div class="empty">હજી કોઈ અન્ય વ્યક્તિ નથી</div>'}</div>`;}
 function renderOthers(){const q=compact($('#oQ').value),multi=$('#oMulti').checked;const tagP=t=>`<span style="white-space:nowrap;cursor:pointer" data-nn="${esc(t.id)}">${esc(t.label)} <span class="tag ${t.kind==='acc'?'t-a':'t-w'}">${t.kind==='acc'?'પકડા.':'બાકી'}</span></span>`;
   const R=otherRows().filter(r=>(!multi||r.cases>=2)&&(!q||compact(JSON.stringify(r.o)).includes(q)));
   const U=unknownBParty().filter(u=>(!multi||u.cases>=2)&&(!q||u.n.key.includes(q)));
-  const tb=R.length?`<div class="card" style="padding:0;overflow:auto"><table class="otbl"><thead><tr><th></th><th>નામ / નંબર</th><th>ગાડી / IMEI</th><th>કોની સાથે</th><th></th></tr></thead><tbody>${R.map(({o,L,cases})=>{const ph=PH.first('o:'+o.id);return `<tr><td style="width:44px">${ph?`<img class="av" style="--bc:#4f46e5" src="${ph.thumb}">`:'<span style="font-size:24px">👤</span>'}</td><td><b class="click" data-oed="${o.id}" style="cursor:pointer">${esc(o.name||'નામ અજાણ')}</b>${o.rel?`<br><small class="muted">${esc(o.rel)}</small>`:''}<br>${esc((o.mob||[]).join(', '))}${cases>=2?`<br><span class="pill hit">${GU_D(cases)} કેસ</span>`:''}</td><td>${esc([...(o.veh||[]),...(o.imei||[])].join('\n'))||'—'}</td><td>${L.slice(0,8).map(tagP).join('<br>')||'<span class="muted">—</span>'}${L.length>8?`<br><small>…${L.length-8} વધુ</small>`:''}</td><td><button class="btn sm" data-oed="${o.id}">✏️</button> <button class="btn sm" data-onet="${o.id}">🕸️</button></td></tr>`;}).join('')}</tbody></table></div>`:`<div class="card empty">${(settings.others||[]).length?'શોધ મુજબ કોઈ નથી':'હજી કોઈ અન્ય વ્યક્તિ નથી — ➕ વ્યક્તિ ઉમેરો, અથવા નીચે નામ વગરના B-પાર્ટી નંબરમાં "✏️ નામ ઉમેરો" દબાવો'}</div>`;
+  const tb=R.length?othersTableHTML(R):`<div class="card empty">${(settings.others||[]).length?'શોધ મુજબ કોઈ નથી':'હજી કોઈ અન્ય વ્યક્તિ નથી — ➕ વ્યક્તિ ઉમેરો, અથવા નીચે નામ વગરના B-પાર્ટી નંબરમાં "✏️ નામ ઉમેરો" દબાવો'}</div>`;
   const ub=U.length?`<div class="card" style="margin-top:12px"><h3>📞 નામ વગરના B-પાર્ટી નંબર (${GU_D(U.length)})</h3><div class="muted" style="font-size:12.5px;margin-bottom:6px">આ નંબર કોઈ આરોપીના B-પાર્ટીમાં છે, પણ કોનો છે તે ખબર નથી. નામ ખબર પડે તો "✏️ નામ ઉમેરો".</div><div class="tablewrap" style="max-height:60vh;overflow:auto"><table><thead><tr><th>નંબર</th><th>કોના B-પાર્ટીમાં</th><th></th></tr></thead><tbody>${U.slice(0,400).map(u=>`<tr><td><b class="click" data-nn="${esc(u.n.id)}" style="cursor:pointer">${esc(u.n.key)}</b>${u.cases>=2?` <span class="pill hit">${GU_D(u.cases)} કેસ</span>`:''}</td><td>${u.L.slice(0,6).map(tagP).join('<br>')}${u.L.length>6?`<br><small>…${u.L.length-6} વધુ</small>`:''}</td><td><button class="btn sm" data-oname="${esc(u.n.id)}">✏️ નામ ઉમેરો</button></td></tr>`).join('')}</tbody></table></div>${U.length>400?`<div class="muted">પહેલા 400 બતાવ્યા — શોધ વાપરો</div>`:''}</div>`:'';
   $('#oOut').innerHTML=tb+ub;$('#c-others').textContent=(settings.others||[]).length||'';}
 function othersExcel(){const R=otherRows();const U=unknownBParty();if(!R.length&&!U.length){toast('કોઈ માહિતી નથી','err');return;}const wb=XLSX.utils.book_new();
@@ -2627,7 +2711,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=7;
+const APP_VERSION=8;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
