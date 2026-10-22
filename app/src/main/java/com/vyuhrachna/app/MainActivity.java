@@ -50,6 +50,7 @@ public class MainActivity extends Activity {
     private static final String START_URL = "https://appassets.androidplatform.net/app/index.html";
     private static final String ACTION_SENT = "com.vyuhrachna.app.SMS_SENT";
     private static final int REQ_FILE = 11;
+    private static final int REQ_TREE = 7311;
     private static final int REQ_PERM = 12;
 
     private WebView web;
@@ -95,6 +96,7 @@ public class MainActivity extends Activity {
         final WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
                 .addPathHandler("/app/", new LocalPathHandler(this))
+                .addPathHandler("/pick/", new FolderReader(this))
                 .build();
 
         web.setWebViewClient(new WebViewClient() {
@@ -242,6 +244,27 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_TREE) {
+            final Uri tree = (resultCode == RESULT_OK && data != null) ? data.getData() : null;
+            if (tree == null) {
+                js("window.onNativeFolderCancel&&onNativeFolderCancel()");
+                return;
+            }
+            new Thread(() -> {
+                String json;
+                try {
+                    json = FolderReader.list(MainActivity.this, tree).toString();
+                } catch (Exception e) {
+                    try {
+                        json = new JSONObject().put("error", String.valueOf(e.getMessage())).toString();
+                    } catch (Exception x) {
+                        json = "{}";
+                    }
+                }
+                js("window.onNativeFolder&&onNativeFolder(" + JSONObject.quote(json) + "," + JSONObject.quote(FolderReader.treeName(MainActivity.this, tree)) + ")");
+            }).start();
+            return;
+        }
         if (requestCode == REQ_FILE && fileCb != null) {
             Uri[] res = null;
             if (resultCode == RESULT_OK && data != null) {
@@ -295,6 +318,19 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String version() {
             return "1.0";
+        }
+
+        @JavascriptInterface
+        public void pickFolder() {
+            handler.post(() -> {
+                try {
+                    Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivityForResult(i, REQ_TREE);
+                } catch (Exception e) {
+                    js("window.onNativeFolderCancel&&onNativeFolderCancel();toast('આ ફોનમાં ફોલ્ડર પસંદ કરવાની સુવિધા નથી','err')");
+                }
+            });
         }
 
         @JavascriptInterface
