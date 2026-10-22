@@ -381,6 +381,7 @@ body.locked{overflow:hidden}
 </nav>
 <main>
 <input type="file" id="fileIn" multiple hidden accept=".pdf,.doc,.docx,.xls,.xlsx,.xlsm,.csv,.ods,.txt,.json,.html,.htm,.png,.jpg,.jpeg,.webp,.bmp">
+<input type="file" id="folderIn" multiple hidden webkitdirectory directory>
 <div id="progress" class="progress hidden"><div class="pbar"><i id="pfill"></i></div><span id="ptext"></span></div>
 <section id="tab-dash" class="tab on">
   <div class="hero"><div class="hero-chakra"></div><div class="hero-glow"></div><button class="hero-theme" id="btnTheme2" title="થીમ / રંગ બદલો">🎨 થીમ</button>
@@ -428,7 +429,7 @@ body.locked{overflow:hidden}
   <div class="toolbar">
     <div class="seg" id="cView" style="margin:0"><button data-v="acc" class="on">દરેક આરોપી અલગ રો</button><button data-v="case">દરેક કેસ એક રો</button></div>
     <select class="inp" id="cSort"><option value="desc">નવી તારીખ પહેલાં</option><option value="asc">જૂની તારીખ પહેલાં</option></select>
-    <button class="btn" id="cXls">📊 Excel ડાઉનલોડ</button><button class="btn" id="cPrint">🖨️ પ્રિન્ટ</button><button class="btn" id="cUp">📤 ફાઇલ ઉમેરો</button>
+    <button class="btn" id="cXls">📊 Excel ડાઉનલોડ</button><button class="btn" id="cPrint">🖨️ પ્રિન્ટ</button><button class="btn" id="cUp">📤 ફાઇલ ઉમેરો</button><button class="btn" id="cUpF">📁 ફોલ્ડર ઉમેરો</button>
   </div>
   <div class="toolbar">
     <button class="btn pri" id="cNew">➕ નવો કેસ (હાથથી)</button><button class="btn" id="cCols">🧩 કોલમ ઉમેરો / સુધારો</button><button class="btn" id="cRouteList">🛣️ બોર્ડર રૂટ યાદી</button>
@@ -447,7 +448,7 @@ body.locked{overflow:hidden}
     <div class="card"><h3>🔥 સૌથી વધુ મેચ</h3><div id="topMatches"></div></div>
     <div class="card"><h3>🕘 તાજેતરની ફાઇલો</h3><div id="recent" class="flist"></div></div>
   </div>
-  <div class="toolbar"><input class="inp grow" id="fFilter" placeholder="ફાઇલ શોધો…"><button class="btn" id="btnUpload2">📤 ફાઇલ ઉમેરો</button><button class="btn" id="btnPaste">✍️ લખાણ પેસ્ટ કરો</button></div>
+  <div class="toolbar"><input class="inp grow" id="fFilter" placeholder="ફાઇલ શોધો…"><button class="btn" id="btnUpload2">📤 ફાઇલ ઉમેરો</button><button class="btn" id="btnFolder2">📁 ફોલ્ડર ઉમેરો</button><button class="btn" id="btnPaste">✍️ લખાણ પેસ્ટ કરો</button></div>
   <div class="card flist" id="fileList"></div>
 </section>
 
@@ -1194,19 +1195,20 @@ function showMatchPopup(newIds,quiet){
 
 /* ===================== Upload flow ===================== */
 function progress(on,pct,txt){$('#progress').classList.toggle('hidden',!on);if(pct!=null)$('#pfill').style.width=pct+'%';if(txt)$('#ptext').textContent=txt;}
-async function handleFiles(list){
-  const files=[...list];if(!files.length){pendingReg=null;return;}const backTab=document.querySelector('.tab.on')?.id.replace('tab-','');const newIds=[];
-  for(let i=0;i<files.length;i++){const f=files[i];
-    if(docs.some(d=>d.name===f.name&&d.size===f.size)&&!confirm(`"${f.name}" પહેલેથી અપલોડ થયેલ છે. ફરી ઉમેરવી છે?`))continue;
+async function handleFiles(list,opt={}){
+  const files=[...list];if(!files.length){pendingReg=null;return;}const backTab=document.querySelector('.tab.on')?.id.replace('tab-','');const newIds=[];let dup=0;
+  for(let i=0;i<files.length;i++){let f=files[i];const rel=f.relPath||f.webkitRelativePath||'';
+    if(docs.some(d=>d.name===f.name&&d.size===f.size)){if(opt.folder){dup++;continue;}if(!confirm(`"${f.name}" પહેલેથી અપલોડ થયેલ છે. ફરી ઉમેરવી છે?`))continue;}
     const base=i/files.length*100;progress(true,base,`(${i+1}/${files.length}) ${f.name} વાંચી રહ્યા છીએ…`);
-    try{const d=await processFile(f,m=>progress(true,null,`(${i+1}/${files.length}) ${f.name} — ${m}`));if(pendingReg)d.reg=pendingReg;
+    try{if(f.load)f=await f.load();const d=await processFile(f,m=>progress(true,null,`(${i+1}/${files.length}) ${f.name} — ${m}`));if(pendingReg)d.reg=pendingReg;if(rel)d.path=rel;
       docs.push(d);docMap.set(d.id,d);await saveDoc(d);if(settings.keepBlob&&f.size<30e6)await saveBlob(d.id,f);newIds.push(d.id);
       if(d.garbled)toast(`⚠️ ${f.name}: ગુજરાતી લખાણ તૂટેલું — ફાઇલ ખોલી OCR કરો`,'',6000);}
     catch(err){console.error(err);toast(`${f.name}: ભૂલ — ${err.message}`,'err',6000);}
     progress(true,(i+1)/files.length*100);}
   progress(true,100,'પૂરું થયું ✔');setTimeout(()=>progress(false),1200);
-  const upReg=pendingReg;pendingReg=null;buildIndex();if(upReg){curReg=upReg;rebuildCols();if(backTab==='dash'){rdShown=upReg;showTab('rdash');}}renderAll();if(newIds.length){toast(`${newIds.length} ફાઇલ સેવ થઈ`,'ok');
-    for(const id of newIds){const d=docMap.get(id);if(!d)continue;const L=looseEntities(d);const own=caseRowsOf(d).some(x=>(x.r.acc||[]).some(named)||(x.r.want||[]).some(named));if(L.length&&(!own||L.length>=3))await attachSheet(id);}
+  const upReg=pendingReg;pendingReg=null;buildIndex();if(upReg){curReg=upReg;rebuildCols();if(backTab==='dash'){rdShown=upReg;showTab('rdash');}}renderAll();if(dup)toast(`${dup} ફાઇલ પહેલેથી અપલોડ હતી — છોડી દીધી`,'',5000);if(newIds.length){toast(`${newIds.length} ફાઇલ સેવ થઈ`,'ok');
+    const askEach=!opt.folder||newIds.length<=3||confirm(`ફોલ્ડરમાંથી ${newIds.length} ફાઇલ ઉમેરાઈ.\n\nદરેક ફાઇલમાં મળેલા વ્યક્તિઓ/નંબરને કેસ સાથે જોડવાની શીટ એક પછી એક ખોલવી છે?\n(રદ કરો = પછી જાતે જોડીશ)`);
+    if(askEach)for(const id of newIds){const d=docMap.get(id);if(!d)continue;const L=looseEntities(d);const own=caseRowsOf(d).some(x=>(x.r.acc||[]).some(named)||(x.r.want||[]).some(named));if(L.length&&(!own||L.length>=3))await attachSheet(id);}
     showMatchPopup(newIds);}
 }
 
@@ -1272,7 +1274,7 @@ function renderRegDash(){
   const k=rdShown;curReg=k;const R=REG_DEF[k];const other=k==='prohi'?'chori':'prohi';
   const all=[];for(const d of docs)all.push(...caseRowsOf(d));const rows=all.filter(x=>x.reg===k);const st=caseStats(rows);
   $('#rdHead').innerHTML=`<div class="rtile rt-${k} rd-banner"><div class="rt-head"><span class="rt-ic">${regIcon(k)}</span><div><h2>${esc(R.label)} — ડેશબોર્ડ</h2><small>${rows.length} કેસ • ${new Set(rows.map(x=>x.d.id)).size} ફાઇલ</small></div></div>
-    <div class="rt-btns" style="margin-top:12px"><button class="btn pri" data-rda="reg">📑 રજીસ્ટર ખોલો</button><button class="btn" data-rda="up">📤 ફાઇલ ઉમેરો</button><button class="btn" data-rda="new">➕ નવો કેસ</button><button class="btn" data-rda="xls">📊 Excel</button><button class="btn" data-rda="back">⬅ પાછા ફરો</button><button class="btn" data-rda="home">🏠 મુખ્ય પાનું</button></div></div>`;
+    <div class="rt-btns" style="margin-top:12px"><button class="btn pri" data-rda="reg">📑 રજીસ્ટર ખોલો</button><button class="btn" data-rda="up">📤 ફાઇલ ઉમેરો</button><button class="btn" data-rda="upf">📁 ફોલ્ડર ઉમેરો</button><button class="btn" data-rda="new">➕ નવો કેસ</button><button class="btn" data-rda="xls">📊 Excel</button><button class="btn" data-rda="back">⬅ પાછા ફરો</button><button class="btn" data-rda="home">🏠 મુખ્ય પાનું</button></div></div>`;
   const L=(n,lab,c,plist)=>`<div class="stat${plist?' clk':''}" style="--c:${c}"${plist?` data-plist="${plist}"`:''}><b>${n}</b><span>${lab}${plist?' <small>▸ યાદી</small>':''}</span></div>`;
   $('#rdStats').innerHTML=k==='chori'
     ?[L(st.cases,'📑 કુલ બનાવ','#1d3a8a'),L(st.det,'✅ ડિટેક્ટ','#059669'),L(st.undet,'❓ અનડિટેક્ટ','#d97706'),L(st.acc,'👤 પકડાયેલ આરોપી','#2563eb','acc'),L(st.want,'🏃 બાકી આરોપી','#dc2626','want'),L('₹ '+st.stolen.toLocaleString('en-IN'),'💼 ચોરાયેલ મુદામાલ','#7c3aed'),L('₹ '+st.recov.toLocaleString('en-IN'),'♻️ રીકવર મુદામાલ','#0891b2'),L(st.cases?Math.round(st.det/st.cases*100)+'%':'—','🎯 ડિટેક્શન ટકાવારી','#16a34a')].join('')
@@ -1785,7 +1787,7 @@ const SHARED_CONFIG={firebase:VC.firebase&&VC.firebase.apiKey?VC.firebase:null,t
 const LOGIN_MODE=!!SHARED_CONFIG.firebase;
 const SYNC={on:false,db:null,team:'',unsub:[],applying:false,ready:false,docsCol:null,metaRef:null,photosCol:null};
 const META_KEYS=['customCols','routes','regTitle','regTitles','ignore','watch','sms','others'];
-function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`))return res();const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('લોડ ન થયું: '+src));document.head.appendChild(s);});}
+function loadScript(src,ms=20000){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`))return res();const s=document.createElement('script');const t=setTimeout(()=>{s.remove();rej(new Error('સમય પૂરો — લોડ ન થયું: '+src));},ms);s.src=src;s.onload=()=>{clearTimeout(t);res();};s.onerror=()=>{clearTimeout(t);s.remove();rej(new Error('લોડ ન થયું: '+src));};document.head.appendChild(s);});}
 function parseFbConfig(t){if(!t)return null;if(typeof t==='object')return t;const o={};for(const k of ['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId','databaseURL']){const m=String(t).match(new RegExp(k+'["\']?\\s*:\\s*["\']([^"\']+)["\']'));if(m)o[k]=m[1];}return o.apiKey&&o.projectId?o:null;}
 window.addEventListener('offline',()=>{if(SYNC.on||AUTH.on)toast('📴 ઇન્ટરનેટ નથી — એપ ચાલુ જ રહેશે. ફેરફાર આ ડિવાઇસમાં સેવ થાય છે અને ઇન્ટરનેટ આવતાં આપમેળે ટીમમાં જશે.','',7000);setSync(SYNC.on?'on':'off');});
 window.addEventListener('online',()=>{if(SYNC.on||AUTH.on)toast('🌐 ઇન્ટરનેટ પાછું આવ્યું — ફેરફાર ટીમમાં મોકલાઈ રહ્યા છે','ok',4000);setSync(SYNC.on?'on':'off');if(LOGIN_MODE&&LOCK.open&&ONL.user&&!SYNC.on)syncStart();});
@@ -2493,6 +2495,8 @@ function fbInitApp(cfg){if(!firebase.apps.length){firebase.initializeApp(cfg);tr
 const FB_ERR={'auth/invalid-email':'ઇમેઇલ બરાબર નથી','auth/user-not-found':'આ ઇમેઇલથી એકાઉન્ટ નથી — પહેલાં "નવું એકાઉન્ટ" બનાવો','auth/wrong-password':'પાસવર્ડ ખોટો છે','auth/invalid-credential':'ઇમેઇલ અથવા પાસવર્ડ ખોટો છે','auth/invalid-login-credentials':'ઇમેઇલ અથવા પાસવર્ડ ખોટો છે','auth/email-already-in-use':'આ ઇમેઇલથી એકાઉન્ટ પહેલેથી છે — લૉગિન કરો','auth/weak-password':'પાસવર્ડ ઓછામાં ઓછો 6 અક્ષરનો રાખો','auth/too-many-requests':'ઘણી વાર ખોટું થયું — થોડી વાર પછી પ્રયત્ન કરો','auth/network-request-failed':'ઇન્ટરનેટ નથી','auth/operation-not-allowed':'Firebase માં Email/Password લૉગિન ચાલુ નથી (Authentication → Sign-in method)'};
 const fbMsg=e=>FB_ERR[e&&e.code]||(e&&e.message)||String(e);
 const ownerOK=em=>!SHARED_CONFIG.owner||String(em||'').toLowerCase().trim()===SHARED_CONFIG.owner;
+window.addEventListener('error',e=>{const g=document.querySelector('#authGate .gate-msg');if(g&&!document.getElementById('authGate').classList.contains('hidden'))g.insertAdjacentHTML('afterend','<div class="gate-err" style="color:#fca5a5;font-size:12px;margin-top:8px">ભૂલ: '+esc(e.message||'')+'</div>');});
+window.addEventListener('unhandledrejection',e=>{const g=document.querySelector('#authGate .gate-msg');if(g&&!document.getElementById('authGate').classList.contains('hidden'))g.insertAdjacentHTML('afterend','<div class="gate-err" style="color:#fca5a5;font-size:12px;margin-top:8px">ભૂલ: '+esc(String(e.reason&&e.reason.message||e.reason||''))+'</div>');});
 function showOnline(st,msg){const g=$('#authGate');g.classList.remove('hidden');document.body.classList.add('locked');LOCK.open=false;let h='';const em=esc((ONL.user&&ONL.user.email)||SHARED_CONFIG.owner||'');
   if(st==='loading')h=`<div class="gate-msg">⏳ ${esc(msg||'ખુલી રહ્યું છે…')}</div>`;
   else if(st==='login')h=`<h2>🔐 લૉગિન</h2><input class="inp" id="olE" type="email" autocomplete="username" placeholder="ઇમેઇલ" value="${em}"><input class="inp" id="olP" type="password" autocomplete="current-password" placeholder="પાસવર્ડ">
@@ -2504,9 +2508,12 @@ function showOnline(st,msg){const g=$('#authGate');g.classList.remove('hidden');
   else if(st==='verify')h=`<h2>📧 ઇમેઇલ ચકાસો</h2><div class="gate-msg" style="font-size:14px">સુરક્ષા માટે <b>${em}</b> પર ચકાસણી લિંક મોકલી છે. ઇમેઇલ ખોલી લિંક દબાવો (Spam ફોલ્ડર પણ જુઓ), પછી નીચેનું બટન દબાવો. આ ફક્ત એક જ વાર કરવાનું છે.</div><button class="btn pri" data-ol="verified">✅ લિંક દબાવી દીધી — આગળ વધો</button><button class="btn" data-ol="resend">📧 લિંક ફરી મોકલો</button><button class="btn" data-ol="logout">🚪 બીજા ઇમેઇલથી લૉગિન</button>${msg?`<div class="gate-err">${esc(msg)}</div>`:''}`;
   else if(st==='error')h=`<h2>⚠️ ખુલી ન શક્યું</h2><div class="gate-err">${esc(msg||'')}</div><button class="btn pri" data-ol="retry">🔄 ફરી પ્રયત્ન કરો</button>`;
   g.innerHTML=lockShell(h);const f=[...g.querySelectorAll('input.inp')].find(i=>!i.value);if(f)setTimeout(()=>f.focus(),60);}
-async function onlineInit(){showOnline('loading');
-  try{await loadFb('app');await loadFb('auth');await loadFb('firestore');fbInitApp(SHARED_CONFIG.firebase);}catch(e){showOnline('error','લાઇબ્રેરી લોડ ન થઈ: '+e.message);return;}
-  firebase.auth().onAuthStateChanged(u=>{ONL.user=u;if(ONL.first)return;ONL.first=true;let open=false;try{open=sessionStorage.getItem('tk_open')==='1';}catch(_){}
+async function onlineInit(){showOnline('loading');ONL.step='Firebase લાઇબ્રેરી';
+  /* 12 સેકન્ડમાં ન ખૂલે તો લૉગિન સ્ક્રીન સીધી બતાવો — કદી અટકે નહીં */
+  const wd=setTimeout(()=>{if(ONL.first)return;ONL.first=true;console.warn('online init slow at',ONL.step);showOnline('login','⚠️ ધીમું ખૂલ્યું ('+ONL.step+') — ઇમેઇલ પાસવર્ડ લખીને ખોલો. ફરી થાય તો Ctrl+Shift+R દબાવો.');},12000);
+  try{await loadFb('app');await loadFb('auth');await loadFb('firestore');ONL.step='Firebase શરૂઆત';fbInitApp(SHARED_CONFIG.firebase);}catch(e){clearTimeout(wd);ONL.first=true;showOnline('error','લાઇબ્રેરી લોડ ન થઈ: '+e.message);return;}
+  ONL.step='લૉગિન તપાસ';
+  firebase.auth().onAuthStateChanged(u=>{ONL.user=u;if(ONL.first)return;ONL.first=true;clearTimeout(wd);let open=false;try{open=sessionStorage.getItem('tk_open')==='1';}catch(_){}
     if(u&&open&&u.emailVerified&&ownerOK(u.email)){afterLogin(u);return;}showOnline('login');});}
 async function afterLogin(u){ONL.user=u;if(!ownerOK(u.email)){try{await firebase.auth().signOut();}catch(_){}showOnline('login','આ એપ ફક્ત '+SHARED_CONFIG.owner+' માટે છે');return;}
   if(!u.emailVerified){showOnline('verify');return;}
@@ -2543,7 +2550,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=2;
+const APP_VERSION=3;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
@@ -2642,8 +2649,50 @@ document.addEventListener('click',e=>{
 });
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(b)showTab(b.dataset.tab);};
 document.body.addEventListener('dragover',e=>e.preventDefault());
-document.body.addEventListener('drop',e=>{e.preventDefault();if(e.dataTransfer.files.length){const t=document.querySelector('.tab.on')?.id;if(t==='tab-cases'||t==='tab-rdash')pendingReg=curReg;handleFiles(e.dataTransfer.files);}});
+document.body.addEventListener('drop',async e=>{e.preventDefault();
+  const ents=[...(e.dataTransfer.items||[])].map(it=>it.webkitGetAsEntry&&it.webkitGetAsEntry()).filter(Boolean);
+  if(ents.some(x=>x.isDirectory)){const t=document.querySelector('.tab.on')?.id;pendingReg=(t==='tab-cases'||t==='tab-rdash')?curReg:null;let fs=[];for(const en of ents)fs=fs.concat(await entryFiles(en));folderFiles(fs,ents.find(x=>x.isDirectory).name);return;}
+  if(e.dataTransfer.files.length){const t=document.querySelector('.tab.on')?.id;if(t==='tab-cases'||t==='tab-rdash')pendingReg=curReg;handleFiles(e.dataTransfer.files);}});
 $('#fileIn').onchange=e=>{handleFiles(e.target.files);e.target.value='';};
+/* ===== ફોલ્ડર અપલોડ (અંદરના બધા પેટા-ફોલ્ડર સહિત) ===== */
+const UP_EXT=new Set(['pdf','doc','docx','xls','xlsx','xlsm','csv','ods','txt','json','html','htm','png','jpg','jpeg','webp','bmp']);
+function okUpFile(name){const n=String(name||'');if(/^(\.|~\$)/.test(n)||/^thumbs\.db$/i.test(n))return false;return UP_EXT.has((n.split('.').pop()||'').toLowerCase());}
+function folderFiles(list,folderName){
+  const all=[...list];const ok=all.filter(f=>okUpFile(f.name));
+  if(!all.length){pendingReg=null;toast('ફોલ્ડર ખાલી છે','err');return;}
+  if(!ok.length){pendingReg=null;toast(`ફોલ્ડરમાં ${all.length} ફાઇલ છે પણ PDF / Word / Excel / ફોટો જેવી કોઈ ફાઇલ નથી`,'err',6000);return;}
+  ok.sort((a,b)=>String(a.relPath||a.webkitRelativePath||a.name).localeCompare(String(b.relPath||b.webkitRelativePath||b.name),'gu',{numeric:true}));
+  const skip=all.length-ok.length;
+  const fn=folderName||String((ok[0].relPath||ok[0].webkitRelativePath||'').split('/')[0]||'ફોલ્ડર');
+  if(!confirm(`📁 "${fn}" ફોલ્ડરમાં ${ok.length} ફાઇલ મળી${skip?` (${skip} બીજી ફાઇલ ચાલે તેવી નથી — છોડી દેવાશે)`:''}.\n\nબધી અપલોડ કરવી છે?`)){pendingReg=null;return;}
+  handleFiles(ok,{folder:true});
+}
+function pickFolder(reg){
+  pendingReg=reg||null;
+  if(window.AndroidApp&&AndroidApp.pickFolder){try{AndroidApp.pickFolder();return;}catch(_){}}
+  $('#folderIn').click();
+}
+$('#folderIn').onchange=e=>{folderFiles(e.target.files);e.target.value='';};
+$('#folderIn').addEventListener('cancel',()=>{pendingReg=null;});
+$('#btnFolder2').onclick=()=>pickFolder(null);
+$('#cUpF').onclick=()=>pickFolder(curReg);
+/* Android: મૂળ એપ ફોલ્ડર વાંચીને યાદી મોકલે; દરેક ફાઇલ જરૂર પડે ત્યારે જ લાવવામાં આવે */
+window.onNativeFolder=function(json,folderName){
+  let arr=[];try{arr=JSON.parse(json)||[];}catch(_){}
+  if(arr.error){pendingReg=null;toast('ફોલ્ડર વાંચી ન શકાયું: '+arr.error,'err',6000);return;}
+  if(!Array.isArray(arr)||arr===null){pendingReg=null;return;}
+  const list=arr.map(x=>({name:x.name,size:+x.size||0,relPath:x.path,load:async()=>{const r=await fetch('/pick/'+encodeURIComponent(x.id));if(!r.ok)throw new Error('ફાઇલ વાંચી ન શકાઈ');const b=await r.blob();return new File([b],x.name,{type:x.mime||b.type||''});}}));
+  folderFiles(list,folderName);
+};
+window.onNativeFolderCancel=function(){pendingReg=null;};
+/* ખેંચીને મૂકેલું ફોલ્ડર */
+async function entryFiles(entry,path=''){
+  if(entry.isFile)return new Promise(res=>entry.file(f=>{try{Object.defineProperty(f,'relPath',{value:path+f.name});}catch(_){}res([f]);},()=>res([])));
+  if(!entry.isDirectory)return [];
+  const rd=entry.createReader();let out=[],batch;
+  do{batch=await new Promise(res=>rd.readEntries(res,()=>res([])));for(const e of batch)out=out.concat(await entryFiles(e,path+entry.name+'/'));}while(batch.length);
+  return out;
+}
 $('#btnUpload2').onclick=()=>$('#fileIn').click();
 $('#fFilter').oninput=renderFiles;$('#dSearch').oninput=renderData;$('#dOnly').onchange=renderData;
 let qT;$('#qIn').oninput=()=>{clearTimeout(qT);qT=setTimeout(runSearch,400);};
@@ -2685,7 +2734,7 @@ $('#caseTable').addEventListener('click',async e=>{const m=e.target.closest('[da
 $('#tab-rdash').addEventListener('click',e=>{
   const go=e.target.closest('[data-rdgo]');if(go){showRegDash(go.dataset.rdgo);return;}
   const a=e.target.closest('[data-rda]')?.dataset.rda;
-  if(a==='reg'){openReg(rdShown);return;}if(a==='up'){pendingReg=rdShown;$('#fileIn').click();return;}if(a==='new'){openReg(rdShown);newManualCase();return;}
+  if(a==='reg'){openReg(rdShown);return;}if(a==='up'){pendingReg=rdShown;$('#fileIn').click();return;}if(a==='upf'){pickFolder(rdShown);return;}if(a==='new'){openReg(rdShown);newManualCase();return;}
   if(a==='xls'){curReg=rdShown;rebuildCols();$('#cSearch').value='';$('#cFrom').value='';$('#cTo').value='';exportCases();return;}if(a==='home'){showTab('dash');return;}if(a==='back'){goBack();return;}
   const pl=e.target.closest('[data-plist]');if(pl){$('#cSearch').value='';$('#cFrom').value='';$('#cTo').value='';lastRows=[];for(const d of docs)lastRows.push(...caseRowsOf(d).filter(x=>x.reg===rdShown));showPeople(pl.dataset.plist);return;}
   const clr=()=>{$('#cSearch').value='';$('#cFrom').value='';$('#cTo').value='';};
