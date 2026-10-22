@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // દરેક એકાઉન્ટ ફક્ત પોતાનો જ ડેટા વાંચી / લખી શકે (ઇમેઇલ ચકાસેલ હોવો જરૂરી)
+    match /dataMilan/{uid}/{rest=**} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == uid
+        && request.auth.token.email_verified == true;
+      // ફક્ત તમારો ઇમેઇલ જ ચાલે એવું કરવું હોય તો ઉપરની લાઇનના ; પહેલાં આ ઉમેરો:
+      //   && request.auth.token.email == 'abc@gmail.com'
+    }
+  }
+}

@@ -1,0 +1,50 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.vyuhrachna.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.vyuhrachna.app"
+        minSdk 24
+        targetSdk 34
+        versionCode ((System.getenv("GITHUB_RUN_NUMBER") ?: "1") as Integer)
+        versionName "1." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
+    }
+
+    // એક જ કાયમી સહી — જેથી નવું APK જૂની એપ પર સીધું અપડેટ થાય (ડેટા રહે)
+    signingConfigs {
+        fixed {
+            storeFile file("vyuhrachna.jks")
+            storePassword "8a2c157d162801c1b328fdb2"
+            keyAlias "vyuhrachna"
+            keyPassword "8a2c157d162801c1b328fdb2"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.fixed
+        }
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.13.1'
+    implementation 'androidx.webkit:webkit:1.11.0'
+}
