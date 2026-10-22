@@ -273,6 +273,7 @@ body.home main{max-width:none;padding:0}
 .ntree li{margin:6px 0;position:relative}
 .ntree ul ul>li::before{content:"";position:absolute;left:-12px;top:20px;width:10px;border-top:2px dashed color-mix(in srgb,var(--gold) 55%,var(--line))}
 .ntree li.col>ul{display:none}
+.ownc{display:inline-block;font-size:12px;font-weight:600;background:#ede9fe;color:#4c1d95;border-radius:8px;padding:1px 7px;margin-left:4px}.ownc.pr{background:#e0f2fe;color:#075985}.tn .ned{margin-left:auto;flex:none;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px 7px;cursor:pointer;font-size:14px}.tn .ned:hover{background:#fef3c7}
 .tn{min-width:min(250px,78vw);display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:10px;padding:6px 8px;font-size:13.5px;cursor:pointer;min-width:0}
 .tn:hover{border-color:var(--gold)}
 .tn>span.tx{min-width:0;flex:1;overflow-wrap:anywhere}
@@ -2155,7 +2156,7 @@ const BREL=new Set(['bmob','bimei']);
 const NK_IC={case:'📁',acc:'🧍',want:'🧍',other:'👤',phone:'📱',imei:'📟',vehicle:'🚗',email:'✉️',custom:'🌐'};
 const NK_COL={case:'#9a3412',acc:'#16a34a',want:'#dc2626',other:'#4f46e5',phone:'#0891b2',imei:'#64748b',vehicle:'#d97706',email:'#475569',custom:'#475569'};
 const CM_COL=['#e11d48','#7c3aed','#0d9488','#ea580c','#2563eb','#ca8a04','#db2777','#059669','#9333ea','#0891b2'];
-const REL_ORD={mob:0,wa:1,imei:2,gmail:3,social:4,jangi:5,cx:6,veh:7,bmob:8,bimei:9,link:10,name:11,acc:12,want:13};
+const REL_ORD={pair:-1,mob:0,wa:1,imei:2,gmail:3,social:4,jangi:5,cx:6,veh:7,bmob:8,bimei:9,link:10,name:11,acc:12,want:13};
 const stripAge=n=>String(n||'').replace(/\s*ઉ\.?\s*વ\.?\s*[\d૦-૯]+.*$/,'').replace(/\s*\(.*?\)\s*$/,'').trim();
 function caseShort(x){const f=String(x.r.fir||'').split('\n')[0].trim();return [x.r.station,f].filter(Boolean).join(' • ')||x.d.name;}
 function personRef(ck,g,i,p){return p&&p.pid?'p:'+p.pid:'p:'+ck+'|'+g+'|'+(compact(stripAge(p&&p.name))||'#'+i);}
@@ -2168,7 +2169,7 @@ function buildNet(){
   const nodes=new Map(),adj=new Map(),byRef=new Map(),nameIdx=new Map();
   const N=(id,o)=>{let n=nodes.get(id);if(!n){n={id,...o};nodes.set(id,n);adj.set(id,[]);}return n;};
   const E=(a,b,rel,lab,ck)=>{if(!a||!b||a===b)return;const A=adj.get(a);if(A.some(e=>e.to===b&&e.rel===rel))return;A.push({to:b,rel,lab,ck,out:true});adj.get(b).push({to:a,rel,lab,ck,out:false});};
-  const V=(type,v)=>{const k=valKey(type,v);if(!k)return null;const id='v:'+type+'|'+k;N(id,{kind:type,label:type==='custom'||type==='email'?String(v).trim():k,key:k});return id;};
+  const V=(type,v)=>{const k=valKey(type,v);if(!k)return null;const id='v:'+type+'|'+k;N(id,{kind:type,label:type==='custom'||type==='email'?String(v).trim():type==='imei'&&/^\d{14,16}$/.test(String(v).replace(/\D/g,''))?String(v).replace(/\D/g,''):k,key:k,full:String(v).replace(/\s/g,'')});return id;};
   const ext=(t,types)=>{const out=[];for(const e of extractFrom(String(t),'',true))if(types.includes(e.type))out.push(e);return out;};
   const pushName=(nm,id)=>{const nk=nameKey(nm);if(nk.split(' ').length>=2&&nk.replace(/\s/g,'').length>=5){if(!nameIdx.has(nk))nameIdx.set(nk,[]);nameIdx.get(nk).push(id);}};
   for(const d of docs)for(const x of caseRowsOf(d)){if(scope&&x.reg!==scope)continue;const ck=x.d.id+'|'+x.unit;const cid='c:'+ck;
@@ -2188,14 +2189,24 @@ function buildNet(){
     if(L.ref&&byRef.has(L.ref))to=byRef.get(L.ref);
     if(!to&&L.ck){for(const g of (L.g?[L.g]:['acc','want'])){for(let i=0;i<60;i++){const n=nodes.get('p:'+L.ck+'|'+g+'|'+i);if(!n)break;if(compact(n.label)===compact(stripAge(L.name))){to=n.id;break;}}if(to)break;}if(!to&&nodes.has('c:'+L.ck))to='c:'+L.ck;}
     if(to)E('o:'+o.id,to,'link',o.rel||'સંપર્ક',L.ck||'');}
+  /* ફાઇલની એક જ હરોળમાં 1 નંબર + IMEI હોય (દા.ત. IPDR: IMEI | નંબર) તો બંનેને સાથે જોડો */
+  for(const d of docs){const byU=new Map();for(const e of (d.entities||[])){if(e.type!=='phone'&&e.type!=='imei')continue;const k=valKey(e.type,e.value);if(!k)continue;let g=byU.get(e.unit);if(!g){g={p:new Map(),i:new Map()};byU.set(e.unit,g);}(e.type==='phone'?g.p:g.i).set(k,e.value);}
+    for(const g of byU.values())if(g.p.size===1&&g.i.size>=1&&g.i.size<=3){const [pk,pv]=[...g.p][0];for(const [ik,iv] of g.i){if(nodes.has('v:phone|'+pk)||nodes.has('v:imei|'+ik))E(V('phone',pv),V('imei',iv),'pair','IMEI ↔ નંબર (ફાઇલની એક જ હરોળ)','');}}}
   for(const L of nameIdx.values())if(L.length>1){if(L.length<=25){for(let a=0;a<L.length;a++)for(let b=a+1;b<L.length;b++)E(L[a],L[b],'name','સરખું નામ','');}else for(let a=1;a<L.length;a++)E(L[0],L[a],'name','સરખું નામ','');}
   const common=new Set(),same=new Set();
-  for(const [id,n] of nodes){const A=adj.get(id);if(n.kind.length&&id.startsWith('v:')){const ents=new Set(A.map(e=>e.to));if(ents.size>=2)common.add(id);}else if(A.some(e=>e.rel==='name'))same.add(id);}
+  for(const [id,n] of nodes){const A=adj.get(id);if(n.kind.length&&id.startsWith('v:')){const ents=new Set(A.filter(e=>e.rel!=='pair').map(e=>e.to));if(ents.size>=2)common.add(id);}else if(A.some(e=>e.rel==='name'))same.add(id);}
   NET={ver:dataVer,scope,nodes,adj,byRef,common,same};return NET;}
 const isPerson=n=>n&&(n.kind==='acc'||n.kind==='want'||n.kind==='other');
+const OWN_REL={phone:['mob','wa'],imei:['imei'],vehicle:['veh'],email:['gmail'],custom:['social','jangi']};
+/* નંબર / IMEI / ગાડીનો માલિક — સીધો, અથવા IMEI↔નંબર જોડી દ્વારા */
+function ownersOf(id){const n=NET.nodes.get(id);if(!n||!id.startsWith('v:'))return [];const rels=OWN_REL[n.kind]||[];const out=new Map();
+  for(const e of (NET.adj.get(id)||[]))if(!e.out&&rels.includes(e.rel)){const t=NET.nodes.get(e.to);if(isPerson(t))out.set(t.id,t);}
+  if(n.kind==='phone'||n.kind==='imei')for(const e of (NET.adj.get(id)||[]))if(e.rel==='pair'){const pn=NET.nodes.get(e.to);for(const e2 of (NET.adj.get(e.to)||[]))if(!e2.out&&(OWN_REL[pn.kind]||[]).includes(e2.rel)){const t=NET.nodes.get(e2.to);if(isPerson(t))out.set(t.id,t);}}
+  return [...out.values()];}
+const pairOf=id=>(NET.adj.get(id)||[]).filter(e=>e.rel==='pair').map(e=>NET.nodes.get(e.to)).filter(Boolean);
 function nodeTitle(n,withCase){if(!n)return '';const ic=NK_IC[n.kind]||'•';if(n.kind==='acc'||n.kind==='want')return `${ic} ${n.label}${withCase&&n.x?' — '+caseShort(n.x):''}`;if(n.kind==='case')return `📁 ${n.label}`;return `${ic} ${n.label}`;}
 function edgeRank(u,e){const n=NET.nodes.get(u);const t=NET.nodes.get(e.to);let r=REL_ORD[e.rel]??20;
-  if(n&&n.id.startsWith('v:')){r=(BREL.has(e.rel)?50:0)+(t&&t.kind==='other'?5:0);}
+  if(n&&n.id.startsWith('v:')){r=e.rel==='pair'?-2:(BREL.has(e.rel)?50:0)+(t&&t.kind==='other'?5:0);}
   if(t&&t.kind==='case'&&isPerson(n))r=90;if(n&&n.kind==='case')r={acc:0,want:1,veh:2,cx:3}[e.rel]??5;return r;}
 function netBFS(root,{skipUp=false,max=2500}={}){
   const {adj}=NET;const depth=new Map([[root,0]]),parent=new Map(),order=[root],kids=new Map(),oi=new Map([[root,0]]);let q=[root],cut=false;
@@ -2210,6 +2221,7 @@ function netBFS(root,{skipUp=false,max=2500}={}){
   let mx=0;for(const v of depth.values())if(v>mx)mx=v;
   return {root,depth,parent,order,kids,stubs,cut,maxDepth:mx};}
 function relText(childId,e){const n=NET.nodes.get(childId);if(!e)return '';
+  if(e.rel==='pair')return n.kind==='imei'?'આ નંબરનો IMEI (ફાઇલની એક જ હરોળ)':'આ IMEI વાળો નંબર (ફાઇલની એક જ હરોળ)';
   if(n.kind==='acc'||n.kind==='want'){const st=n.kind==='acc'?'પકડાયેલ':'બાકી આરોપી';
     if(e.rel==='acc'||e.rel==='want')return st;if(e.rel==='name')return `સરખું નામ • ${caseShort(n.x)} • ${st}`;if(e.rel==='link')return `${caseShort(n.x)} • ${st} • ${e.lab}`;
     return `${caseShort(n.x)} • ${st} • ${BREL.has(e.rel)?'આ નંબર તેનો '+e.lab:'આ તેનો '+e.lab}`;}
@@ -2223,11 +2235,14 @@ function nodeBadges(n){let h='';if(n.kind==='acc')h+=' <span class="tag t-a">પ
   if(n.id.startsWith('v:')&&settings.watch.some(w=>compact(w.text)===compact(n.label)))h+=' <span class="pill hit">👁️ વોચલિસ્ટ</span>';return h;}
 let netRoot=null,netViewMode='tree',netOnlyCommon=false,netPhotos=true,netSel=null,lastNetT=null,netPal=new Map();
 function cmColor(id){if(!NET.common.has(id)&&!NET.same.has(id))return null;if(!netPal.has(id))netPal.set(id,CM_COL[netPal.size%CM_COL.length]);return netPal.get(id);}
+function ownChip(id){if(!id.startsWith('v:'))return '';const O=ownersOf(id);const P=pairOf(id);let h='';
+  if(O.length)h+=` <span class="ownc" title="આ ${esc(NET.nodes.get(id).kind==='vehicle'?'ગાડી':'નંબર')} કોનો છે">👤 ${O.slice(0,3).map(t=>esc(t.label)).join(', ')}${O.length>3?' +'+(O.length-3):''}</span>`;
+  if(P.length)h+=` <span class="ownc pr">${NET.nodes.get(id).kind==='phone'?'📟 IMEI':'📱 નં.'} ${P.slice(0,2).map(t=>esc(t.full||t.label)).join(', ')}</span>`;return h;}
 function treeHTML(T){const root=T.root;netPal=new Map();
   let keep=null;if(netOnlyCommon){keep=new Set();const walk=id=>{let k=id===root||NET.common.has(id)||NET.same.has(id);for(const c of (T.kids.get(id)||[]))if(walk(c.id))k=true;for(const s of (T.stubs.get(id)||[]))if(NET.common.has(s.id)||NET.same.has(s.id))k=true;if(k)keep.add(id);return k;};walk(root);}
   const card=(id,e,stub,hasKids)=>{const n=NET.nodes.get(id);const col=cmColor(id);const dep=T.depth.get(id);
     const cmTxt=NET.common.has(id)?'કોમન':NET.same.has(id)?'સરખું નામ':'';
-    return `<div class="tn n-${n.kind}${id===root?' root':''}${col?' cm':''}${stub?' stub':''}" ${col?`style="--cc:${col}"`:''} data-nn="${esc(id)}">${hasKids?'<button class="tg" data-tg title="ખોલો / બંધ કરો">▾</button>':'<span class="tgs"></span>'}${netPhotos?nodeAvatar(n):`<span class="ti">${NK_IC[n.kind]}</span>`}<span class="tx"><b>${esc(n.label)}</b>${nodeBadges(n)}${cmTxt?`<span class="cb" style="--cc:${col}">${cmTxt}</span>`:''}${stub?'<span class="loopm">↺ ઉપર આવી ગયું</span>':''}<div><span class="src">સ્તર ${GU_D(dep+1)}${e?' • '+esc(relText(id,e)):''}</span></div></span></div>`;};
+    return `<div class="tn n-${n.kind}${id===root?' root':''}${col?' cm':''}${stub?' stub':''}" ${col?`style="--cc:${col}"`:''} data-nn="${esc(id)}">${hasKids?'<button class="tg" data-tg title="ખોલો / બંધ કરો">▾</button>':'<span class="tgs"></span>'}${netPhotos?nodeAvatar(n):`<span class="ti">${NK_IC[n.kind]}</span>`}<span class="tx"><b>${esc(n.label)}</b>${nodeBadges(n)}${cmTxt?`<span class="cb" style="--cc:${col}">${cmTxt}</span>`:''}${stub?'<span class="loopm">↺ ઉપર આવી ગયું</span>':''}${ownChip(id)}<div><span class="src">સ્તર ${GU_D(dep+1)}${e?' • '+esc(relText(id,e)):''}</span></div></span><button class="ib ned" data-nact="edit" data-id="${esc(id)}" title="સુધારો / વિગત ઉમેરો">✏️</button></div>`;};
   const rec=(id,e)=>{if(keep&&!keep.has(id))return '';const ks=(T.kids.get(id)||[]).filter(c=>!keep||keep.has(c.id));const ss=(T.stubs.get(id)||[]).filter(s=>!keep||NET.common.has(s.id)||NET.same.has(s.id));
     const inner=ks.map(c=>rec(c.id,c.e)).join('')+ss.map(s=>`<li>${card(s.id,s.e,true,false)}</li>`).join('');
     return `<li>${card(id,e,false,!!inner)}${inner?`<ul>${inner}</ul>`:''}</li>`;};
@@ -2337,24 +2352,42 @@ function nodeCardHTML(id,inGraph){const n=NET.nodes.get(id);if(!n)return '';cons
   const vals=f=>(NET.adj.get(id)||[]).filter(e=>e.out&&e.rel===f).map(e=>NET.nodes.get(e.to).label);
   if(n.kind==='acc'||n.kind==='want'){kv.push(['કેસ',caseShort(n.x)]);if(n.p.addr)kv.push(['સરનામું',n.p.addr]);for(const f of ['mob','wa','imei','bmob','bimei'])if(vals(f).length)kv.push([NF[f][1],vals(f).join(', ')]);if((n.p.role||[]).length)kv.push(['ભૂમિકા',n.p.role.join(', ')]);}
   else if(n.kind==='other'){const o=n.o;if(o.rel)kv.push(['સંબંધ',o.rel]);if(o.addr)kv.push(['સરનામું',o.addr]);for(const f of ['mob','wa','imei','bmob','bimei','veh'])if(vals(f).length)kv.push([NF[f][1],vals(f).join(', ')]);if(o.note)kv.push(['નોંધ',o.note]);}
+  else if(n.id.startsWith('v:')){const O=ownersOf(id);if(O.length)kv.push([n.kind==='vehicle'?'ગાડીનો માલિક':'માલિક (કોનો છે)',O.map(t=>t.label+(t.kind==='other'?'':' ('+(t.kind==='acc'?'પકડાયેલ':'બાકી')+')')).join(', ')]);
+    const P=pairOf(id);if(P.length)kv.push([n.kind==='phone'?'IMEI (ફાઇલ મુજબ)':'મોબાઇલ (ફાઇલ મુજબ)',P.map(t=>t.full||t.label).join(', ')]);
+    for(const t of O.filter(t=>t.kind==='other')){const o=t.o;if(o.addr)kv.push(['સરનામું',o.addr]);if(o.rel)kv.push(['સંબંધ',o.rel]);if(o.note)kv.push(['નોંધ',o.note]);}}
   else if(n.kind==='case'){const x=n.x;kv.push(['વિભાગ',REG_DEF[n.reg]?.label||'']);if(x.r.incDT||x.r.pdate)kv.push(['તારીખ',x.r.incDT||x.r.pdate]);kv.push(['આરોપી',(x.r.acc||[]).map(p=>stripAge(p.name)).filter(Boolean).join(', ')||'—']);if((x.r.want||[]).length)kv.push(['બાકી',(x.r.want||[]).map(p=>stripAge(p.name)).join(', ')]);}
   const conn=(NET.adj.get(id)||[]).filter(e=>{const t=NET.nodes.get(e.to);return n.id.startsWith('v:')||(isPerson(t)&&e.rel!=='acc'&&e.rel!=='want');}).slice(0,40);
   const ref=n.ref||(n.kind==='vehicle'?'v:'+n.key:n.kind==='case'?'c:'+n.ck:n.kind==='phone'?'ph:'+n.key:'');
   return `<div class="card nsel"><h3 style="margin:0 0 6px">${esc(nodeTitle(n))}${nodeBadges(n)}${NET.common.has(id)?' <span class="cb">કોમન</span>':''}</h3>
     ${kv.length?`<div class="kvg">${kv.map(([k,v])=>`<b>${esc(k)}</b><span>${esc(v)}</span>`).join('')}</div>`:''}
-    ${conn.length?`<div class="phgrp">${n.id.startsWith('v:')?'આ કોની સાથે જોડાયેલ છે':'સીધા જોડાયેલ વ્યક્તિ'}</div>${conn.map(e=>{const t=NET.nodes.get(e.to);return `<div class="occ" style="margin:3px 0;cursor:pointer" data-nn="${esc(e.to)}">${esc(nodeTitle(t))}${nodeBadges(t)} <small class="muted">${t.x&&t.kind!=='case'?esc(caseShort(t.x))+' • ':''}${esc(e.lab)}</small></div>`;}).join('')}`:''}
+    ${conn.length?`<div class="phgrp">${n.id.startsWith('v:')?'આ કોની સાથે જોડાયેલ છે':'સીધા જોડાયેલ વ્યક્તિ'}</div>${conn.map(e=>{const t=NET.nodes.get(e.to);return `<div class="occ" style="margin:3px 0;cursor:pointer" data-nn="${esc(e.to)}">${esc(nodeTitle(t))}${nodeBadges(t)} <small class="muted">${t.x&&t.kind!=='case'?esc(caseShort(t.x))+' • ':''}${esc(e.rel==='pair'?relText(e.to,e):e.lab)}</small><button class="btn sm" style="float:right;padding:2px 8px" data-nact="edit" data-id="${esc(e.to)}" title="સુધારો">✏️</button></div>`;}).join('')}`:''}
     ${ref?`<div class="phgrp">🖼️ ફોટા</div>${photoStrip(ref,{ck:n.ck||'',kind:isPerson(n)?'person':n.kind==='vehicle'?'veh':n.kind==='case'?'mudd':'phone'})}`:''}
-    <div class="row gap" style="margin-bottom:0">${id!==netRoot||!inGraph?`<button class="btn sm pri" data-nact="root" data-id="${esc(id)}">🌳 અહીંથી ઝાડ</button>`:''}${inGraph?'':`<button class="btn sm" data-nact="graph" data-id="${esc(id)}">🕸️ જાળ</button>`}${n.kind==='acc'||n.kind==='want'||n.kind==='other'||n.kind==='case'?`<button class="btn sm" data-nact="edit" data-id="${esc(id)}">✏️ સુધારો</button>`:''}${n.x?`<button class="btn sm" data-nact="reg" data-id="${esc(id)}">📑 રજીસ્ટરમાં</button>`:''}${n.kind!=='case'?`<button class="btn sm" data-nact="watch" data-id="${esc(id)}">👁️ વોચલિસ્ટમાં</button>`:''}${n.kind==='phone'?`<button class="btn sm" data-nact="sms" data-id="${esc(id)}">📩 SMS તપાસ</button>`:''}${n.kind==='phone'&&!(NET.adj.get(id)||[]).some(e=>!e.out&&['mob','wa'].includes(e.rel))?`<button class="btn sm" data-nact="name" data-id="${esc(id)}">✏️ નામ ઉમેરો (અન્ય વ્યક્તિ)</button>`:''}</div></div>`;}
+    <div class="row gap" style="margin-bottom:0">${id!==netRoot||!inGraph?`<button class="btn sm pri" data-nact="root" data-id="${esc(id)}">🌳 અહીંથી ઝાડ</button>`:''}${inGraph?'':`<button class="btn sm" data-nact="graph" data-id="${esc(id)}">🕸️ જાળ</button>`}<button class="btn sm" data-nact="edit" data-id="${esc(id)}">✏️ ${n.id.startsWith('v:')?'સુધારો / વિગત ઉમેરો':'સુધારો'}</button>${n.x?`<button class="btn sm" data-nact="reg" data-id="${esc(id)}">📑 રજીસ્ટરમાં</button>`:''}${n.kind!=='case'?`<button class="btn sm" data-nact="watch" data-id="${esc(id)}">👁️ વોચલિસ્ટમાં</button>`:''}${n.kind==='phone'?`<button class="btn sm" data-nact="sms" data-id="${esc(id)}">📩 SMS તપાસ</button>`:''}</div></div>`;}
 function nodeModal(id){buildNet();if(!NET.nodes.has(id))return;openModal(nodeCardHTML(id,false).replace('class="card nsel"','class="nsel" style="border:0"'),{wide:false});}
 async function nodeAction(a,id){const n=NET.nodes.get(id);if(!n)return;document.querySelectorAll('.ov').forEach(o=>o.close());
   if(a==='root'){openNet(id);return;}
   if(a==='graph'){netRoot=id;netViewMode='graph';document.querySelectorAll('#netView button').forEach(b=>b.classList.toggle('on',b.dataset.nv==='graph'));showTab('net');return;}
+  if(a==='edit'&&id.startsWith('v:')){valueEdit(id);return;}
   if(a==='edit'){if(n.kind==='other'){otherForm(n.o.id);return;}const reg=n.reg;if(reg&&reg!==curReg){curReg=reg;rebuildCols();}
     if(n.kind==='case'){caseForm(n.ck,false);return;}editPersons(n.ck,n.kind,'name',n.i);return;}
   if(a==='reg'){curReg=n.reg;rebuildCols();$('#cSearch').value=(String(n.x.r.fir||'').split('\n')[0])||n.x.d.name;$('#cFrom').value='';$('#cTo').value='';showTab('cases');return;}
   if(a==='watch'){const t=n.label;if(settings.watch.some(w=>compact(w.text)===compact(t))){toast('પહેલેથી વોચલિસ્ટમાં છે');return;}settings.watch.push({id:uid(),text:t,note:'સંપર્ક જાળમાંથી',added:Date.now()});saveSettings();renderAll();toast('વોચલિસ્ટમાં ઉમેર્યું','ok');return;}
   if(a==='sms'){if(!smsNumbers().some(o=>o.n===n.key)){smsLog.push({id:uid(),kind:'manualnum',manual:true,num:n.key,name:'સંપર્ક જાળમાંથી',at:Date.now(),text:''});smsSave();}smsSel.add(n.key);showTab('sms');smsScope='all';smsQ=n.key;$('#smsQ').value=n.key;renderSms();return;}
   if(a==='name'){const links=(NET.adj.get(id)||[]).filter(e=>!e.out&&isPerson(NET.nodes.get(e.to))).map(e=>{const t=NET.nodes.get(e.to);return t.kind==='other'?null:{ref:t.ref,ck:t.ck,g:t.kind,name:t.label};}).filter(Boolean);otherForm(null,{mob:[n.key],links});}}
+
+/* નંબર / IMEI / ગાડી — સુધારો: માલિક હોય તો તેની વિગત ખોલો, નહીં તો નવો માલિક (અન્ય વ્યક્તિ) બનાવો */
+function valuePreset(id){const n=NET.nodes.get(id);const pre={mob:[],imei:[],veh:[]};const put=(t,v)=>{if(t.kind==='phone')pre.mob.push(t.key);else if(t.kind==='imei')pre.imei.push(t.full||t.label);else if(t.kind==='vehicle')pre.veh.push(t.label);};
+  put(n);for(const t of pairOf(id))put(t);
+  pre.links=(NET.adj.get(id)||[]).filter(e=>!e.out&&isPerson(NET.nodes.get(e.to))).map(e=>{const t=NET.nodes.get(e.to);return t.kind==='other'?null:{ref:t.ref,ck:t.ck,g:t.kind,name:t.label};}).filter(Boolean);
+  if(n.kind==='custom'||n.kind==='email')pre.note=n.label;return pre;}
+function editOwner(t){if(t.kind==='other'){otherForm(t.o.id);return;}const reg=t.reg;if(reg&&reg!==curReg){curReg=reg;rebuildCols();}editPersons(t.ck,t.kind,'name',t.i);}
+function valueEdit(id){buildNet();const n=NET.nodes.get(id);if(!n)return;const O=ownersOf(id);
+  if(O.length===1){editOwner(O[0]);return;}
+  if(!O.length){otherForm(null,valuePreset(id));return;}
+  const ov=openModal(`<h2>✏️ ${esc(nodeTitle(n))} — કોની વિગત સુધારવી?</h2><div class="muted" style="font-size:13px;margin-bottom:8px">આ ${n.kind==='vehicle'?'ગાડી':'નંબર'} એક થી વધુ વ્યક્તિ સાથે માલિક તરીકે જોડાયેલ છે</div>
+    ${O.map((t,i)=>`<div class="occ" style="margin:4px 0;display:flex;gap:8px;align-items:center"><span style="flex:1">${esc(nodeTitle(t,true))}${nodeBadges(t)}</span><button class="btn sm pri" data-vo="${i}">✏️ સુધારો</button></div>`).join('')}
+    <div class="mfoot"><button class="btn" data-vo="new">➕ નવો માલિક ઉમેરો (અન્ય વ્યક્તિ)</button></div>`);
+  ov.addEventListener('click',e=>{const b=e.target.closest('[data-vo]');if(!b)return;ov.close();if(b.dataset.vo==='new')otherForm(null,valuePreset(id));else editOwner(O[+b.dataset.vo]);});}
 
 /* ===================== અન્ય વ્યક્તિ (Others) ===================== */
 const OREL=['દારૂ સપ્લાયર','દારૂ ખરીદનાર','મુદ્દામાલ ખરીદનાર','વાહન માલિક','ફાઇનાન્સર','સંબંધી','મિત્ર','સાથી (શંકાસ્પદ)','B-પાર્ટી'];
@@ -2594,7 +2627,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=6;
+const APP_VERSION=7;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
