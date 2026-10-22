@@ -1,0 +1,46 @@
+name: Build APK
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Web app (docs) → Android
+        run: python3 tools/sync_web.py
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build debug APK
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Rename APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk vyuhrachna.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vyuhrachna-apk
+          path: vyuhrachna.apk
+
+      - name: Publish to Releases (mobile download link)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: વ્યૂહરચના APK
+          body: "મોબાઇલમાં આ પાનું ખોલી vyuhrachna.apk ડાઉનલોડ કરી ઇન્સ્ટોલ કરો."
+          files: vyuhrachna.apk
+          make_latest: true
