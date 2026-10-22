@@ -47,7 +47,7 @@ import java.util.List;
 public class MainActivity extends Activity {
     static volatile MainActivity current;
 
-    private static final String START_URL = "https://appassets.androidplatform.net/assets/www/index.html";
+    private static final String START_URL = "https://appassets.androidplatform.net/app/index.html";
     private static final String ACTION_SENT = "com.vyuhrachna.app.SMS_SENT";
     private static final int REQ_FILE = 11;
     private static final int REQ_PERM = 12;
@@ -76,6 +76,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         current = this;
         Store.ensureChannels(this);
+        Updater.cleanup(this);
+        Updater.schedule(this);
 
         web = new WebView(this);
         setContentView(web);
@@ -92,6 +94,7 @@ public class MainActivity extends Activity {
 
         final WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+                .addPathHandler("/app/", new LocalPathHandler(this))
                 .build();
 
         web.setWebViewClient(new WebViewClient() {
@@ -203,7 +206,8 @@ public class MainActivity extends Activity {
             pendingShare = null;
         }
         if (pendingTab != null) {
-            js("window.showTab&&showTab(" + JSONObject.quote(pendingTab) + ")");
+            if ("update".equals(pendingTab)) js("window.checkUpdate&&checkUpdate(true)");
+            else js("window.showTab&&showTab(" + JSONObject.quote(pendingTab) + ")");
             pendingTab = null;
         }
         js("window.onNativeSmsPending&&onNativeSmsPending()");
@@ -291,6 +295,44 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String version() {
             return "1.0";
+        }
+
+        @JavascriptInterface
+        public int nativeVersion() {
+            try {
+                android.content.pm.PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+                return Build.VERSION.SDK_INT >= 28 ? (int) pi.getLongVersionCode() : pi.versionCode;
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+
+        @JavascriptInterface
+        public void setUpdateInfo(String url, int cur) {
+            if (url != null && url.startsWith("https://")) Updater.setInfo(MainActivity.this, url, cur);
+        }
+
+        @JavascriptInterface
+        public void updNotify(String title, String text) {
+            Store.notify(MainActivity.this, Store.CH_UPD, title, text, true);
+        }
+
+        @JavascriptInterface
+        public void applyUpdate(final String baseUrl, final String filesJson, final int ver) {
+            if (baseUrl == null || !baseUrl.startsWith("https://")) return;
+            new Thread(() -> {
+                try {
+                    Updater.download(MainActivity.this, baseUrl, new JSONArray(filesJson), ver);
+                    handler.post(() -> {
+                        if (web != null) {
+                            web.clearCache(false);
+                            web.loadUrl(START_URL);
+                        }
+                    });
+                } catch (Exception e) {
+                    js("window.onNativeUpdate&&onNativeUpdate(false," + JSONObject.quote(String.valueOf(e.getMessage())) + ")");
+                }
+            }).start();
         }
 
         @JavascriptInterface

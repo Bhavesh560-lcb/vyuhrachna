@@ -24,6 +24,7 @@ public final class Store {
 
     static final String CH_GJ = "gj_alert";
     static final String CH_REP = "sms_reply";
+    static final String CH_UPD = "app_update";
     private static final Pattern CGI = Pattern.compile("\\b(40[45])[\\s\\-/]*(\\d{2,3})[\\s\\-/]*(\\d{1,6})[\\s\\-/]*(\\d{1,9})\\b");
     private static final Pattern MOB = Pattern.compile("(?<!\\d)(?:\\+?91[\\s-]?)?([6-9]\\d{9})(?!\\d)");
 
@@ -167,6 +168,9 @@ public final class Store {
             nm.createNotificationChannel(gj);
             NotificationChannel rp = new NotificationChannel(CH_REP, "કંપનીના રિપ્લાય", NotificationManager.IMPORTANCE_DEFAULT);
             nm.createNotificationChannel(rp);
+            NotificationChannel up = new NotificationChannel(CH_UPD, "એપ અપડેટ", NotificationManager.IMPORTANCE_HIGH);
+            up.setDescription("વ્યૂહરચનાનું નવું વર્ઝન આવે ત્યારે");
+            nm.createNotificationChannel(up);
         }
     }
 
@@ -175,7 +179,7 @@ public final class Store {
             ensureChannels(c);
             Intent open = new Intent(c, MainActivity.class);
             open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            open.putExtra("openTab", "sms");
+            open.putExtra("openTab", CH_UPD.equals(ch) ? "update" : "sms");
             PendingIntent pi = PendingIntent.getActivity(c, (int) (System.currentTimeMillis() & 0xffff), open,
                     PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder b = new NotificationCompat.Builder(c, ch)
@@ -186,7 +190,7 @@ public final class Store {
                     .setAutoCancel(true)
                     .setContentIntent(pi)
                     .setPriority(high ? NotificationCompat.PRIORITY_MAX : NotificationCompat.PRIORITY_DEFAULT);
-            if (high) {
+            if (high && !CH_UPD.equals(ch)) {
                 b.setCategory(NotificationCompat.CATEGORY_ALARM);
                 b.setVibrate(new long[]{0, 400, 200, 400, 200, 800});
                 b.setColor(0xFFDC2626);

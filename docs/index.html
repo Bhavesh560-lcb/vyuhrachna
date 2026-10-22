@@ -523,6 +523,7 @@ body.locked{overflow:hidden}
     </div>
   </div>
   <div class="card" style="margin-top:14px" id="lockCard"><h3>🔐 એકાઉન્ટ / એપ લૉક</h3><div id="lockSet"></div></div>
+  <div class="card" style="margin-top:14px" id="updCard"><h3>🔔 એપ વર્ઝન / અપડેટ</h3><p>હાલનું વર્ઝન: <b id="updVer"></b></p><p class="muted" style="font-size:13px">નવું વર્ઝન આવે ત્યારે એપ ખોલતાં જ સૂચના આવશે અને અપડેટ કરવું ફરજિયાત રહેશે. મોબાઇલ એપમાં એપ બંધ હોય તો પણ નોટિફિકેશન આવશે.</p><button class="btn pri" id="updChk">🔄 અપડેટ ચેક કરો</button></div>
   <div class="card" style="margin-top:14px" id="syncCard"><h3>🌐 ઓનલાઇન શેરિંગ — બધા એક જ ડેટા જોઈ શકે</h3>
     <p class="muted" style="margin-top:0;font-size:13.5px">તમારા પોતાના Google Firebase પ્રોજેક્ટ સાથે જોડો. જે કોઈ આ જ એપમાં એ જ <b>Firebase config</b> અને <b>ટીમ કોડ</b> નાખશે, તે બધા એક જ કેસ રજીસ્ટર જોશે અને સુધારી શકશે. ફેરફાર તરત બધાને દેખાશે.</p>
     <label class="muted" style="font-size:13px">Firebase config (Firebase Console → Project settings → Your apps → Config માંથી કૉપી કરીને અહીં પેસ્ટ કરો)</label>
@@ -2541,6 +2542,91 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <div class="row gap"><button class="btn" id="olReset">📧 પાસવર્ડ બદલવાની લિંક ઇમેઇલમાં મોકલો</button><button class="btn" id="lkNowB">🔒 હમણાં લૉક કરો</button><button class="btn danger" id="olOut">🚪 લૉગઆઉટ</button></div>
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
+/* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
+const APP_VERSION=2;
+const UPD={remote:null,base:'',timer:null,busy:false};
+function updBases(){
+  const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
+  if(/^https?:$/.test(location.protocol)&&!/appassets\.androidplatform\.net$/.test(location.hostname))add(location.href.split(/[?#]/)[0]);
+  [].concat(VC.updateUrl||[]).forEach(u=>add(/\/$/.test(u)?u:u+'/'));
+  return l;
+}
+async function updFetch(){
+  for(const b of updBases()){
+    try{const r=await fetch(b+'version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)continue;const j=await r.json();if(j&&+j.version>0){UPD.base=b;return j;}}catch(_){}
+  }
+  return null;
+}
+function nativeVer(){try{return window.AndroidApp&&AndroidApp.nativeVersion?+AndroidApp.nativeVersion():0;}catch(_){return 0;}}
+function updNotify(v){
+  const t='🔔 વ્યૂહરચનાનું નવું વર્ઝન આવ્યું (v'+v.version+')',b='એપ ખોલીને અપડેટ કરો'+((v.notes||[])[0]?' — '+v.notes[0]:'');
+  try{if(window.AndroidApp&&AndroidApp.updNotify){AndroidApp.updNotify(t,b);return;}}catch(_){}
+  try{if('Notification' in window&&Notification.permission==='granted'){if(navigator.serviceWorker&&navigator.serviceWorker.controller)navigator.serviceWorker.ready.then(r=>r.showNotification(t,{body:b,icon:'icon-192.png',badge:'icon-192.png',tag:'upd-'+v.version,requireInteraction:true}));else new Notification(t,{body:b});}}catch(_){}
+}
+function updModal(v,apk){
+  document.getElementById('updOv')?.remove();
+  const force=apk||v.force!==false;
+  const notes=(v.notes||[]).map(n=>`<li>${esc(n)}</li>`).join('');
+  const ov=document.createElement('div');ov.id='updOv';
+  ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.72);display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.innerHTML=`<div class="modal" style="max-width:440px;text-align:center">
+    <div style="font-size:46px;line-height:1">🔔</div>
+    <h2 style="margin:8px 0 4px">${apk?'નવી એપ (APK) ઇન્સ્ટોલ કરો':'નવું વર્ઝન આવ્યું છે'}</h2>
+    <div class="muted" style="margin-bottom:10px">હાલનું: v${APP_VERSION} → નવું: v${esc(String(v.version))}</div>
+    ${notes?`<ul style="text-align:left;margin:0 0 12px;padding-left:20px;line-height:1.7">${notes}</ul>`:''}
+    ${apk?'<p class="muted" style="font-size:13px">ડાઉનલોડ થયા પછી ફાઇલ ખોલી "Install / Update" દબાવો. તમારો ડેટા સુરક્ષિત રહેશે.</p>':''}
+    <div id="updMsg" class="muted" style="min-height:20px;margin:6px 0"></div>
+    <button class="btn pri" id="updGo" style="width:100%;padding:12px;font-size:16px">${apk?'⬇️ નવી APK ડાઉનલોડ કરો':'⬆️ હમણાં અપડેટ કરો'}</button>
+    ${force?'<div class="muted" style="font-size:12px;margin-top:8px">⚠️ આ અપડેટ ફરજિયાત છે — અપડેટ વગર એપ ચાલશે નહીં</div>':'<button class="btn" id="updLater" style="width:100%;margin-top:8px">પછી કરીશ</button>'}
+  </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#updLater')?.addEventListener('click',()=>ov.remove());
+  ov.querySelector('#updGo').addEventListener('click',()=>apk?updApk(v):updApply(v));
+}
+function updApk(v){
+  const u=v.apkUrl||'https://github.com/Bhavesh560-lcb/vyuhrachna/releases/download/apk-latest/vyuhrachna.apk';
+  try{if(window.AndroidApp)AndroidApp.openUrl(u);else window.open(u,'_blank');}catch(_){location.href=u;}
+  const m=document.getElementById('updMsg');if(m)m.textContent='⏳ ડાઉનલોડ શરૂ થયું — પૂરું થાય પછી ઇન્સ્ટોલ કરો';
+}
+window.onNativeUpdate=function(ok,err){UPD.busy=false;const m=document.getElementById('updMsg');if(!ok&&m)m.textContent='❌ અપડેટ ન થયું: '+(err||'')+' — ઇન્ટરનેટ ચેક કરી ફરી દબાવો';};
+async function updApply(v){
+  if(UPD.busy)return;UPD.busy=true;
+  const m=document.getElementById('updMsg');if(m)m.textContent='⏳ નવું વર્ઝન ડાઉનલોડ થાય છે...';
+  try{sessionStorage.setItem('vyuh_upd_try',String(v.version));}catch(_){}
+  if(window.AndroidApp&&AndroidApp.applyUpdate){
+    AndroidApp.applyUpdate(UPD.base,JSON.stringify(v.files||['index.html','config.js','version.json']),+v.version);return;
+  }
+  try{
+    for(const f of (v.files||['index.html','config.js','version.json']))await fetch(f+'?t='+Date.now(),{cache:'reload'}).catch(()=>{});
+    await fetch('index.html',{cache:'reload'}).catch(()=>{});
+    if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));}
+    if(navigator.serviceWorker){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.update().catch(()=>{})));}
+  }catch(_){}
+  location.replace(location.pathname+'?v='+v.version+location.hash);
+}
+async function checkUpdate(manual){
+  const v=await updFetch();
+  if(!v){if(manual)toast('અપડેટ ચેક ન થયું — ઇન્ટરનેટ ચાલુ છે?','err');return;}
+  UPD.remote=v;
+  try{if(window.AndroidApp&&AndroidApp.setUpdateInfo)AndroidApp.setUpdateInfo(UPD.base,APP_VERSION);}catch(_){}
+  const nv=nativeVer();
+  if(window.AndroidApp&&+v.apkMin>0&&nv>0&&nv<+v.apkMin){updModal(v,true);if(document.hidden)updNotify(v);return;}
+  if(+v.version>APP_VERSION){
+    let tried='';try{tried=sessionStorage.getItem('vyuh_upd_try')||'';}catch(_){}
+    if(tried===String(v.version)&&!manual){toast('⚠️ સર્વર પર નવું વર્ઝન (v'+v.version+') છે પણ index.html જૂની છે — GitHub માં index.html અને version.json બંને અપલોડ કરો','err',9000);return;}
+    updModal(v,false);let ln='';try{ln=localStorage.getItem('vyuh_upd_ntf')||'';}catch(_){}if(ln!==String(v.version)){updNotify(v);try{localStorage.setItem('vyuh_upd_ntf',String(v.version));}catch(_){}}
+    return;
+  }
+  if(manual)toast('✅ તમારી પાસે નવું જ વર્ઝન છે (v'+APP_VERSION+')','ok');
+}
+function updInit(){
+  setTimeout(()=>checkUpdate(false),2500);
+  clearInterval(UPD.timer);UPD.timer=setInterval(()=>checkUpdate(false),30*60*1000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate(false);});
+  window.addEventListener('online',()=>checkUpdate(false));
+  const vi=document.getElementById('updVer');if(vi)vi.textContent='v'+APP_VERSION+(nativeVer()?' · APK '+nativeVer():'');
+  document.getElementById('updChk')?.addEventListener('click',()=>checkUpdate(true));
+}
 $('#lockBtn').onclick=lockNow;
 $('#lockSet').addEventListener('change',async e=>{if(e.target.id==='lkAuto'&&LOGIN_MODE){settings.autoLockMin=+e.target.value;DB.put('kv',settings,'settings').catch(()=>{});toast('સેવ થયું','ok');return;}if(e.target.id==='lkAuto'&&LOCK.cfg){LOCK.cfg.autoMin=+e.target.value;await lockSave(LOCK.cfg);toast('સેવ થયું','ok');}});
 $('#lockSet').addEventListener('click',async e=>{if(e.target.id==='lkNowB'){lockNow();return;}if(e.target.id==='olOut'){onlineLogout();return;}if(e.target.id==='olReset'){try{await firebase.auth().sendPasswordResetEmail(ONL.user.email);toast('📧 '+ONL.user.email+' પર પાસવર્ડ બદલવાની લિંક મોકલી','ok',7000);}catch(err){toast(fbMsg(err),'err');}return;}if(e.target.id!=='lkChg'||!LOCK.cfg)return;const v=id=>(document.getElementById(id)?.value||'');const c=LOCK.cfg;
@@ -2667,6 +2753,7 @@ document.body.classList.add('home');
   await smsLoad();smsEvents();nativeInit();
   if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))&&!window.AndroidApp)navigator.serviceWorker.register('sw.js').catch(e=>console.warn('sw',e));
   handleShareTarget();
+  updInit();
   await lockInit();
   if(settings.syncOn||(SHARED_CONFIG.firebase&&SHARED_CONFIG.team))syncStart();
   if(!window.pdfjsLib||!window.XLSX||!window.mammoth)toast('⚠️ અમુક લાઇબ્રેરી લોડ ન થઈ — ઇન્ટરનેટ ચાલુ રાખીને પેજ ફરી ખોલો','err',8000);

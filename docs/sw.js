@@ -1,5 +1,5 @@
 // વ્યૂહરચના – ઓફલાઇન કેશ (નવું વર્ઝન મૂકો ત્યારે v નંબર વધારવો)
-const CACHE='vyuhrachna-v5';
+const CACHE='vyuhrachna-v6';
 const SHELL=['./','./index.html','./config.js','./manifest.json','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png',
   './lib/pdf.min.js','./lib/pdf.worker.min.js','./lib/xlsx.full.min.js','./lib/mammoth.browser.min.js','./lib/html2canvas.min.js','./lib/jspdf.umd.min.js',
   './lib/firebase-app-compat.js','./lib/firebase-auth-compat.js','./lib/firebase-firestore-compat.js'];
@@ -9,6 +9,7 @@ const netFirst=req=>fetch(req).then(r=>{const cp=r.clone();caches.open(CACHE).th
 self.addEventListener('fetch',e=>{
   const req=e.request;if(req.method!=='GET')return;
   const url=new URL(req.url);
+  if(url.pathname.endsWith('/version.json'))return; // અપડેટ ચેક — કદી કેશ નહીં
   if(/firestore|identitytoolkit|securetoken|googleapis\.com/.test(url.hostname))return; // લોગિન / ઓનલાઇન ડેટા કેશ નહીં
   if(req.mode==='navigate'||url.pathname.endsWith('/config.js')||url.pathname.endsWith('/index.html')){e.respondWith(netFirst(req));return;}
   e.respondWith(caches.match(req).then(hit=>hit||fetch(req).then(r=>{if(r.ok||r.type==='opaque'){const cp=r.clone();caches.open(CACHE).then(c=>c.put(req,cp));}return r;})));

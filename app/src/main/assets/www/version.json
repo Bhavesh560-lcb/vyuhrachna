@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "force": true,
+  "notes": [
+    "નવું: એપ અપડેટ સૂચના અને ફરજિયાત અપડેટ",
+    "નાના સુધારા"
+  ],
+  "files": [
+    "index.html",
+    "config.js",
+    "version.json"
+  ],
+  "apkMin": 0,
+  "apkUrl": "https://github.com/Bhavesh560-lcb/vyuhrachna/releases/download/apk-latest/vyuhrachna.apk"
+}

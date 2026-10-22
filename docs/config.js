@@ -13,5 +13,7 @@ window.VYUH_CONFIG = {
 
   // (વૈકલ્પિક) ફક્ત એક જ ઇમેઇલથી એપ ખોલવી હોય તો અહીં લખો, દા.ત. "abc@gmail.com".
   // ખાલી રાખશો તો જે ઇમેઇલથી એકાઉન્ટ બનાવશો તે તમારું; બીજું કોઈ એકાઉન્ટ બનાવે તો પણ તમારો ડેટા જોઈ શકે નહીં.
-  email: ""
+  email: "",
+  // નવું વર્ઝન અહીંથી ચેક થાય છે (GitHub Pages)
+  updateUrl: ["https://bhavesh560-lcb.github.io/vyuhrachna/", "https://bhavesh560-lcb.github.io/vyuhrachna/docs/"]
 };
