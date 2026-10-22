@@ -1052,6 +1052,7 @@ async function saveDoc(d){caseVer++;if(!SYNC.applying&&typeof readOnly==='functi
 /* ===================== Index & matching ===================== */
 function caseEditEnts(d){
   const out=[];const ed=d.caseEdit||{};const have=new Set((d.entities||[]).map(e=>e.type+'|'+e.key));const TY={mob:'phone',wa:'phone',bmob:'phone',imei:'imei',bimei:'imei',gmail:'email',social:'custom',jangi:'custom'};
+  for(const u of Object.keys(ed)){const ce=ed[u]||{};for(const v of [...(ce._veh||[]),...String(ce.vehReg||'').split(/\n|,/)]){const key=keyFor('vehicle',v);if(key&&key.length>=6&&/[A-Z]{2}\d/.test(key))out.push({type:'vehicle',value:String(v).trim(),key,unit:d.id+'#case',ctx:'કેસ રજીસ્ટર: ગાડી'});}}
   for(const u of Object.keys(ed))for(const g of ['acc','want']){const L=ed[u][g];if(!Array.isArray(L))continue;
     for(const p of L){const ctx=`કેસ રજીસ્ટર (${GRP[g]}): ${p.name||''}`;
       if(p.name){const key=keyFor('name',p.name.replace(/\s*ઉ\.વ\.\s*\d+.*$/,''));if(key&&key.length>=3)out.push({type:'name',value:p.name.replace(/\s*ઉ\.વ\.\s*\d+.*$/,''),key,unit:d.id+'#case',ctx});}
@@ -1144,12 +1145,12 @@ function netIdsFor(q){buildNet();const t=String(q||'').trim();const out=[];
   if(!out.length)for(const n of netSearch(t).slice(0,8))out.push(n.id);return out;}
 function netInfoHTML(q,title){const ids=netIdsFor(q);if(!ids.length)return '';return `<div class="card" style="margin-bottom:12px;border-top:4px solid #4f46e5"><h3>${title||'🕸️ ડેટા મુજબ માહિતી (કેસ / અન્ય વ્યક્તિ / B-પાર્ટી)'}</h3>${ids.map(netFacts).join('')}</div>`;}
 function statList(k){if(k==='files'){document.getElementById('fileList')?.scrollIntoView({behavior:'smooth'});return;}if(k==='match'){showTab('common');return;}
-  buildNet();const L=[...sindex.values()].filter(g=>g.type===k).sort((a,b)=>b.docs.size-a.docs.size||b.occ.length-a.occ.length);const T=TYPES[k];
-  const own=g=>{const vk=valKey(k,disp(g));const id=vk&&'v:'+k+'|'+vk;if(!id||!NET.nodes.has(id))return '';const O=ownersOf(id),P=pairOf(id);return [O.length?'👤 '+O.map(t=>esc(t.label)).join(', '):'',P.length?(k==='phone'?'📟 ':'📱 ')+P.map(t=>esc(t.full||t.label)).join(', '):''].filter(Boolean).join(' • ');};
+  buildNet();const L=dataRows(sindex).filter(r=>r.type===k).sort((a,b)=>(b.files+b.man.length)-(a.files+a.man.length)||b.occ-a.occ);const T=TYPES[k];
+  const own=g=>{const vk=valKey(k,g.val)||keyFor(k,g.val);const id=vk&&'v:'+k+'|'+vk;if(!id||!NET.nodes.has(id))return '';const O=ownersOf(id),P=pairOf(id);return [O.length?'👤 '+O.map(t=>esc(t.label)).join(', '):'',P.length?(k==='phone'?'📟 ':'📱 ')+P.map(t=>esc(t.full||t.label)).join(', '):''].filter(Boolean).join(' • ');};
   const ov=openModal(`<h2>${T.icon} ${T.label} — ${GU_D(L.length)}</h2><input class="inp" id="slQ" placeholder="શોધો…" style="width:100%;margin-bottom:8px"><div class="tablewrap" style="max-height:65vh;overflow:auto"><table><thead><tr><th>#</th><th>${T.label}</th><th>કોનો / જોડી</th><th>ફાઇલ</th><th>વાર</th></tr></thead><tbody id="slB"></tbody></table></div>
     <div class="mfoot"><button class="btn" id="slX">📊 Excel</button></div>`,{wide:true});
-  const draw=()=>{const q=compact(ov.querySelector('#slQ').value);const F=L.filter(g=>!q||compact(disp(g)).includes(q));ov.querySelector('#slB').innerHTML=F.slice(0,1500).map((g,i)=>`<tr class="click" data-ent="${esc(g.k)}"><td>${i+1}</td><td><b>${esc(disp(g))}</b></td><td>${own(g)||'<span class="muted">—</span>'}</td><td>${g.docs.size}</td><td>${g.occ.length}</td></tr>`).join('')+(F.length>1500?`<tr><td colspan="5" class="muted">…${F.length-1500} વધુ — શોધ વાપરો</td></tr>`:'');};draw();
-  ov.querySelector('#slQ').oninput=draw;ov.querySelector('#slX').onclick=()=>{const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(L.map(g=>({[T.label]:disp(g),'કોનો / જોડી':own(g).replace(/<[^>]+>/g,''),'ફાઇલ':g.docs.size,'વાર':g.occ.length,'ફાઇલો':[...g.docs].map(id=>docMap.get(id)?.name||'').join(' | ')}))),T.label.slice(0,30));XLSX.writeFile(wb,`${T.label}-યાદી.xlsx`);};}
+  const draw=()=>{const q=compact(ov.querySelector('#slQ').value);const F=L.filter(g=>!q||compact(g.val).includes(q));ov.querySelector('#slB').innerHTML=F.slice(0,1500).map((g,i)=>`<tr class="click" ${g.k?`data-ent="${esc(g.k)}"`:g.type==='name'&&g.man[0]?`data-oed="${esc(g.man[0].o.id)}"`:`data-nn="${esc('v:'+k+'|'+(valKey(k,g.val)||keyFor(k,g.val)))}"`}><td>${i+1}</td><td><b>${esc(g.val)}</b>${g.man.length&&!g.files?' <small class="muted">✍️ જાતે ભરેલ</small>':''}</td><td>${own(g)||(g.man.length?g.man.slice(0,2).map(m=>esc(m.txt)).join('<br>'):'<span class="muted">—</span>')}</td><td>${g.files||'—'}</td><td>${g.occ}</td></tr>`).join('')+(F.length>1500?`<tr><td colspan="5" class="muted">…${F.length-1500} વધુ — શોધ વાપરો</td></tr>`:'');};draw();
+  ov.querySelector('#slQ').oninput=draw;ov.querySelector('#slX').onclick=()=>{const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(L.map(g=>({[T.label]:g.val,'કોનો / જોડી':own(g).replace(/<[^>]+>/g,''),'ફાઇલ':g.files,'વાર':g.occ,'ફાઇલો':g.fnames.join(' | '),'જાતે ભરેલ':g.man.map(m=>m.txt.replace('👥 ','')).join(' | ')}))),T.label.slice(0,30));XLSX.writeFile(wb,`${T.label}-યાદી.xlsx`);};}
 document.addEventListener('click',e=>{const s=e.target.closest('[data-stk]');if(s)statList(s.dataset.stk);});
 function openEntity(k){
   const g=sindex.get(k)||index.get(k);if(!g){toast('આ માહિતી અવગણેલી છે અથવા મળી નથી');return;}
@@ -1340,7 +1341,7 @@ function renderAll(){
   const ml=matchList();const c=counts();const SD=sdocs();updateNavReg();renderCommonBadge();if($('#tab-common').classList.contains('on'))renderCommon();
   $('#c-files').textContent=SD.length||'';$('#c-others').textContent=(settings.others||[]).length||'';$('#c-photos').textContent=PH.m.size||'';$('#c-watch').textContent=settings.watch.length||'';
   $('#hstats').innerHTML=`<span>${regIcon(curReg)} ${SD.length} ફાઇલ</span><span>🔗 ${ml.length} કોમન</span>`;
-  $('#stats').innerHTML=[['📁 ફાઇલો',SD.length,'#1d3a8a'],['🔗 મેચ',ml.length,'#dc2626'],...['name','phone','vehicle','imei','fir'].map(t=>[TYPES[t].icon+' '+TYPES[t].label,c[t]||0,TYPES[t].color])].map(([l,n,col],i)=>`<div class="stat clk" style="--c:${col};cursor:pointer" data-stk="${['files','match','name','phone','vehicle','imei','fir'][i]}"><b>${n}</b><span>${l} <small>▸ યાદી</small></span></div>`).join('');
+  $('#stats').innerHTML=[['📁 ફાઇલો',SD.length,'#1d3a8a'],['🔗 મેચ',ml.length,'#dc2626'],...(()=>{const dc={};dataRows(sindex).forEach(r=>dc[r.type]=(dc[r.type]||0)+1);return ['name','phone','vehicle','imei','fir'].map(t=>[TYPES[t].icon+' '+TYPES[t].label,dc[t]||0,TYPES[t].color]);})()].map(([l,n,col],i)=>`<div class="stat clk" style="--c:${col};cursor:pointer" data-stk="${['files','match','name','phone','vehicle','imei','fir'][i]}"><b>${n}</b><span>${l} <small>▸ યાદી</small></span></div>`).join('');
   $('#topMatches').innerHTML=ml.length?ml.slice(0,8).map(g=>matchCard(g)).join(''):'<div class="empty">હજી કોઈ મેચ નથી. 2 કે વધુ ફાઇલ અપલોડ કરો.</div>';
   $('#recent').innerHTML=SD.length?[...SD].sort((a,b)=>b.addedAt-a.addedAt).slice(0,6).map(fileItem).join(''):'<div class="empty">હજી કોઈ ફાઇલ નથી</div>';
   renderFiles();
@@ -1364,12 +1365,28 @@ function renderMatches(){
   const sim=similarPairs().slice(0,150);
   $('#simList').innerHTML=sim.length?sim.map(p=>`<div class="occ">${chip(p.a)} ↔ ${chip(p.b)} <small class="muted">${p.why}</small></div>`).join(''):'<div class="empty">લગભગ સરખા નામ નથી</div>';
 }
+/* બધી માહિતી = ફાઇલમાંથી + જાતે ભરેલ (અન્ય વ્યક્તિ, કેસમાં જાતે ભરેલ) */
+const OF_TY={name:'name',mob:'phone',wa:'phone',bmob:'phone',imei:'imei',bimei:'imei',veh:'vehicle'};
+const OF_LB={name:'નામ',mob:'મોબાઇલ',wa:'વોટ્સએપ',bmob:'B-પાર્ટી મો.',imei:'IMEI',bimei:'B-પાર્ટી IMEI',veh:'ગાડી',social:'સોશિયલ'};
+function dataRows(src){const M=new Map();
+  for(const g of src.values())M.set(g.type+'|'+g.key,{type:g.type,val:disp(g),k:g.k,files:g.docs.size,occ:g.occ.length,fnames:[...g.docs].map(id=>docMap.get(id)?.name||''),man:[],g});
+  for(const o of (settings.others||[])){const who=o.name||'નામ અજાણ';
+    const add=(type,v,f)=>{v=String(v||'').trim();if(!v)return;let key=type==='name'?keyFor('name',v):type==='custom'?keyFor('custom',v):valKey(type,v)||keyFor(type,v);if(!key||key.length<3)return;const mk=type+'|'+key;
+      let r=M.get(mk);if(!r){r={type,val:type==='phone'?key:v,k:null,files:0,occ:0,fnames:[],man:[]};M.set(mk,r);}r.occ++;r.man.push({o,txt:`👥 ${who} (${OF_LB[f]||f})`});};
+    if(o.name)add('name',o.name,'name');for(const f of ['mob','wa','bmob','imei','bimei','veh'])for(const v of (o[f]||[]))add(OF_TY[f],v,f);
+    for(const x of (o.socials||[])){const v=socKey(x);if(v)add('custom',v,'social');}}
+  return [...M.values()];}
+const dMatch=r=>r.files>=2||(r.g&&settings.rowMatch&&r.g.units.size>=2)||(r.files+new Set(r.man.map(m=>m.o.id)).size)>=2;
 function renderData(){
-  typeFilter($('#dFilter'),dType,t=>{dType=t;renderData();});
+  const all=dataRows(sindex);const c={};all.forEach(r=>c[r.type]=(c[r.type]||0)+1);
+  const fe=$('#dFilter');fe.innerHTML=`<button data-t="all" class="${dType==='all'?'on':''}">બધા (${all.length})</button>`+TYPE_ORDER.filter(t=>c[t]).map(t=>`<button data-t="${t}" class="${dType===t?'on':''}">${TYPES[t].icon} ${TYPES[t].label} (${c[t]})</button>`).join('')+`<button data-t="man" class="${dType==='man'?'on':''}">✍️ જાતે ભરેલ (${all.filter(r=>r.man.length).length})</button>`;
+  fe.onclick=e=>{const b=e.target.closest('[data-t]');if(b){dType=b.dataset.t;renderData();}};
   const q=compact($('#dSearch').value),only=$('#dOnly').checked;
-  const arr=[...sindex.values()].filter(g=>(dType==='all'||g.type===dType)&&(!only||isMatch(g))&&(!q||[...g.values.keys()].some(v=>compact(v).includes(q)))).sort((a,b)=>b.docs.size-a.docs.size||tOrd(a.type)-tOrd(b.type));
-  $('#dataTable').innerHTML=arr.length?`<table><thead><tr><th>પ્રકાર</th><th>માહિતી</th><th>ફાઇલ</th><th>કેટલી વાર</th><th>ફાઇલોના નામ</th></tr></thead><tbody>${arr.slice(0,1500).map(g=>`<tr class="click" data-ent="${esc(g.k)}"><td>${TYPES[g.type].icon} ${TYPES[g.type].label}</td><td><b>${esc(disp(g))}</b></td><td>${g.docs.size>1?`<span class="tag red">${g.docs.size}</span>`:g.docs.size}</td><td>${g.occ.length}</td><td class="muted" style="font-size:12.5px">${[...g.docs].slice(0,3).map(id=>esc(docMap.get(id)?.name||'')).join(', ')}${g.docs.size>3?'…':''}</td></tr>`).join('')}</tbody></table>${arr.length>1500?`<div class="empty">પહેલા 1500 બતાવ્યા (કુલ ${arr.length}) — શોધ વાપરો</div>`:''}`:'<div class="card empty">કોઈ માહિતી નથી</div>';
+  const arr=all.filter(r=>(dType==='all'||(dType==='man'?r.man.length:r.type===dType))&&(!only||dMatch(r))&&(!q||compact(r.val).includes(q)||r.man.some(m=>compact(m.txt).includes(q)))).sort((a,b)=>(b.files+b.man.length)-(a.files+a.man.length)||tOrd(a.type)-tOrd(b.type));
+  const attr=r=>{if(r.k)return `data-ent="${esc(r.k)}"`;if(r.type==='name'&&r.man[0])return `data-oed="${esc(r.man[0].o.id)}"`;const vk=valKey(r.type,r.val)||keyFor(r.type,r.val);return `data-nn="${esc('v:'+r.type+'|'+vk)}"`;};
+  $('#dataTable').innerHTML=arr.length?`<table><thead><tr><th>પ્રકાર</th><th>માહિતી</th><th>ફાઇલ</th><th>કેટલી વાર</th><th>ક્યાંથી (ફાઇલ / જાતે ભરેલ)</th></tr></thead><tbody>${arr.slice(0,1500).map(r=>`<tr class="click" ${attr(r)}><td>${TYPES[r.type].icon} ${TYPES[r.type].label}</td><td><b>${esc(r.val)}</b>${dMatch(r)?' <span class="tag red">મેચ</span>':''}</td><td>${r.files>1?`<span class="tag red">${r.files}</span>`:r.files||'—'}</td><td>${r.occ}</td><td class="muted" style="font-size:12.5px">${r.fnames.slice(0,3).map(esc).join(', ')}${r.files>3?'…':''}${r.files&&r.man.length?'<br>':''}${r.man.slice(0,4).map(m=>`<span class="tag" style="background:#ede9fe;color:#4c1d95">${esc(m.txt)}</span>`).join(' ')}${r.man.length>4?` …${r.man.length-4} વધુ`:''}</td></tr>`).join('')}</tbody></table>${arr.length>1500?`<div class="empty">પહેલા 1500 બતાવ્યા (કુલ ${arr.length}) — શોધ વાપરો</div>`:''}`:'<div class="card empty">કોઈ માહિતી નથી</div>';
 }
+document.addEventListener('click',e=>{if(!e.target.closest('#dataTable,#slB'))return;const ed=e.target.closest('[data-oed]');if(ed){e.stopPropagation();otherForm(ed.dataset.oed);}},true);
 function splitTerms(v){return uniq(String(v||'').split(/[,;\n\t]+|\s{3,}/).map(x=>x.trim()).filter(x=>x.length>=2));}
 function searchOne(raw){
   const q=compact(raw);const src=fuzzySrc(normDigits(raw));
@@ -2073,7 +2090,7 @@ function exportXlsx(){
   const all=[...index.values()].sort((a,b)=>b.docs.size-a.docs.size);
   {const keep=curReg;for(const rg of Object.keys(REG_DEF)){curReg=rg;rebuildCols();const cr=caseSheetRows();if(cr.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(cr),rg==='chori'?'ચોરી-ધાડ-લૂંટ':'પ્રોહીબીશન');}curReg=keep;rebuildCols();}
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(all.filter(isMatch).map(g=>({'પ્રકાર':TYPES[g.type].label,'માહિતી':disp(g),'બીજા સ્પેલિંગ':[...g.values.keys()].filter(v=>v!==disp(g)).join(', '),'ફાઇલ સંખ્યા':g.docs.size,'કેટલી વાર':g.occ.length,'ફાઇલો':[...g.docs].map(name).join(' | ')}))),'મેચ');
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(all.map(g=>({'પ્રકાર':TYPES[g.type].label,'માહિતી':disp(g),'ફાઇલ સંખ્યા':g.docs.size,'કેટલી વાર':g.occ.length,'ફાઇલો':[...g.docs].map(name).join(' | ')}))),'બધી માહિતી');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(dataRows(index).sort((a,b)=>(b.files+b.man.length)-(a.files+a.man.length)).map(r=>({'પ્રકાર':TYPES[r.type].label,'માહિતી':r.val,'ફાઇલ સંખ્યા':r.files,'કેટલી વાર':r.occ,'ફાઇલો':r.fnames.join(' | '),'જાતે ભરેલ':r.man.map(m=>m.txt.replace('👥 ','')).join(' | ')}))),'બધી માહિતી');
   const rows=[];for(const d of docs)for(const e of d.entities)rows.push({'ફાઇલ':d.name,'પ્રકાર':TYPES[e.type].label,'માહિતી':e.value,'સંદર્ભ':String(e.ctx||'').slice(0,500)});
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'વિગતવાર');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(docs.map(d=>({'ફાઇલ':d.name,'પ્રકાર':d.ext,'તારીખ':fmtDate(d.addedAt),'માહિતી સંખ્યા':d.entities.length,'OCR':d.method==='ocr'?'હા':''}))),'ફાઇલો');
@@ -2725,7 +2742,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=9;
+const APP_VERSION=10;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
