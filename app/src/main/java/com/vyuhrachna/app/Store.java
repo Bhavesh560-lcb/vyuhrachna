@@ -57,7 +57,12 @@ public final class Store {
         for (int i = 0; i < s.length(); i++) {
             String k = norm(s.optString(i));
             if (k.length() < 3) continue;
-            if (f.equals(k) || f.endsWith(k) || (k.endsWith(f) && f.length() >= 5) || f.contains(k)) return true;
+            if (k.matches("\\d+")) {
+                // નંબર: પૂરો સરખો, અથવા આગળ +91 / 0 જેવો નાનો ફેર જ
+                if (f.equals(k) || (f.endsWith(k) && f.length() - k.length() <= 3)) return true;
+            } else if (f.equals(k) || f.contains(k)) {
+                return true; // Sender ID: AD-AIRTEL, VM-AIRTEL-S વગેરે
+            }
         }
         return false;
     }
@@ -77,6 +82,28 @@ public final class Store {
         return false;
     }
 
+    /** ફક્ત ટીક કરેલા / આપમેળે મોકલાતા નંબરનો રિપ્લાય */
+    static boolean watchMatch(Context c, String body) {
+        JSONArray w = cfg(c).optJSONArray("watch");
+        if (w == null || w.length() == 0) return false;
+        java.util.HashSet<String> set = new java.util.HashSet<>();
+        for (int i = 0; i < w.length(); i++) set.add(w.optString(i));
+        boolean any = false;
+        Matcher m = MOB.matcher(body == null ? "" : body);
+        while (m.find()) {
+            any = true;
+            if (set.contains(m.group(1))) return true;
+        }
+        if (any) return false;
+        // નંબર વગરનો રિપ્લાય: છેલ્લા 2 કલાકમાં ટીક કરેલા નંબર માટે SMS મોકલ્યો હોય તો જ
+        try {
+            JSONObject sent = new JSONObject(prefs(c).getString("sentNums", "{}"));
+            long lim = System.currentTimeMillis() - 2L * 3600 * 1000;
+            for (String n : set) if (sent.optLong(n, 0) > lim) return true;
+        } catch (Exception ignored) {}
+        return false;
+    }
+
     static boolean enabled(Context c) {
         return cfg(c).optBoolean("enabled", true);
     }
@@ -84,7 +111,7 @@ public final class Store {
     /** ફક્ત સેટ કરેલા કંપનીના નંબર / Sender ID ના SMS — બીજા કોઈ અંગત SMS નહીં */
     static boolean isReply(Context c, String from, String body) {
         if (!enabled(c)) return false;
-        if (cfg(c).optBoolean("strict", true)) return senderMatch(c, from);
+        if (cfg(c).optBoolean("strict", true)) return senderMatch(c, from) && watchMatch(c, body);
         return senderMatch(c, from) || bodyHasSentNumber(c, body);
     }
 
@@ -134,11 +161,46 @@ public final class Store {
     }
 
     /** ગુજરાતમાં છે? કારણ પાછું આપે, નહીં તો null */
+    static final double[][] GJ_POLY = {{68.1,23.55},{68.45,24.05},{68.75,24.3},{69.6,24.3},{70.1,24.25},{70.6,24.42},{71.1,24.45},{71.5,24.65},{72.3,24.62},{72.9,24.55},{73.25,24.35},{73.45,23.95},{73.7,23.55},{74.0,23.35},{74.3,23.05},{74.48,22.85},{74.25,22.4},{74.05,22.05},{73.85,21.75},{73.85,21.5},{73.75,21.15},{73.65,20.85},{73.55,20.55},{73.4,20.25},{72.95,20.1},{72.65,20.15},{72.55,20.6},{72.5,21.1},{72.3,21.4},{71.6,20.85},{71.0,20.6},{70.3,20.75},{69.5,21.45},{68.85,22.15},{68.85,22.6},{68.4,23.1}};
+    static final String GJ_CODES_DEF = "405-857, 404-98, 404-05, 404-24, 404-57";
+    private static final Pattern LAT = Pattern.compile("(?i)\\bLAT(?:ITUDE)?\\s*[:\\-=]?\\s*(-?\\d{1,2}\\.\\d+)");
+    private static final Pattern LON = Pattern.compile("(?i)\\bLONG?(?:ITUDE)?\\s*[:\\-=]?\\s*(-?\\d{2,3}\\.\\d+)");
+    private static final Pattern LL = Pattern.compile("(-?\\d{1,2}\\.\\d{3,})\\s*[,\\s]\\s*(-?\\d{2,3}\\.\\d{3,})");
+    private static final Pattern CELL = Pattern.compile("(?i)(?:CELL\\s*ID|CELLID)\\s*[:\\-]?\\s*(\\w+)");
+
+    static boolean inGujarat(double lat, double lon) {
+        boolean in = false;
+        for (int i = 0, j = GJ_POLY.length - 1; i < GJ_POLY.length; j = i++) {
+            double xi = GJ_POLY[i][0], yi = GJ_POLY[i][1], xj = GJ_POLY[j][0], yj = GJ_POLY[j][1];
+            if (((yi > lat) != (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi)) in = !in;
+        }
+        return in;
+    }
+
     static String gujaratReason(Context c, String body) {
         if (body == null) return null;
         JSONObject cfg = cfg(c);
-        String up = body.toUpperCase(Locale.ROOT);
+        // IMSI / IMEI / MSISDN લાઇન લોકેશન નથી
+        StringBuilder sb = new StringBuilder();
+        for (String l : body.split("\n")) if (!l.trim().toUpperCase(Locale.ROOT).matches("^(IMSI|IMEI|MSISDN|REQ).*")) sb.append(l).append('\n');
+        String tl = sb.toString();
+        // 1. Lat/Long
+        Double la = null, lo = null;
+        Matcher a = LAT.matcher(body), b = LON.matcher(body);
+        if (a.find() && b.find()) { la = Double.valueOf(a.group(1)); lo = Double.valueOf(b.group(1)); }
+        else { Matcher m = LL.matcher(body); if (m.find()) { la = Double.valueOf(m.group(1)); lo = Double.valueOf(m.group(2)); } }
+        if (la != null) return inGujarat(la, lo) ? "Lat/Long ગુજરાતમાં" : null;
+        // 2. Cell ID નું MCC-MNC
         String codes = cfg.optString("gjCodes", "");
+        if (codes.trim().isEmpty()) codes = GJ_CODES_DEF;
+        Matcher cm = CELL.matcher(tl);
+        if (cm.find()) {
+            String x = cm.group(1).replaceAll("[^0-9A-Fa-f]", "");
+            String mm = x.startsWith("405") && x.length() >= 6 ? x.substring(0, 6) : x.startsWith("404") && x.length() >= 5 ? x.substring(0, 5) : "";
+            if (!mm.isEmpty()) for (String k : codes.split("[,\\n]")) { String kk = k.replaceAll("\\D", ""); if (!kk.isEmpty() && kk.equals(mm)) return "ટાવર " + k.trim() + " (ગુજરાત)"; }
+        }
+        body = tl;
+        String up = body.toUpperCase(Locale.ROOT);
         Matcher m = CGI.matcher(body);
         if (m.find() && !codes.trim().isEmpty()) {
             String cgi = m.group(1) + "-" + m.group(2) + "-" + m.group(3) + "-" + m.group(4);

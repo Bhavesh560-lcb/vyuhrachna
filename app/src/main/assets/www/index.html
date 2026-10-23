@@ -505,7 +505,7 @@ body.locked{overflow:hidden}
   <div class="card" style="margin-top:12px"><h3>② કંપનીનો રિપ્લાય ઉમેરો</h3>
     <textarea class="inp" id="smsRep" style="width:100%;min-height:90px" placeholder="કંપનીનો આખો રિપ્લાય SMS અહીં પેસ્ટ કરો…"></textarea>
     <div class="row gap" style="margin-bottom:0"><button class="btn pri" id="smsRepB">📥 રિપ્લાય સેવ કરો</button><button class="btn" id="smsInbox" style="display:none">📥 Inbox માંથી રિપ્લાય વાંચો</button></div></div>
-  <div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><h3 style="margin:0">③ રિપ્લાય / લોકેશન લોગ</h3><div class="row" style="gap:8px"><label><input type="checkbox" id="smsLogGJ"> ફક્ત 🚨 ગુજરાત</label><button class="btn" id="smsXls">📊 Excel</button></div></div>
+  <div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><h3 style="margin:0">③ રિપ્લાય / લોકેશન લોગ</h3><div class="row" style="gap:8px"><label><input type="checkbox" id="smsLogGJ"> ફક્ત 🚨 ગુજરાત</label><button class="btn" id="smsXls">📊 Excel</button><button class="btn danger" id="smsClean" title="ટીક ન કરેલા નંબરના / ખોટા સેવ થયેલા મેસેજ કાઢો">🧹 બીજા મેસેજ કાઢો</button></div></div>
     <div id="smsLog" style="margin-top:10px"></div></div>
 </section>
 
@@ -1937,13 +1937,23 @@ function applyRemoteMeta(s){if(!s.exists)return;const m=s.data();SYNC.applying=t
 
 /* ===================== SMS તપાસ (નંબર → કંપની → રિપ્લાય) ===================== */
 const OPS=[['jio','Jio'],['airtel','Airtel'],['vi','Vi (Vodafone-Idea)'],['bsnl','BSNL'],['other','અન્ય']];
+/* ગુજરાત સર્કલના MCC-MNC (Cell ID / CGI ની શરૂઆત) — Jio, Airtel, Vi (Vodafone / Idea), BSNL */
+const GJ_CODES_DEF='405-857, 404-98, 404-05, 404-24, 404-57';
+/* ગુજરાતની આશરે સરહદ (lon,lat) — Lat/Long ગુજરાતમાં છે કે નહીં તે માટે */
+const GJ_POLY=[[68.1,23.55],[68.45,24.05],[68.75,24.3],[69.6,24.3],[70.1,24.25],[70.6,24.42],[71.1,24.45],[71.5,24.65],[72.3,24.62],[72.9,24.55],[73.25,24.35],[73.45,23.95],[73.7,23.55],[74.0,23.35],[74.3,23.05],[74.48,22.85],[74.25,22.4],[74.05,22.05],[73.85,21.75],[73.85,21.5],[73.75,21.15],[73.65,20.85],[73.55,20.55],[73.4,20.25],[72.95,20.1],[72.65,20.15],[72.55,20.6],[72.5,21.1],[72.3,21.4],[71.6,20.85],[71.0,20.6],[70.3,20.75],[69.5,21.45],[68.85,22.15],[68.85,22.6],[68.4,23.1]];
+function inGujarat(lat,lon){let inside=false;for(let i=0,j=GJ_POLY.length-1;i<GJ_POLY.length;j=i++){const [xi,yi]=GJ_POLY[i],[xj,yj]=GJ_POLY[j];if(((yi>lat)!==(yj>lat))&&(lon<(xj-xi)*(lat-yi)/(yj-yi)+xi))inside=!inside;}return inside;}
 const GJ_KEYS_DEF='GUJARAT, GUJ, AHMEDABAD, AMRELI, ANAND, ARAVALLI, BANASKANTHA, BHARUCH, BHAVNAGAR, BOTAD, CHHOTA UDAIPUR, CHHOTAUDEPUR, DAHOD, DANG, DWARKA, GANDHINAGAR, GIR SOMNATH, JAMNAGAR, JUNAGADH, KHEDA, KUTCH, KACHCHH, MAHISAGAR, MEHSANA, MORBI, NARMADA, NAVSARI, PANCHMAHAL, GODHRA, PATAN, PORBANDAR, RAJKOT, SABARKANTHA, HIMMATNAGAR, SURAT, SURENDRANAGAR, TAPI, VADODARA, BARODA, VALSAD, VAPI, THARAD, PALANPUR, GONDAL, JETPUR, DHORAJI, UPLETA, JASDAN, BHUJ, GANDHIDHAM, NADIAD, ANKLESHWAR, ગુજરાત, અમદાવાદ, રાજકોટ, સુરત, વડોદરા, જામનગર, જૂનાગઢ, ભાવનગર, મોરબી, ગોંડલ, જેતપુર, ધોરાજી, ઉપલેટા, જસદણ, કચ્છ';
 let smsLog=[],smsSel=new Set(),smsScope='reg',smsQ='',smsLogGJ=false,smsSrc='acc';
 smsSrc='all';try{smsSrc=localStorage.getItem('tk_smssrc')||'all';}catch(_){}
 const SMS_EVERY=[[0,'બંધ'],[5,'દર 5 મિનિટ'],[10,'દર 10 મિનિટ'],[15,'દર 15 મિનિટ'],[30,'દર 30 મિનિટ'],[60,'દર 1 કલાક'],[120,'દર 2 કલાક'],[180,'દર 3 કલાક'],[360,'દર 6 કલાક'],[720,'દર 12 કલાક'],[1440,'દર 24 કલાક']];
 const smsOn=()=>smsCfg().enabled!==false;
-const smsCfg=()=>{settings.sms=settings.sms||{};const c=settings.sms;c.to=c.to||{};c.tpl=c.tpl||{};c.gjKeys=c.gjKeys??GJ_KEYS_DEF;c.gjCodes=c.gjCodes??'';c.ops=c.ops||{};return c;};
-async function smsLoad(){try{smsLog=(await DB.get('kv','smslog'))||[];}catch(_){smsLog=[];}}
+const smsCfg=()=>{settings.sms=settings.sms||{};const c=settings.sms;c.to=c.to||{};c.tpl=c.tpl||{};c.gjKeys=c.gjKeys??GJ_KEYS_DEF;c.gjCodes=c.gjCodes||GJ_CODES_DEF;c.ops=c.ops||{};return c;};
+async function smsLoad(){try{smsLog=(await DB.get('kv','smslog'))||[];}catch(_){smsLog=[];}smsSel=new Set(smsCfg().sel||[]);
+  /* જૂના રિપ્લાય નવા નિયમથી ફરી તપાસો (Lat/Long, ટાવર કોડ) */
+  let ch=false;for(const e of smsLog){if(e.kind!=='reply'||e.v2)continue;const p=parseReply(e.text);Object.assign(e,{cgi:p.cgi,cell:p.cell,ll:p.ll,gj:p.gj,gjWhy:p.gjWhy,where:p.where,mm:p.mm,v2:1});ch=true;}if(ch)smsSave();}
+/* ટીક કરેલા + આપમેળે મોકલાતા + છેલ્લા 48 કલાકમાં SMS મોકલેલા નંબર — ફક્ત તેમના જ રિપ્લાય સેવ થશે */
+function smsWatched(){const c=smsCfg();const w=new Set(smsSel);Object.entries(c.every||{}).forEach(([n,m])=>{if(+m>0)w.add(n);});const lim=Date.now()-48*3600e3;smsLog.forEach(e=>{if(e.kind==='sent'&&e.at>lim&&e.num)w.add(e.num);});return w;}
+let smsSelSig='';function smsSaveSel(){const c=smsCfg();const a=[...smsSel].sort();const sig=a.join(',');if(sig===smsSelSig)return;smsSelSig=sig;c.sel=a;saveSettings();smsPushNative();}
 const smsSave=()=>DB.put('kv',smsLog,'smslog').catch(()=>{});
 function smsNumbers(){
   const map=new Map();
@@ -1961,6 +1971,7 @@ function smsNumbers(){
 const lastOf=n=>{const L=smsLog.filter(e=>e.num===n);return {sent:L.filter(e=>e.kind==='sent').pop(),rep:L.filter(e=>e.kind==='reply').pop()};};
 function renderSms(){
   if(NATIVE)try{smsReadSchedule();}catch(_){}
+  try{smsSaveSel();}catch(_){}
   const c=smsCfg();const L=smsNumbers();const q=compact(smsQ);
   const qd=String(smsQ).replace(/\D/g,'');
   let F=L.filter(o=>(smsSrc!=='sel'||smsSel.has(o.n))&&(!q||o.n.includes(qd||q)||o.people.some(p=>compact(p.name).includes(q))));
@@ -1980,16 +1991,16 @@ function renderSms(){
       <td>${l.sent?`<small>${fmtDate(l.sent.at)}</small>${l.sent.status?`<div><span class="tag ${l.sent.status==='sent'?'ok':/fail|err/.test(l.sent.status)?'red':''}">${{sent:'✅ ગયો',queued:'⏳ મોકલાય છે',failed:'❌ નિષ્ફળ',error:'❌ ભૂલ'}[l.sent.status]||esc(l.sent.status)}</span></div>`:''}`:'<small class="muted">—</small>'}</td>
       <td>${l.rep?`${l.rep.gj?'<span class="tag red">🚨 ગુજરાત</span> ':''}<small>${fmtDate(l.rep.at)}</small><div style="font-size:12.5px">${esc(l.rep.loc||l.rep.cgi||l.rep.text.slice(0,90))}</div>`:'<small class="muted">—</small>'}</td></tr>`;}).join('')}</tbody></table>`:'<div class="empty">આરોપીના મોબાઇલ નંબર હજી ભરેલ નથી. રજીસ્ટરમાં આરોપીના મોબાઇલ ખાનામાં નંબર ભરો અથવા "➕ નંબર ઉમેરો".</div>');
   const LG=smsLog.filter(e=>e.kind==='reply'&&(!smsLogGJ||e.gj)).slice().reverse();
-  $('#smsLog').innerHTML=LG.length?LG.map(e=>`<div class="mcard" style="--c:${e.gj?'#dc2626':'#64748b'}"><div class="mhead">${e.gj?'<span class="tag red">🚨 ગુજરાતમાં</span>':'<span class="tag">ગુજરાત બહાર / અજાણ</span>'}<b>${esc(e.num||'નંબર મળ્યો નથી')}</b>${e.name?`<small class="muted">${esc(e.name)}</small>`:''}<span style="margin-left:auto" class="muted">${fmtDate(e.at)}</span><button class="btn sm danger" data-lgdel="${e.id}">✕</button></div>
+  $('#smsLog').innerHTML=LG.length?LG.map(e=>`<div class="mcard" style="--c:${e.gj?'#dc2626':'#64748b'}"><div class="mhead">${e.gj?'<span class="tag red">🚨 ગુજરાતમાં</span>':e.where==='out'?'<span class="tag" style="background:#dcfce7;color:#166534">ગુજરાત બહાર</span>':'<span class="tag">અજાણ</span>'}<b>${esc(e.num||'નંબર મળ્યો નથી')}</b>${e.name?`<small class="muted">${esc(e.name)}</small>`:''}<span style="margin-left:auto" class="muted">${fmtDate(e.at)}</span><button class="btn sm danger" data-lgdel="${e.id}">✕</button></div>
     ${e.loc||e.cgi||e.cell?`<div style="margin-top:4px">${e.loc?`📍 <b>${esc(e.loc)}</b>`:''} ${e.cgi?`<span class="tag">CGI ${esc(e.cgi)}</span>`:''}${e.lac?`<span class="tag">LAC ${esc(e.lac)}</span>`:''}${e.cell?`<span class="tag">Cell ID ${esc(e.cell)}</span>`:''}${e.ll?`<a class="tag ok" target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(e.ll)}">🗺️ નકશો</a>`:''}</div>`:''}
-    <div class="occ" style="white-space:pre-wrap">${esc(e.text)}</div>${e.gjWhy?`<small class="muted">ગુજરાત કારણ: ${esc(e.gjWhy)}</small>`:''}</div>`).join(''):'<div class="empty">હજી કોઈ રિપ્લાય સેવ નથી.</div>';
+    <div class="occ" style="white-space:pre-wrap">${esc(e.text)}</div>${e.gjWhy?`<small class="muted">${e.gj?'ગુજરાત કારણ':'કારણ'}: ${esc(e.gjWhy)}</small>`:''}${e.mm?` <span class="tag">ટાવર ${esc(e.mm)}</span>`:''}</div>`).join(''):'<div class="empty">હજી કોઈ રિપ્લાય સેવ નથી.</div>';
 }
 let SCHED_NEXT={};
 function smsStateHTML(){const c=smsCfg();const on=smsOn();const b=$('#smsOnOff');if(b){b.textContent=on?'⏸️ SMS તપાસ બંધ કરો':'▶️ SMS તપાસ ચાલુ કરો';b.className='btn '+(on?'danger':'pri');}
   const senders=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(x=>String(x).trim()).filter(Boolean));const nEv=Object.values(c.every||{}).filter(x=>+x>0).length;
   const el=$('#smsState');if(!el)return;
   const oldApk=NATIVE&&typeof AndroidSMS.setSchedule!=='function';
-  el.innerHTML=on?`<div class="occ" style="border-left:5px solid #16a34a"><b>🟢 SMS તપાસ ચાલુ છે</b>${nEv?` • ⏱️ ${GU_D(nEv)} નંબર આપમેળે મોકલાય છે`:''}<br><small>📥 ફક્ત આ કંપનીના નંબર / Sender ID ના SMS જ વંચાશે — બીજા કોઈ SMS નહીં: <b>${senders.length?esc(senders.join(', ')):'⚠️ હજી કોઈ નંબર સેટ નથી — "⚙️ કંપનીના નંબર" માં ભરો, ત્યાં સુધી કોઈ SMS વંચાશે નહીં'}</b></small>${NATIVE&&nEv&&!SCHED_EXACT?`<br><small style="color:#b45309">⚠️ સમયસર મોકલવા માટે "ચોક્કસ સમયે એલાર્મ" ની મંજૂરી આપો — <button class="btn sm" id="smsExact">મંજૂરી આપો</button> <button class="btn sm" id="smsBatt">🔋 બેટરી બચત બંધ કરો</button></small>`:''}</div>`
+  el.innerHTML=on?`<div class="occ" style="border-left:5px solid #16a34a"><b>🟢 SMS તપાસ ચાલુ છે</b>${nEv?` • ⏱️ ${GU_D(nEv)} નંબર આપમેળે મોકલાય છે`:''}<br><small>📥 ફક્ત <b>ટીક કરેલા (${GU_D(smsWatched().size)}) નંબરના</b> કંપનીના રિપ્લાય જ સેવ થશે — બેંક / અંગત / બીજા કોઈ SMS નહીં. કંપનીના નંબર / Sender ID: <b>${senders.length?esc(senders.join(', ')):'⚠️ હજી કોઈ નંબર સેટ નથી — "⚙️ કંપનીના નંબર" માં ભરો, ત્યાં સુધી કોઈ SMS વંચાશે નહીં'}</b></small>${NATIVE&&nEv&&!SCHED_EXACT?`<br><small style="color:#b45309">⚠️ સમયસર મોકલવા માટે "ચોક્કસ સમયે એલાર્મ" ની મંજૂરી આપો — <button class="btn sm" id="smsExact">મંજૂરી આપો</button> <button class="btn sm" id="smsBatt">🔋 બેટરી બચત બંધ કરો</button></small>`:''}</div>`
     :`<div class="occ" style="border-left:5px solid #dc2626"><b>🔴 SMS તપાસ બંધ છે</b><br><small>કોઈ SMS મોકલાશે નહીં, આપમેળે મોકલવાનું બંધ છે અને કંપનીના રિપ્લાય પણ વંચાશે નહીં. ફરી ચાલુ કરવા ઉપર "▶️ SMS તપાસ ચાલુ કરો" દબાવો.</small></div>`;
   if(oldApk)el.innerHTML+=`<div class="occ" style="border-left:5px solid #d97706;margin-top:6px">⚠️ <b>આ ફોનમાં જૂની APK છે</b> — ⏱️ આપમેળે મોકલવું, ચાલુ/બંધ અને ફક્ત કંપનીના SMS વાંચવા માટે નવી APK ઇન્સ્ટોલ કરો. <button class="btn sm pri" id="smsNewApk">⬇️ નવી APK</button></div>`;}
 let SCHED_EXACT=true;
@@ -2021,21 +2032,38 @@ function parseReply(text){
   const c=smsCfg();const t=String(text||'');const T=t.toUpperCase();
   const nums=uniq((t.match(/(?<!\d)(?:\+?91[\s-]?)?([6-9]\d{9})(?!\d)/g)||[]).map(x=>x.replace(/\D/g,'').slice(-10)));
   const known=new Set(smsNumbers().map(o=>o.n));const sent=new Set(smsLog.filter(e=>e.kind==='sent').map(e=>e.num));
-  const num=nums.find(n=>sent.has(n))||nums.find(n=>known.has(n))||nums[0]||'';
-  const cgiM=t.match(/\b(40[45])[\s\-\/]*(\d{2,3})[\s\-\/]*(\d{1,6})[\s\-\/]*(\d{1,9})\b/);
-  const cgi=cgiM?`${cgiM[1]}-${cgiM[2]}-${cgiM[3]}-${cgiM[4]}`:((t.match(/CGI\s*[:\-]?\s*([\d\-\s]{8,30})/i)||[])[1]||'').trim();
-  const lac=(t.match(/LAC\s*[:\-]?\s*(\w+)/i)||[])[1]||'';const cell=(t.match(/(?:CELL\s*ID|CELLID|CI)\s*[:\-]?\s*(\w+)/i)||[])[1]||'';
-  const ll=(t.match(/(-?\d{1,2}\.\d{3,})\s*[,\s]\s*(-?\d{2,3}\.\d{3,})/)||[]).slice(1,3).join(',');
+  const W=smsWatched();const num=nums.find(n=>W.has(n))||nums.find(n=>sent.has(n))||nums.find(n=>known.has(n))||nums[0]||'';
+  /* IMSI / IMEI / MSISDN લાઇન લોકેશન નથી — તે કાઢીને જ CGI શોધો (IMSI = સિમ કયા સર્કલનું છે, ફોન ક્યાં છે તે નહીં) */
+  const tl=t.split(/\n/).filter(l=>!/^\s*(IMSI|IMEI|MSISDN|REQ(UEST)?\s*ID)/i.test(l)).join('\n');
+  const cgiM=tl.match(/\b(40[45])[\s\-\/]*(\d{2,3})[\s\-\/]*(\d{1,6})[\s\-\/]*(\d{1,9})\b/);
+  const cgi=cgiM?`${cgiM[1]}-${cgiM[2]}-${cgiM[3]}-${cgiM[4]}`:((tl.match(/CGI\s*[:\-]?\s*([\d\-\s]{8,30})/i)||[])[1]||'').trim();
+  const lac=(t.match(/LAC\s*[:\-]?\s*(\w+)/i)||[])[1]||'';const cell=(tl.match(/(?:CELL\s*ID|CELLID|\bCI)\s*[:\-]?\s*(\w+)/i)||[])[1]||'';
+  let ll=(t.match(/(-?\d{1,2}\.\d{3,})\s*[,\s]\s*(-?\d{2,3}\.\d{3,})/)||[]).slice(1,3).join(',');
+  {const la=(t.match(/\bLAT(?:ITUDE)?\s*[:\-=]?\s*(-?\d{1,2}\.\d+)/i)||[])[1],lo=(t.match(/\bLONG?(?:ITUDE)?\s*[:\-=]?\s*(-?\d{2,3}\.\d+)/i)||[])[1];if(la&&lo)ll=la+','+lo;}
+  /* Cell ID / CGI ની શરૂઆત = ફોન જે ટાવર પર છે તેનું MCC-MNC (દા.ત. 405857… = Jio ગુજરાત) */
+  const mm=(x=>{x=String(x||'').replace(/[^0-9A-F]/gi,'');const m=x.match(/^(405)(\d{3})/)||x.match(/^(404)(\d{2})/);return m?m[1]+'-'+m[2]:'';})(cgi?cgi.replace(/-/g,''):cell);
   const loc=((t.match(/(?:ADDRESS|ADDR|LOCATION|LOC|ADD|AREA|સરનામું|લોકેશન|સ્થળ)\s*[:\-–]\s*([^\n]{3,160})/i)||[])[1]||'').trim();
-  let gj=false,why='';
-  const codes=String(c.gjCodes||'').split(/[,\n]/).map(x=>x.replace(/\s/g,'')).filter(Boolean);
-  if(cgi){const cc=cgi.replace(/\s/g,'');const hit=codes.find(k=>cc.startsWith(k));if(hit){gj=true;why='MCC-MNC '+hit;}}
-  if(!gj){const keys=String(c.gjKeys||'').split(',').map(x=>x.trim()).filter(Boolean);const hit=keys.find(k=>{const K=k.toUpperCase();return /^[A-Z ]+$/.test(K)?new RegExp('\\b'+K.replace(/\s+/g,'\\s*')+'\\b').test(T):t.includes(k);});if(hit){gj=true;why='શબ્દ: '+hit;}}
+  let gj=false,why='',where='unk';
+  const codes=String(c.gjCodes||GJ_CODES_DEF).split(/[,\n]/).map(x=>x.replace(/\s/g,'')).filter(Boolean);
+  if(ll){const [la,lo]=ll.split(',').map(Number);if(isFinite(la)&&isFinite(lo)){if(inGujarat(la,lo)){gj=true;why=`Lat/Long ${la.toFixed(4)}, ${lo.toFixed(4)} ગુજરાતમાં`;where='gj';}else{where='out';why=`Lat/Long ${la.toFixed(4)}, ${lo.toFixed(4)} ગુજરાત બહાર`;}}}
+  if(!gj&&where!=='out'&&mm){const N=x=>x.replace(/\D/g,'');const hit=codes.find(k=>N(k)&&N(mm)===N(k));if(hit){gj=true;why='ટાવર MCC-MNC '+mm+' (ગુજરાત)';where='gj';}}
+  if(!gj&&where!=='out'&&cgi){const cc=cgi.replace(/\s/g,'');const hit=codes.find(k=>cc.startsWith(k));if(hit){gj=true;why='MCC-MNC '+hit;where='gj';}}
+  if(!gj&&where!=='out'){const keys=String(c.gjKeys||'').split(',').map(x=>x.trim()).filter(Boolean);const hit=keys.find(k=>{const K=k.toUpperCase();return /^[A-Z ]+$/.test(K)?new RegExp('\\b'+K.replace(/\s+/g,'\\s*')+'\\b').test(T):t.includes(k);});if(hit){gj=true;why='શબ્દ: '+hit;where='gj';}}
   const who=num?(smsNumbers().find(o=>o.n===num)||{people:[]}).people[0]:null;
-  return {num,cgi,lac,cell,ll,loc,gj,gjWhy:why,name:who?who.name:''};
+  return {num,cgi,lac,cell,ll,loc,gj,gjWhy:why,where,mm,name:who?who.name:''};
 }
+function smsSenderOK(from){const c=smsCfg();const N=x=>String(x||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const f=N(from);if(!f)return false;
+  const ks=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(N).filter(k=>k.length>=3));
+  return ks.some(k=>/^\d+$/.test(k)?(f===k||f.endsWith(k)&&f.length-k.length<=3):(f===k||f.includes(k)));}
 async function smsAddReply(text,silent,meta){
-  const p=parseReply(text);const e={id:uid(),kind:'reply',at:(meta&&meta.ts)||Date.now(),from:(meta&&meta.from)||'',text:String(text).trim(),...p};
+  if(meta){/* ફોનમાંથી આપમેળે આવેલો SMS — કડક ચકાસણી */
+    if(!smsOn())return null;
+    if(!smsSenderOK(meta.from))return null;
+    const W=smsWatched();const nums=uniq((String(text).match(/(?<!\d)(?:\+?91[\s-]?)?([6-9]\d{9})(?!\d)/g)||[]).map(x=>x.replace(/\D/g,'').slice(-10)));
+    if(nums.length){if(!nums.some(n=>W.has(n)))return null;}
+    else{/* નંબર વગરનો રિપ્લાય: એ જ કંપનીને 2 કલાકમાં મોકલેલા છેલ્લા નંબરનો ગણો */
+      const lim=Date.now()-2*3600e3;const last=[...smsLog].reverse().find(e=>e.kind==='sent'&&e.at>lim&&W.has(e.num));if(!last)return null;text=String(text)+'\n['+last.num+']';}}
+  const p=parseReply(text);const e={v2:1,id:uid(),kind:'reply',at:(meta&&meta.ts)||Date.now(),from:(meta&&meta.from)||'',text:String(text).trim(),...p};
   if(smsLog.some(x=>x.kind==='reply'&&x.text===e.text&&Math.abs(x.at-e.at)<120000))return null;smsLog.push(e);await smsSave();renderSms();
   if(p.gj)gjAlert(e);else if(!silent)toast(p.num?`રિપ્લાય સેવ થયો — ${p.num}`:'રિપ્લાય સેવ થયો (નંબર ઓળખાયો નહીં)','ok',4000);
   return e;
@@ -2056,13 +2084,17 @@ function smsSettingsModal(){
     <div class="sec">📥 કંપનીનો રિપ્લાય કયા નંબર / નામ (Sender ID) થી આવે છે</div>
     <p class="muted" style="font-size:12.5px;margin:0 0 4px">દા.ત. <code>JM-JIOINF</code>, <code>AD-AIRTEL</code> અથવા નંબર. અલ્પવિરામથી ઘણા લખી શકાય. Android એપ ફક્ત આ નામ / નંબરથી આવેલા SMS જ વાંચશે — તમારા અંગત SMS નહીં.</p>
     <textarea class="inp" id="smsFrom" rows="2" style="width:100%">${esc(c.from||'')}</textarea>
+    ${NATIVE&&typeof AndroidSMS.readSenders==='function'?`<button class="btn sm" data-a="senders" style="margin-top:6px">🔎 છેલ્લા 24 કલાકના SMS ના મોકલનાર જુઓ (કંપનીનું નામ શોધવા)</button><div id="sndList"></div>`:''}
     ${NATIVE?`<div class="sec">📱 Android એપ સેટિંગ</div><div class="row gap"><label class="pf"><span>કયા SIM થી મોકલવું</span><select class="inp" id="smsSim"><option value="">મૂળ (Default) SIM</option>${(()=>{try{return JSON.parse(AndroidSMS.getSims()||'[]')}catch(_){return []}})().map(x=>`<option value="${x.id}" data-n="${esc('SIM '+x.slot+' – '+x.carrier)}" ${String(c.subId)===String(x.id)?'selected':''}>SIM ${x.slot} – ${esc(x.carrier||x.name)}</option>`).join('')}</select></label><label class="pf"><span>બે SMS વચ્ચે સેકન્ડ</span><input class="inp" id="smsGap" type="number" min="2" value="${esc(c.gapSec||5)}" style="width:100px"></label></div>`:''}
     <div class="sec">🚨 ગુજરાત ઓળખવા માટે</div>
     <label class="pf"><span>રિપ્લાયમાં આમાંથી કોઈ શબ્દ આવે તો "ગુજરાત" ગણાશે (અલ્પવિરામથી અલગ)</span><textarea class="inp" id="gjK" rows="4">${esc(c.gjKeys)}</textarea></label>
-    <label class="pf" style="margin-top:8px"><span>ગુજરાત સર્કલના MCC-MNC કોડ (CGI ની શરૂઆત) — દા.ત. <code>404-xx</code>, દરેક અલ્પવિરામથી. તમારા CDR / ટાવર ડેટા પરથી ભરો.</span><textarea class="inp" id="gjC" rows="2">${esc(c.gjCodes)}</textarea></label>
+    <label class="pf" style="margin-top:8px"><span>ગુજરાત સર્કલના MCC-MNC કોડ (CGI ની શરૂઆત) — મૂળ ભરેલા: Jio 405-857, Airtel 404-98, Vodafone 404-05, Idea 404-24, BSNL 404-57. Lat/Long આવે તો તે પહેલાં ગણાય છે.</span><textarea class="inp" id="gjC" rows="2">${esc(c.gjCodes)}</textarea></label>
     <div class="mfoot"><button class="btn pri" data-a="save">💾 સેવ</button><button class="btn" data-a="def">↩ મૂળ શબ્દ યાદી</button></div>`,{wide:true});
-  ov.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;
-    if(a==='def'){ov.querySelector('#gjK').value=GJ_KEYS_DEF;return;}
+  ov.addEventListener('click',e=>{const as=e.target.closest('[data-addsnd]');if(as){const t=ov.querySelector('#smsFrom');const cur=t.value.split(/[,\n]/).map(x=>x.trim()).filter(Boolean);if(!cur.includes(as.dataset.addsnd))cur.push(as.dataset.addsnd);t.value=cur.join(', ');as.textContent='✔';return;}
+    const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;
+    if(a==='def'){ov.querySelector('#gjK').value=GJ_KEYS_DEF;ov.querySelector('#gjC').value=GJ_CODES_DEF;return;}
+    if(a==='senders'){let L=[];try{L=JSON.parse(AndroidSMS.readSenders(String(Date.now()-864e5))||'[]');}catch(_){}
+      ov.querySelector('#sndList').innerHTML=L.length?`<div class="muted" style="font-size:12.5px;margin:6px 0">કંપનીનો રિપ્લાય જે નામથી આવ્યો હોય તેના પર ➕ દબાવો — બીજા (બેંક, અંગત) ઉમેરશો નહીં</div>`+L.map(x=>`<div class="occ" style="display:flex;gap:8px;align-items:center;margin:3px 0"><span style="flex:1"><b>${esc(x.from)}</b> <small class="muted">(${x.n}) ${esc(x.snip||'')}</small></span><button class="btn sm" data-addsnd="${esc(x.from)}">➕</button></div>`).join(''):'<div class="muted">છેલ્લા 24 કલાકમાં કોઈ SMS નથી / મંજૂરી નથી</div>';return;}
     ov.querySelectorAll('[data-to]').forEach(i=>c.to[i.dataset.to]=i.value.trim());ov.querySelectorAll('[data-tpl]').forEach(i=>c.tpl[i.dataset.tpl]=i.value.trim()||'{NUM}');
     c.gjKeys=ov.querySelector('#gjK').value;c.gjCodes=ov.querySelector('#gjC').value;c.from=ov.querySelector('#smsFrom').value.trim();
     const sim=ov.querySelector('#smsSim');if(sim){c.subId=sim.value;c.simName=sim.value?sim.selectedOptions[0].dataset.n:'';c.gapSec=+ov.querySelector('#smsGap').value||5;}
@@ -2076,7 +2108,7 @@ function smsEvents(){
     c.enabled=!on;saveSettings();smsPushNative();smsPushSchedule();renderSms();toast(c.enabled?'🟢 SMS તપાસ ચાલુ':'🔴 SMS તપાસ બંધ',c.enabled?'ok':'');};
   $('#smsState').addEventListener('click',e=>{if(e.target.id==='smsNewApk'){updApk({});return;}if(e.target.id==='smsExact'){try{AndroidSMS.askExact();}catch(_){}}if(e.target.id==='smsBatt'){try{AndroidSMS.askBattery();}catch(_){}}});
   $('#smsQ').addEventListener('input',e=>{smsQ=e.target.value;const d=smsQ.replace(/\D/g,'');if(d.length>=10){const n=d.slice(-10);if(smsNumbers().some(o=>o.n===n)&&!smsSel.has(n)){smsSel.add(n);toast(`☑️ ${n} પસંદ થયો`,'ok',2500);}}renderSms();});
-  $('#smsList').addEventListener('change',e=>{const s=e.target.closest('[data-sel]');if(s){s.checked?smsSel.add(s.dataset.sel):smsSel.delete(s.dataset.sel);$('#smsCount').textContent=`${smsSel.size} પસંદ`;const sb=document.querySelector('#smsSrc [data-src=sel]');if(sb)sb.textContent=`☑️ ફક્ત પસંદ કરેલા (${smsSel.size})`;return;}
+  $('#smsList').addEventListener('change',e=>{const s=e.target.closest('[data-sel]');if(s){s.checked?smsSel.add(s.dataset.sel):smsSel.delete(s.dataset.sel);smsSaveSel();$('#smsCount').textContent=`${smsSel.size} પસંદ`;const sb=document.querySelector('#smsSrc [data-src=sel]');if(sb)sb.textContent=`☑️ ફક્ત પસંદ કરેલા (${smsSel.size})`;return;}
     if(e.target.id==='smsAll'){const q=compact(smsQ);smsNumbers().filter(o=>!q||o.n.includes(q)||o.people.some(p=>compact(p.name).includes(q))).forEach(o=>e.target.checked?smsSel.add(o.n):smsSel.delete(o.n));renderSms();return;}
     const o=e.target.closest('[data-op]');if(o){smsCfg().ops[o.dataset.op]=o.value;saveSettings();smsPushSchedule();return;}
     const ev=e.target.closest('[data-every]');if(ev){const n=ev.dataset.every,m=Math.max(0,Math.round(+ev.value||0));const c=smsCfg();c.every=c.every||{};
@@ -2097,6 +2129,8 @@ function smsEvents(){
   $('#smsRepB').onclick=async()=>{const t=$('#smsRep').value.trim();if(!t){toast('રિપ્લાય પેસ્ટ કરો','err');return;}await smsAddReply(t);$('#smsRep').value='';};
   $('#smsNotif').onclick=async()=>{if(!('Notification' in window)){toast('આ બ્રાઉઝરમાં નોટિફિકેશન નથી','err');return;}const r=await Notification.requestPermission();toast(r==='granted'?'🔔 નોટિફિકેશન ચાલુ':'નોટિફિકેશનની મંજૂરી મળી નહીં',r==='granted'?'ok':'err');};
   $('#smsLogGJ').onchange=e=>{smsLogGJ=e.target.checked;renderSms();};
+  $('#smsClean').onclick=()=>{const W=smsWatched();const bad=smsLog.filter(e=>e.kind==='reply'&&!(e.num&&W.has(e.num)));if(!bad.length){toast('કાઢવા જેવો કોઈ મેસેજ નથી — બધા ટીક કરેલા નંબરના છે','ok');return;}
+    if(!confirm(`${bad.length} મેસેજ ટીક કરેલા / આપમેળે મોકલાતા નંબરના નથી (દા.ત. બેંક, અંગત SMS).\n\nતે બધા લોગમાંથી કાઢી નાખવા છે?`))return;const ids=new Set(bad.map(e=>e.id));smsLog=smsLog.filter(e=>!ids.has(e.id));smsSave();renderSms();toast(`🧹 ${bad.length} મેસેજ કાઢ્યા`,'ok');};
   $('#smsLog').addEventListener('click',e=>{const d=e.target.closest('[data-lgdel]');if(d&&confirm('આ રિપ્લાય કાઢી નાખવો છે?')){smsLog=smsLog.filter(x=>x.id!==d.dataset.lgdel);smsSave();renderSms();}});
   $('#smsXls').onclick=()=>{const rows=smsLog.filter(e=>e.kind==='reply').map(e=>({'તારીખ':fmtDate(e.at),'મોબાઇલ':e.num,'આરોપી':e.name,'ગુજરાતમાં':e.gj?'હા':'','લોકેશન':e.loc,'CGI':e.cgi,'LAC':e.lac,'Cell ID':e.cell,'Lat,Long':e.ll,'રિપ્લાય':e.text}));if(!rows.length){toast('રિપ્લાય નથી','err');return;}const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'SMS રિપ્લાય');XLSX.writeFile(wb,`vyuhrachna-sms-${new Date().toISOString().slice(0,10)}.xlsx`);};
 }
@@ -2104,7 +2138,7 @@ function smsEvents(){
 const NATIVE=!!window.AndroidSMS;
 function b64OfBlob(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=rej;r.readAsDataURL(blob);});}
 function smsPushNative(){if(!NATIVE)return;const c=smsCfg();const senders=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(x=>String(x).trim()).filter(Boolean));
-  try{AndroidSMS.setConfig(JSON.stringify({senders,gjKeys:c.gjKeys||'',gjCodes:c.gjCodes||'',enabled:smsOn(),strict:true}));}catch(_){}}
+  try{AndroidSMS.setConfig(JSON.stringify({senders,gjKeys:c.gjKeys||'',gjCodes:c.gjCodes||'',enabled:smsOn(),strict:true,watch:[...smsWatched()]}));}catch(_){}}
 window.onSmsStatus=(num,st,err)=>{const e=[...smsLog].reverse().find(x=>x.kind==='sent'&&x.num===num);if(e){e.status=st;e.err=err;smsSave();}
   if(st==='failed'||st==='error')toast(`❌ ${num||''} SMS ન ગયો (${err||st})`,'err',6000);else if(st==='sent')toast(`✅ ${num} SMS ગયો`,'ok',2500);if($('#tab-sms').classList.contains('on'))renderSms();};
 window.onNativeSmsPending=async()=>{if(!NATIVE)return;let a=[];try{a=JSON.parse(AndroidSMS.getPending()||'[]');}catch(_){}
@@ -2791,7 +2825,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=12;
+const APP_VERSION=14;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};

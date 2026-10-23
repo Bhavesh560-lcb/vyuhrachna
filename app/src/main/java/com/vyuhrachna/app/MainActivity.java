@@ -541,6 +541,37 @@ public class MainActivity extends Activity {
             });
         }
 
+        /** કંપનીનું Sender ID શોધવા — ફક્ત મોકલનારનું નામ અને નાની ઝલક, કંઈ સેવ નથી થતું */
+        @JavascriptInterface
+        public String readSenders(String sinceMs) {
+            JSONArray out = new JSONArray();
+            if (!has(Manifest.permission.READ_SMS)) return out.toString();
+            long since = 0;
+            try {
+                since = Long.parseLong(sinceMs);
+            } catch (Exception ignored) {}
+            java.util.LinkedHashMap<String, JSONObject> map = new java.util.LinkedHashMap<>();
+            try (Cursor c = getContentResolver().query(Telephony.Sms.Inbox.CONTENT_URI,
+                    new String[]{"address", "body", "date"}, "date>?", new String[]{String.valueOf(since)}, "date DESC")) {
+                if (c != null) {
+                    while (c.moveToNext() && map.size() < 60) {
+                        String from = c.getString(0);
+                        if (from == null) continue;
+                        JSONObject o = map.get(from);
+                        if (o == null) {
+                            o = new JSONObject();
+                            String b = c.getString(1);
+                            o.put("from", from).put("n", 0).put("snip", b == null ? "" : b.substring(0, Math.min(50, b.length())));
+                            map.put(from, o);
+                        }
+                        o.put("n", o.optInt("n") + 1);
+                    }
+                }
+            } catch (Exception ignored) {}
+            for (JSONObject o : map.values()) out.put(o);
+            return out.toString();
+        }
+
         @JavascriptInterface
         public String getPending() {
             return Store.takePending(MainActivity.this);
