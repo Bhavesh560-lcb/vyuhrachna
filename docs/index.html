@@ -2,7 +2,7 @@
 <html lang="gu">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=0.5,maximum-scale=5,user-scalable=yes">
 <title>વ્યૂહરચના</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#6b1d0b">
@@ -440,7 +440,7 @@ body.locked{overflow:hidden}
   <div class="toolbar">
     <div class="seg" id="cView" style="margin:0"><button data-v="acc" class="on">દરેક આરોપી અલગ રો</button><button data-v="case">દરેક કેસ એક રો</button></div>
     <select class="inp" id="cSort"><option value="desc">નવી તારીખ પહેલાં</option><option value="asc">જૂની તારીખ પહેલાં</option></select>
-    <button class="btn" id="cXls">📊 Excel ડાઉનલોડ</button><button class="btn" id="cPrint">🖨️ પ્રિન્ટ</button><button class="btn" id="cUp">📤 ફાઇલ ઉમેરો</button><button class="btn" id="cUpF">📁 ફોલ્ડર ઉમેરો</button>
+    <button class="btn" id="cXls">📊 Excel</button><button class="btn" id="cDoc">📝 Word</button><button class="btn" id="cPdf">📄 PDF</button><button class="btn" id="cPrint">🖨️ પ્રિન્ટ</button><button class="btn" id="cUp">📤 ફાઇલ ઉમેરો</button><button class="btn" id="cUpF">📁 ફોલ્ડર ઉમેરો</button>
   </div>
   <div class="toolbar">
     <button class="btn pri" id="cNew">➕ નવો કેસ (હાથથી)</button><button class="btn" id="cCols">🧩 કોલમ ઉમેરો / સુધારો</button><button class="btn" id="cRouteList">🛣️ બોર્ડર રૂટ યાદી</button>
@@ -474,7 +474,7 @@ body.locked{overflow:hidden}
 
 <section id="tab-others" class="tab">
   <div class="card"><h2 style="margin:0 0 4px">👥 અન્ય વ્યક્તિ</h2><p class="muted" style="margin:0;font-size:13.5px">જે માણસ <b>પકડાયેલ પણ નથી અને બાકી આરોપી પણ નથી</b>, પણ આરોપીઓ સાથે સંપર્કમાં છે (B-પાર્ટી, સપ્લાયર, વાહન માલિક, સંબંધી…). તેમના નામ, નંબર, IMEI, ગાડી અને ફોટા અહીં ભેગા રાખો. એ સંપર્ક જાળ અને કોમનમાં આપમેળે જોડાશે.</p>
-    <div class="toolbar" style="margin:10px 0 0"><button class="btn pri" id="oAdd">➕ વ્યક્તિ ઉમેરો</button><input class="inp grow" id="oQ" placeholder="નામ / નંબર / ગાડી શોધો…"><label class="muted" style="font-size:13px"><input type="checkbox" id="oMulti"> ⚠️ ફક્ત ૨+ કેસ સાથે જોડાયેલ</label><button class="btn" id="oXls">📊 Excel</button></div></div>
+    <div class="toolbar" style="margin:10px 0 0"><button class="btn pri" id="oAdd">➕ વ્યક્તિ ઉમેરો</button><input class="inp grow" id="oQ" placeholder="નામ / નંબર / ગાડી શોધો…"><label class="muted" style="font-size:13px"><input type="checkbox" id="oMulti"> ⚠️ ફક્ત ૨+ કેસ સાથે જોડાયેલ</label><button class="btn" id="oXls">📊 Excel</button><button class="btn" id="oDoc">📝 Word</button><button class="btn" id="oPdf">📄 PDF</button></div></div>
   <div id="oOut" style="margin-top:12px"></div>
 </section>
 
@@ -1262,6 +1262,12 @@ async function handleFiles(list,opt={}){
 let navDepth=0;
 function goBack(){if(document.querySelector('.ov')){const o=[...document.querySelectorAll('.ov')].pop();if(o.back&&o.back())return;o.close();return;}if(navDepth>0)history.back();else showTab('dash',true);}
 window.addEventListener('pagehide',()=>{try{const nv=JSON.parse(sessionStorage.getItem('tk_nav')||'null');if(nv){nv.y=window.scrollY;sessionStorage.setItem('tk_nav',JSON.stringify(nv));}}catch(_){}});
+/* ===== ઝૂમ: PC માં Ctrl + માઉસ ચકરડી / Ctrl + − 0, મોબાઇલમાં બે આંગળી ===== */
+let appZoom=1;try{appZoom=+localStorage.getItem('tk_zoom')||1;}catch(_){}
+function setZoom(z,show){appZoom=Math.min(2.5,Math.max(0.5,Math.round(z*100)/100));document.body.style.zoom=appZoom===1?'':String(appZoom);try{localStorage.setItem('tk_zoom',String(appZoom));}catch(_){}if(show){let el=document.getElementById('zoomTip');if(!el){el=document.createElement('div');el.id='zoomTip';el.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100001;background:#1f2937;color:#fff;padding:6px 14px;border-radius:20px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3)';document.documentElement.appendChild(el);}el.innerHTML=`🔍 ${Math.round(appZoom*100)}% <button style="margin-left:8px;border:0;border-radius:10px;padding:2px 8px;cursor:pointer" onclick="setZoom(1,true)">100%</button>`;el.style.display='';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2200);}}
+window.addEventListener('wheel',e=>{if(!e.ctrlKey||e.target.closest?.('.ngraph'))return;e.preventDefault();setZoom(appZoom*(e.deltaY<0?1.1:1/1.1),true);},{passive:false});
+window.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey))return;if(e.key==='+'||e.key==='='){e.preventDefault();setZoom(appZoom*1.1,true);}else if(e.key==='-'){e.preventDefault();setZoom(appZoom/1.1,true);}else if(e.key==='0'){e.preventDefault();setZoom(1,true);}});
+document.addEventListener('DOMContentLoaded',()=>{if(appZoom!==1)setZoom(appZoom);});if(document.readyState!=='loading'&&appZoom!==1)setZoom(appZoom);
 function showTab(t,fromPop){
   if(t==='match')t='common';
   if(t!=='dash'&&typeof can==='function'&&AUTH.on&&((t==='admin'&&!isAdmin())||(t!=='admin'&&!can('tab:'+t)))){toast('🔒 આ વિભાગ તમારા માટે બંધ છે');t='dash';}
@@ -2719,8 +2725,47 @@ function renderOthers(){const q=compact($('#oQ').value),multi=$('#oMulti').check
   const tb=R.length?othersTableHTML(R):`<div class="card empty">${(settings.others||[]).length?'શોધ મુજબ કોઈ નથી':'હજી કોઈ અન્ય વ્યક્તિ નથી — ➕ વ્યક્તિ ઉમેરો, અથવા નીચે નામ વગરના B-પાર્ટી નંબરમાં "✏️ નામ ઉમેરો" દબાવો'}</div>`;
   const ub=U.length?`<div class="card" style="margin-top:12px"><h3>📞 નામ વગરના B-પાર્ટી નંબર (${GU_D(U.length)})</h3><div class="muted" style="font-size:12.5px;margin-bottom:6px">આ નંબર કોઈ આરોપીના B-પાર્ટીમાં છે, પણ કોનો છે તે ખબર નથી. નામ ખબર પડે તો "✏️ નામ ઉમેરો".</div><div class="tablewrap" style="max-height:60vh;overflow:auto"><table><thead><tr><th>નંબર</th><th>કોના B-પાર્ટીમાં</th><th></th></tr></thead><tbody>${U.slice(0,400).map(u=>`<tr><td><b class="click" data-nn="${esc(u.n.id)}" style="cursor:pointer">${esc(u.n.key)}</b>${u.cases>=2?` <span class="pill hit">${GU_D(u.cases)} કેસ</span>`:''}</td><td>${u.L.slice(0,6).map(tagP).join('<br>')}${u.L.length>6?`<br><small>…${u.L.length-6} વધુ</small>`:''}</td><td><button class="btn sm" data-oname="${esc(u.n.id)}">✏️ નામ ઉમેરો</button></td></tr>`).join('')}</tbody></table></div>${U.length>400?`<div class="muted">પહેલા 400 બતાવ્યા — શોધ વાપરો</div>`:''}</div>`:'';
   $('#oOut').innerHTML=tb+ub;$('#c-others').textContent=(settings.others||[]).length||'';}
-function othersExcel(){const R=otherRows();const U=unknownBParty();if(!R.length&&!U.length){toast('કોઈ માહિતી નથી','err');return;}const wb=XLSX.utils.book_new();
-  if(R.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(R.map(({o,L,cases})=>({'નામ':o.name,'સંબંધ':o.rel,'મોબાઇલ':(o.mob||[]).join(', '),'વોટ્સએપ':(o.wa||[]).join(', '),'IMEI':(o.imei||[]).join(', '),'ગાડી':(o.veh||[]).join(', '),'B-પાર્ટી':(o.bmob||[]).join(', '),'સરનામું':o.addr,'કોની સાથે':L.map(t=>t.label+' ('+caseShort(t.x)+')').join(' | '),'કેસ સંખ્યા':cases,'નોંધ':o.note}))),'અન્ય વ્યક્તિ');
+/* ===== કોષ્ટક → Word (.doc) / PDF — ગુજરાતી અક્ષર સાથે ===== */
+const EXP_CSS=`table{border-collapse:collapse;width:100%}th,td{border:1px solid #444;padding:3px 4px;vertical-align:top;white-space:pre-line;word-break:normal;overflow-wrap:break-word}th{background:#f3e8d6;font-weight:700}h2{text-align:center;margin:0 0 4px}.sub{text-align:center;color:#555;margin:0 0 8px;font-size:90%}`;
+function expGroupsHTML(G){/* દરેક કેસ (rowspan સાથે) એક tbody — પાનું તૂટે તો પણ કેસ વચ્ચેથી ન તૂટે */
+  const cover=new Map(),span=new Map();for(const m of (G.merges||[])){span.set(m.s.r+','+m.s.c,m.e.r-m.s.r+1);for(let r=m.s.r+1;r<=m.e.r;r++)cover.set(r+','+m.s.c,1);}
+  const starts=[];G.body.forEach((r,ri)=>{if(![...Array(G.head.length).keys()].some(ci=>cover.has(ri+','+ci)))starts.push(ri);});
+  return starts.map((a,k)=>{const b=(starts[k+1]??G.body.length)-1;let h='';for(let ri=a;ri<=b;ri++)h+=`<tr>${G.body[ri].map((c,ci)=>cover.has(ri+','+ci)?'':`<td${span.has(ri+','+ci)?` rowspan="${span.get(ri+','+ci)}"`:''}>${esc(c??'')}</td>`).join('')}</tr>`;return `<tbody>${h}</tbody>`;});}
+async function tableExport(fmt,{title,sub='',G,file,pageSize='a4',font=11,width=1100}){
+  /* બધી હરોળમાં ખાલી હોય તેવા ખાના કાઢો — પાનું વાંચી શકાય તેવું રહે */
+  {const keep=G.head.map((h,ci)=>ci===0||G.body.some(r=>String(r[ci]??'').trim()));const map=[];let k=0;keep.forEach((v,i)=>{map[i]=v?k++:-1;});
+    G={head:G.head.filter((h,i)=>keep[i]),body:G.body.map(r=>r.filter((c,i)=>keep[i])),merges:(G.merges||[]).filter(m=>keep[m.s.c]).map(m=>({s:{r:m.s.r,c:map[m.s.c]},e:{r:m.e.r,c:map[m.e.c]}})),count:G.count};}
+  const headH=`<thead><tr>${G.head.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>`;const groups=expGroupsHTML(G);const date=new Date().toISOString().slice(0,10);
+  if(fmt==='doc'){
+    const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(title)}</title><style>@page Section1{size:${pageSize==='a3'?'1190.6pt 841.9pt':'841.9pt 595.3pt'};mso-page-orientation:landscape;margin:24pt}div.Section1{page:Section1}body{font-family:"Nirmala UI","Shruti","Noto Sans Gujarati",sans-serif;font-size:${pageSize==='a3'?8:10}pt}${EXP_CSS}thead{display:table-header-group}</style></head><body><div class="Section1"><h2>${esc(title)}</h2>${sub?`<p class="sub">${esc(sub)}</p>`:''}<table border="1" cellspacing="0" cellpadding="3">${headH}${groups.join('')}</table></div></body></html>`;
+    download(`${file}-${date}.doc`,new Blob(['\ufeff'+html],{type:'application/msword'}));toast('📝 Word ફાઇલ તૈયાર — Word માં ખોલી પ્રિન્ટ / સેવ કરી શકાય','ok',5000);return;}
+  /* PDF: પાનાં મુજબ ગોઠવીને ચિત્ર તરીકે (ગુજરાતી અક્ષર બરાબર આવે) */
+  if(!window.html2canvas||!window.jspdf){try{await loadRepLibs();}catch(e){toast(e.message,'err');return;}}
+  progress(true,2,'📄 PDF બની રહી છે…');
+  const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:'pt',format:pageSize,orientation:'landscape'});const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight(),M=18;
+  const pageHpx=Math.floor((ph-2*M)/(pw-2*M)*width);
+  const host=document.createElement('div');host.style.cssText=`position:fixed;left:-99999px;top:0;width:${width}px;background:#fff;color:#111;font-family:"Noto Sans Gujarati","Nirmala UI",sans-serif;font-size:${font}px;line-height:1.35`;host.innerHTML=`<style>${EXP_CSS}</style>`;document.body.appendChild(host);
+  try{await document.fonts?.ready;
+    const mk=first=>{const d=document.createElement('div');d.style.cssText='background:#fff;padding:0';d.innerHTML=`${first?`<h2 style="font-size:${font+6}px">${esc(title)}</h2>${sub?`<p class="sub">${esc(sub)}</p>`:''}`:''}<table>${headH}</table>`;host.appendChild(d);return d;};
+    const pages=[];let cur=mk(true);pages.push(cur);
+    for(const g of groups){const t=cur.querySelector('table');t.insertAdjacentHTML('beforeend',g);if(cur.offsetHeight>pageHpx&&t.tBodies.length>1){t.tBodies[t.tBodies.length-1].remove();cur=mk(false);pages.push(cur);cur.querySelector('table').insertAdjacentHTML('beforeend',g);}}
+    for(let i=0;i<pages.length;i++){progress(true,(i+1)/pages.length*100,`📄 PDF પાનું ${i+1} / ${pages.length}`);
+      const cv=await html2canvas(pages[i],{scale:width>1600?1.4:2,backgroundColor:'#fff',windowWidth:width});const w=pw-2*M,h=cv.height/cv.width*w;
+      if(i)pdf.addPage(pageSize,'landscape');pdf.addImage(cv.toDataURL('image/jpeg',0.82),'JPEG',M,M,w,Math.min(h,ph-2*M));
+      pdf.setFontSize(8);pdf.text(`${i+1} / ${pages.length}`,pw-M-30,ph-6);}
+    download(`${file}-${date}.pdf`,pdf.output('blob'));toast(`📄 PDF તૈયાર — ${pages.length} પાનાં`,'ok',5000);
+  }catch(e){console.error(e);toast('PDF ભૂલ: '+e.message,'err',6000);}
+  finally{host.remove();progress(false);}}
+function othersFiltered(){const q=compact($('#oQ')?.value||''),multi=$('#oMulti')?.checked;return otherRows().filter(r=>(!multi||r.cases>=2)&&(!q||compact(JSON.stringify(r.o)).includes(q)));}
+function othersExport(fmt){const R=othersFiltered();if(!R.length){toast('કોઈ વ્યક્તિ નથી','err');return;}
+  const J=a=>(a||[]).join('\n');
+  const G={head:['#','નામ','સંબંધ','મોબાઇલ','વોટ્સએપ','IMEI','ગાડી','B-પાર્ટી મો.','B-પાર્ટી IMEI','સરનામું','નોંધ','સોશિયલ મીડિયા','કોની સાથે'],merges:[],
+    body:R.map(({o,L},i)=>[i+1,o.name||'',o.rel||'',J(o.mob),J(o.wa),J(o.imei),J(o.veh),J(o.bmob),J(o.bimei),o.addr||'',o.note||'',(o.socials||[]).map(x=>(x.name||'')+(x.link?': '+x.link:'')).join('\n'),L.map(t=>t.label+' ('+caseShort(t.x)+')').join('\n')])};
+  tableExport(fmt,{title:'અન્ય વ્યક્તિ (સંપર્કમાં રહેલ વ્યક્તિઓ)',sub:`કુલ ${R.length} વ્યક્તિ • તા. ${fmtDate(Date.now()).split(',')[0]}`,G,file:'anya-vyakti',pageSize:'a4',font:11,width:1300});}
+function casesExport(fmt){const G=buildGrid();if(!G.count){toast('કોઈ કેસ નથી','err');return;}
+  tableExport(fmt,{title:regTitle(),sub:`${REG_DEF[curReg].label} • કુલ ${G.count} કેસ`,G,file:REG_DEF[curReg].file||curReg,pageSize:'a3',font:10,width:2200});}
+function othersExcel(){const R=othersFiltered();const U=unknownBParty();if(!R.length&&!U.length){toast('કોઈ માહિતી નથી','err');return;}const wb=XLSX.utils.book_new();
+  if(R.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(R.map(({o,L,cases})=>({'નામ':o.name,'સંબંધ':o.rel,'મોબાઇલ':(o.mob||[]).join(', '),'વોટ્સએપ':(o.wa||[]).join(', '),'IMEI':(o.imei||[]).join(', '),'ગાડી':(o.veh||[]).join(', '),'B-પાર્ટી મો.':(o.bmob||[]).join(', '),'B-પાર્ટી IMEI':(o.bimei||[]).join(', '),'સરનામું':o.addr,'સોશિયલ મીડિયા':(o.socials||[]).map(x=>(x.name||'')+(x.link?': '+x.link:'')).join(' | '),'કોની સાથે':L.map(t=>t.label+' ('+caseShort(t.x)+')').join(' | '),'કેસ સંખ્યા':cases,'નોંધ':o.note}))),'અન્ય વ્યક્તિ');
   if(U.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(U.map(u=>({'નંબર':u.n.key,'કોના B-પાર્ટીમાં':u.L.map(t=>t.label+' ('+caseShort(t.x)+')').join(' | '),'આરોપી સંખ્યા':u.L.length,'કેસ સંખ્યા':u.cases}))),'નામ વગરના B-પાર્ટી');
   XLSX.writeFile(wb,`anya-vyakti-${new Date().toISOString().slice(0,10)}.xlsx`);}
 
@@ -2802,7 +2847,8 @@ $('#netOut').addEventListener('click',e=>{const a=e.target.closest('[data-na]')?
   if(a==='close'){$('#netOut').querySelectorAll('.ntree li').forEach(l=>{if(l.querySelector(':scope>ul')&&l.parentElement.parentElement.closest('li')){l.classList.add('col');const t=l.querySelector(':scope>.tn>.tg');if(t)t.textContent='▸';}});return;}
   if(a==='oc'){netOnlyCommon=!netOnlyCommon;renderNet();return;}if(a==='ph'){netPhotos=!netPhotos;renderNet();return;}
   if(a==='xls'){netExcel();return;}if(a==='pdf'||a==='img'||a==='share'){netCapture(a);return;}});
-$('#oAdd').onclick=()=>otherForm(null);$('#oQ').addEventListener('input',renderOthers);$('#oMulti').onchange=renderOthers;$('#oXls').onclick=othersExcel;
+$('#oAdd').onclick=()=>otherForm(null);$('#oQ').addEventListener('input',renderOthers);$('#oMulti').onchange=renderOthers;$('#oXls').onclick=othersExcel;$('#oDoc').onclick=()=>othersExport('doc');$('#oPdf').onclick=()=>othersExport('pdf');
+$('#cDoc').onclick=()=>casesExport('doc');$('#cPdf').onclick=()=>casesExport('pdf');
 $('#oOut').addEventListener('click',e=>{const ed=e.target.closest('[data-oed]');if(ed){otherForm(ed.dataset.oed);return;}const nt=e.target.closest('[data-onet]');if(nt){openNet('o:'+nt.dataset.onet);return;}const nm=e.target.closest('[data-oname]');if(nm){buildNet();nodeAction('name',nm.dataset.oname);}});
 $('#phAdd').onclick=()=>addPhotoSheet({});$('#phQ').addEventListener('input',renderPhotos);
 $('#phF').addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(b){phKind=b.dataset.pk;renderPhotos();}});
@@ -2920,7 +2966,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=15;
+const APP_VERSION=16;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
