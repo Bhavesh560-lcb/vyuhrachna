@@ -85,10 +85,8 @@ public class MainActivity extends Activity {
         setContentView(web);
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
-        // બે આંગળીથી ઝૂમ ઇન / આઉટ (+ − બટન વગર)
-        s.setSupportZoom(true);
-        s.setBuiltInZoomControls(true);
-        s.setDisplayZoomControls(false);
+        // બે આંગળીથી ઝૂમ — એપની અંદર (JS) થાય છે; WebView નું પોતાનું ઝૂમ બંધ જેથી બે વાર ન થાય
+        s.setSupportZoom(false);
         s.setDomStorageEnabled(true);
         s.setDatabaseEnabled(true);
         s.setAllowFileAccess(false);

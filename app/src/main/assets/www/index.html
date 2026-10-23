@@ -14,10 +14,10 @@
 <script src="lib/pdf.min.js"></script>
 <script src="lib/mammoth.browser.min.js"></script>
 <script src="lib/xlsx.full.min.js"></script>
-<script>try{var __t=localStorage.getItem('tk_theme')||'saffron';var __r=document.documentElement;if(__t==='dark'){__r.dataset.theme='dark'}else{__r.dataset.theme='light';if(__t!=='saffron')__r.dataset.tone=__t}}catch(e){}</script>
+<script>try{if(!localStorage.getItem('tk_theme_v2')){localStorage.setItem('tk_theme','clear');localStorage.setItem('tk_theme_v2','1');}}catch(e){}try{var __t=localStorage.getItem('tk_theme')||'clear';var __r=document.documentElement;if(__t==='dark'){__r.dataset.theme='dark'}else{__r.dataset.theme='light';if(__t!=='saffron')__r.dataset.tone=__t}}catch(e){}</script>
 <style>
 :root{--bg:#f2f4f9;--card:#ffffff;--ink:#15213b;--muted:#64748b;--line:#e3e8f0;--pri:#1d3a8a;--pri2:#2563eb;--acc:#f59e0b;--ok:#059669;--bad:#dc2626;--soft:#eef2ff;--shadow:0 2px 10px rgba(20,33,61,.07)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1424;--card:#151f35;--ink:#e6ecf7;--muted:#93a3bd;--line:#26324c;--pri:#5b82ea;--pri2:#7aa2ff;--soft:#1c2843;--shadow:0 2px 10px rgba(0,0,0,.35)}}
+@media (min-width:999999px){:root:not([data-theme="light"]){--bg:#0d1424;--card:#151f35;--ink:#e6ecf7;--muted:#93a3bd;--line:#26324c;--pri:#5b82ea;--pri2:#7aa2ff;--soft:#1c2843;--shadow:0 2px 10px rgba(0,0,0,.35)}}
 :root[data-theme="dark"]{--bg:#0d1424;--card:#151f35;--ink:#e6ecf7;--muted:#93a3bd;--line:#26324c;--pri:#5b82ea;--pri2:#7aa2ff;--soft:#1c2843;--shadow:0 2px 10px rgba(0,0,0,.35)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Gujarati",system-ui,sans-serif;font-size:15px;line-height:1.55}
@@ -182,6 +182,21 @@ body:has(#tab-cases.on) main{max-width:none}
 /* ===== વ્યૂહરચના theme ===== */
 :root{--bg:#f6f0e4;--card:#fffdf8;--ink:#1f1a14;--muted:#6f6352;--line:#e7dac2;--pri:#9a3412;--pri2:#c2410c;--soft:#fbeedb;--gold:#d4a017;--shadow:0 2px 12px rgba(80,45,10,.08);
   --hdr:linear-gradient(115deg,#2a0707 0%,#6b1d0b 38%,#3b1f5c 72%,#141a3d 100%);--btng:linear-gradient(135deg,#9a3412,#d97706);--hero:radial-gradient(ellipse at 50% 40%,#3a1a10 0%,#1b0f24 45%,#07080f 100%)}
+:root[data-tone="clear"]{--bg:#f5f8fc;--card:#ffffff;--ink:#16213a;--muted:#5f6b80;--line:#dde5f0;--pri:#0f5fa8;--pri2:#1d8ce0;--soft:#eef4fb;--gold:#e0a21b;--shadow:0 2px 10px rgba(30,60,110,.07);
+  --hdr:linear-gradient(115deg,#e6f1fc 0%,#eef0ff 45%,#fff4e0 100%);--btng:linear-gradient(135deg,#0f5fa8,#1d8ce0);--hero:radial-gradient(ellipse at 50% 38%,#ffffff 0%,#eef5fd 45%,#dfe9f7 100%)}
+:root[data-tone="clear"] .top{border-bottom-color:#cfdcec}:root[data-tone="clear"] .top,:root[data-tone="clear"] .top *{color:#16213a}:root[data-tone="clear"] .brand h1{color:#0f5fa8}
+:root[data-tone="clear"] .zmctl button,:root[data-tone="clear"] .hstats>span{background:#ffffff;border-color:#cfdcec}
+:root[data-tone="clear"] .regbanner{color:#16213a}:root[data-tone="clear"] .regbanner .cnt{background:#fff;color:#16213a}
+:root[data-tone="clear"] .hero{color:#16213a}:root[data-tone="clear"] .hero-chakra{opacity:.18}:root[data-tone="clear"] .hero-glow{background:radial-gradient(circle at 50% 45%,rgba(29,140,224,.12),transparent 55%)}
+:root[data-tone="clear"] .hero-t{background:linear-gradient(180deg,#1d8ce0,#0f5fa8 60%,#0b3d75);-webkit-background-clip:text;background-clip:text}
+:root[data-tone="clear"] .hero-s{color:#3d5878}:root[data-tone="clear"] .hero-f{color:#6b7c93}:root[data-tone="clear"] .hero-theme{background:#fff;color:#16213a;border-color:#cfdcec}
+:root[data-tone="clear"] .hero-logo{background-color:#fff;border-color:#e0a21b;box-shadow:0 0 30px rgba(224,162,27,.35)}
+:root[data-tone="clear"] .door{box-shadow:0 8px 28px rgba(30,60,110,.14);border-color:#cfdcec}
+:root[data-tone="clear"] .door-prohi{background:linear-gradient(160deg,#fff1e6,#ffe0c7)}:root[data-tone="clear"] .door-chori{background:linear-gradient(160deg,#eef0ff,#dde3ff)}
+:root[data-tone="clear"] .door-t{color:#7c2d12}:root[data-tone="clear"] .door-chori .door-t{color:#312e81}:root[data-tone="clear"] .door-s{color:#4b5563}:root[data-tone="clear"] .door-n{background:#ffffff;color:#16213a;border:1px solid #dde5f0}
+:root[data-tone="clear"] .homestrip button{background:#ffffff;color:#3d5878;border-color:#cfdcec;box-shadow:0 2px 8px rgba(30,60,110,.06)}:root[data-tone="clear"] .homestrip button b{color:#0f5fa8}:root[data-tone="clear"] .homestrip .hot b{color:#dc2626}
+:root[data-tone="clear"] .stat{background:linear-gradient(180deg,#ffffff,color-mix(in srgb,var(--c,#0f5fa8) 7%,#ffffff))}
+:root[data-tone="clear"] .card{background:#ffffff}:root[data-tone="clear"] .inp{background:#ffffff}
 :root[data-tone="sky"]{--bg:#eef5fc;--card:#ffffff;--ink:#0f1e33;--muted:#5b6b80;--line:#d5e3f3;--pri:#1d4ed8;--pri2:#2563eb;--soft:#e2edfb;--gold:#0ea5e9;--shadow:0 2px 12px rgba(15,40,90,.08);
   --hdr:linear-gradient(115deg,#0a1f44 0%,#1d4ed8 55%,#0ea5e9 100%);--btng:linear-gradient(135deg,#1d4ed8,#0ea5e9);--hero:radial-gradient(ellipse at 50% 40%,#1e3a8a 0%,#0b1a3a 50%,#050b18 100%)}
 :root[data-tone="mint"]{--bg:#edf8f2;--card:#ffffff;--ink:#0f2a1f;--muted:#557064;--line:#cfe7da;--pri:#047857;--pri2:#059669;--soft:#dcf2e6;--gold:#10b981;--shadow:0 2px 12px rgba(5,60,40,.08);
@@ -190,10 +205,10 @@ body:has(#tab-cases.on) main{max-width:none}
   --hdr:linear-gradient(115deg,#4c0519 0%,#9f1239 55%,#db2777 100%);--btng:linear-gradient(135deg,#be123c,#f43f5e);--hero:radial-gradient(ellipse at 50% 40%,#881337 0%,#3b0716 50%,#14030a 100%)}
 :root[data-tone="lavender"]{--bg:#f4f1fc;--card:#ffffff;--ink:#1e1536;--muted:#6b6185;--line:#e0d8f4;--pri:#6d28d9;--pri2:#7c3aed;--soft:#ebe4fb;--gold:#a78bfa;--shadow:0 2px 12px rgba(40,15,90,.08);
   --hdr:linear-gradient(115deg,#2e1065 0%,#5b21b6 55%,#8b5cf6 100%);--btng:linear-gradient(135deg,#6d28d9,#a855f7);--hero:radial-gradient(ellipse at 50% 40%,#4c1d95 0%,#1e0b45 50%,#0a0418 100%)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0d16;--card:#141826;--ink:#efe7d6;--muted:#a69a85;--line:#2a2e42;--pri:#f0b429;--pri2:#e8962a;--soft:#1e2234;--gold:#f0b429;--shadow:0 2px 12px rgba(0,0,0,.4)}}
+@media (min-width:999999px){:root:not([data-theme="light"]){--bg:#0b0d16;--card:#141826;--ink:#efe7d6;--muted:#a69a85;--line:#2a2e42;--pri:#f0b429;--pri2:#e8962a;--soft:#1e2234;--gold:#f0b429;--shadow:0 2px 12px rgba(0,0,0,.4)}}
 :root[data-theme="dark"]{--bg:#0b0d16;--card:#141826;--ink:#efe7d6;--muted:#a69a85;--line:#2a2e42;--pri:#f0b429;--pri2:#e8962a;--soft:#1e2234;--gold:#f0b429;--shadow:0 2px 12px rgba(0,0,0,.4)}
 body{background:var(--bg) var(--chakra-bg) no-repeat fixed;background-position:right -260px bottom -260px;background-size:900px}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background-image:var(--chakra-bg-d)}}
+@media (min-width:999999px){:root:not([data-theme="light"]) body{background-image:var(--chakra-bg-d)}}
 h1,h2,.hero-t,.door-t{font-family:"Noto Serif Gujarati","Noto Sans Gujarati",serif}
 .top{background:var(--hdr);border-bottom:3px solid var(--gold);position:relative;overflow:hidden}
 .top::after{content:"";position:absolute;right:-90px;top:-150px;width:380px;height:380px;background:var(--chakra-hero) center/contain no-repeat;opacity:.35;pointer-events:none}
@@ -275,6 +290,7 @@ body.home main{max-width:none;padding:0}
 .ntree ul ul>li::before{content:"";position:absolute;left:-12px;top:20px;width:10px;border-top:2px dashed color-mix(in srgb,var(--gold) 55%,var(--line))}
 .ntree li.col>ul{display:none}
 .ownc{display:inline-block;font-size:12px;font-weight:600;background:#ede9fe;color:#4c1d95;border-radius:8px;padding:1px 7px;margin-left:4px}.ownc.pr{background:#e0f2fe;color:#075985}.socrow{display:grid;grid-template-columns:28px minmax(120px,1fr) minmax(160px,2fr) auto auto;gap:6px;align-items:center;margin:4px 0}.socrow .socic{font-size:20px;text-align:center}.socrow a.btn{text-decoration:none}@media(max-width:600px){.socrow{grid-template-columns:28px 1fr auto;}.socrow [data-sl]{grid-column:2/3}}
+.zmctl{display:inline-flex;gap:2px}.zmctl button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:inherit;border-radius:8px;padding:2px 7px;cursor:pointer;font-weight:700;font-size:12px}
 .cv{cursor:pointer;border-bottom:1px dashed rgba(124,45,18,.35)}.cv:hover{background:#fef3c7}.cv.more{color:var(--pri);font-size:12.5px;border:0;text-decoration:underline}
 .nfact{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;background:var(--card)}.nfh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.nfb{margin-left:auto}.nfact .upbox{margin:2px 0}
 .tn .nbtns{margin-left:auto;display:flex;gap:4px;flex:none}.tn .ned.del:hover{background:#fee2e2}.tn .ned{flex:none;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px 7px;cursor:pointer;font-size:14px}.tn .ned:hover{background:#fef3c7}
@@ -339,7 +355,7 @@ body.home main{max-width:none;padding:0}
 .otbl td{vertical-align:top}
 .t-a{background:color-mix(in srgb,#16a34a 16%,transparent);color:#166534}.t-w{background:color-mix(in srgb,#dc2626 16%,transparent);color:#991b1b}.t-o{background:color-mix(in srgb,#4f46e5 16%,transparent);color:#3730a3}
 :root[data-theme="dark"] .t-a{color:#86efac}:root[data-theme="dark"] .t-w{color:#fca5a5}:root[data-theme="dark"] .t-o{color:#c7d2fe}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .t-a{color:#86efac}:root:not([data-theme="light"]) .t-w{color:#fca5a5}:root:not([data-theme="light"]) .t-o{color:#c7d2fe}}
+@media (min-width:999999px){:root:not([data-theme="light"]) .t-a{color:#86efac}:root:not([data-theme="light"]) .t-w{color:#fca5a5}:root:not([data-theme="light"]) .t-o{color:#c7d2fe}}
 .kvg{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;font-size:13.5px;margin-bottom:4px}.kvg b{color:var(--muted);font-weight:600}
 .authgate{position:fixed;inset:0;z-index:5000;display:grid;place-items:center;overflow:auto;background:radial-gradient(ellipse at 50% 40%,#3a1a10 0%,#1b0f24 45%,#07080f 100%);color:#fff;padding:16px}
 .authgate.hidden{display:none}.authgate .hero-chakra{position:fixed}
@@ -364,7 +380,7 @@ body.locked{overflow:hidden}
 <div id="authGate" class="authgate hidden"></div>
 <header class="top">
   <div class="brand" id="brandHome" title="મુખ્ય પાનું" style="cursor:pointer"><div class="logo chakra-logo"></div><div><h1>વ્યૂહરચના</h1><p>પ્રોહીબીશન તથા ચોરી / ધાડ / લૂંટ ગુના રજીસ્ટર • આરોપી, મોબાઇલ, વાહન નંબરની કડી આપમેળે શોધતું સાધન</p></div></div>
-  <div class="hstats"><span id="syncBadge" title="ઓનલાઇન શેરિંગ">⚪ ફક્ત આ કમ્પ્યુટર</span><span id="lockBtn" title="એપ લૉક કરો">🔒 લૉક</span><span id="hstats" style="display:contents"></span></div>
+  <div class="hstats"><span id="syncBadge" title="ઓનલાઇન શેરિંગ">⚪ ફક્ત આ કમ્પ્યુટર</span><span class="zmctl"><button data-zm="out" title="નાનું (Ctrl −)">A−</button><button data-zm="reset" title="100%">A</button><button data-zm="in" title="મોટું (Ctrl +)">A+</button></span><span id="lockBtn" title="એપ લૉક કરો">🔒 લૉક</span><span id="hstats" style="display:contents"></span></div>
 </header>
 <nav class="tabs" id="tabs">
   <button class="backbtn" id="btnBack" title="પાછલા પાના પર જાઓ">⬅ પાછા ફરો</button>
@@ -1267,6 +1283,13 @@ let appZoom=1;try{appZoom=+localStorage.getItem('tk_zoom')||1;}catch(_){}
 function setZoom(z,show){appZoom=Math.min(2.5,Math.max(0.5,Math.round(z*100)/100));document.body.style.zoom=appZoom===1?'':String(appZoom);try{localStorage.setItem('tk_zoom',String(appZoom));}catch(_){}if(show){let el=document.getElementById('zoomTip');if(!el){el=document.createElement('div');el.id='zoomTip';el.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100001;background:#1f2937;color:#fff;padding:6px 14px;border-radius:20px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3)';document.documentElement.appendChild(el);}el.innerHTML=`🔍 ${Math.round(appZoom*100)}% <button style="margin-left:8px;border:0;border-radius:10px;padding:2px 8px;cursor:pointer" onclick="setZoom(1,true)">100%</button>`;el.style.display='';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2200);}}
 window.addEventListener('wheel',e=>{if(!e.ctrlKey||e.target.closest?.('.ngraph'))return;e.preventDefault();setZoom(appZoom*(e.deltaY<0?1.1:1/1.1),true);},{passive:false});
 window.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey))return;if(e.key==='+'||e.key==='='){e.preventDefault();setZoom(appZoom*1.1,true);}else if(e.key==='-'){e.preventDefault();setZoom(appZoom/1.1,true);}else if(e.key==='0'){e.preventDefault();setZoom(1,true);}});
+/* મોબાઇલ: બે આંગળીથી ઝૂમ (બ્રાઉઝર / એપ બંનેમાં ચાલે તે માટે જાતે) */
+{let pz=null,raf=0;const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+  document.addEventListener('touchstart',e=>{if(e.touches.length===2&&!e.target.closest?.('.ngraph')){pz={d:dist(e.touches)||1,z:appZoom,cur:appZoom};}},{passive:true});
+  document.addEventListener('touchmove',e=>{if(!pz||e.touches.length!==2)return;e.preventDefault();pz.cur=Math.min(2.5,Math.max(0.5,pz.z*dist(e.touches)/pz.d));if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(pz)document.body.style.zoom=String(pz.cur);});},{passive:false});
+  const end=e=>{if(pz&&e.touches.length<2){const z=pz.cur;pz=null;setZoom(z,true);}};document.addEventListener('touchend',end,{passive:true});document.addEventListener('touchcancel',end,{passive:true});
+  document.addEventListener('gesturestart',e=>e.preventDefault());}
+document.addEventListener('click',e=>{const z=e.target.closest('[data-zm]');if(!z)return;const a=z.dataset.zm;setZoom(a==='in'?appZoom*1.1:a==='out'?appZoom/1.1:1,true);});
 document.addEventListener('DOMContentLoaded',()=>{if(appZoom!==1)setZoom(appZoom);});if(document.readyState!=='loading'&&appZoom!==1)setZoom(appZoom);
 function showTab(t,fromPop){
   if(t==='match')t='common';
@@ -1634,7 +1657,7 @@ function renderCases(){
         const ed=x.edited.has(k);
         body+=`<td class="cc c-${g}_${f.startsWith('cx:')?'cx':f}${ed?' ed':''}${v?'':' blank'}${miss?' warn':''}" data-cell="${esc(key)}" data-col="${k}"${pi!=null?` data-pi="${pi}"`:''}>${v?esc(v):(miss?'<b class="miss">ફરજીયાત</b>':'—')}</td>`;
       }
-      if(i===0){const other=curReg==='prohi'?'chori':'prohi';body+=`<td class="c-act" rowspan="${n}"><div class="ract"><button class="ib pr" data-rep="${esc(key)}" title="આ કેસનો અલગ PDF / Word રિપોર્ટ — શેર કરો">📤 શેર / PDF</button><button class="ib" data-form="${esc(key)}" title="આખો કેસ એક ફોર્મમાં ભરો / સુધારો">✏️ આખો કેસ સુધારો</button><button class="ib" data-net="${esc(key)}" title="આ કેસના આરોપી, નંબર, B-પાર્ટી, ગાડી — કોણ કોની સાથે (ઝાડ)">🕸️ સંપર્ક જાળ</button><button class="ib" data-phc="${esc(key)}" title="આરોપી / ગાડી / ફોન / મુદ્દામાલના ફોટા">🖼️ ફોટા${(()=>{const c=casePhotoCount(x);return c?' ('+c+')':'';})()}</button><button class="ib" data-addp="${esc(key)}|acc" title="પકડાયેલ આરોપીની નવી રો">➕ આરોપી</button><button class="ib" data-addp="${esc(key)}|want" title="બાકી આરોપીની નવી રો">➕ બાકી આરોપી</button><button class="ib" data-mvreg="${esc(key)}" title="${esc(REG_DEF[other].label)} રજીસ્ટરમાં ખસેડો">↔ ${esc(REG_DEF[other].icon)} માં ખસેડો</button><button class="ib dl" data-delc="${esc(key)}" title="કેસ કાઢી નાખો">🗑️ ડિલીટ</button></div><span class="fpill" data-doc="${x.d.id}" title="${esc(x.d.name)}">${fileIcon(x.d.ext)} ${esc(x.d.name)}</span>${x.unit!=='_'?`<small class="muted">${esc(unitLabel(x.d.id+'#'+x.unit).slice(3))}</small>`:''}</td>`;}
+      if(i===0){const other=curReg==='prohi'?'chori':'prohi';body+=`<td class="c-act" rowspan="${n}"><div class="ract"><button class="ib pr" data-rep="${esc(key)}" title="આ કેસનો અલગ PDF / Word રિપોર્ટ — શેર કરો">🖨️ PDF / Word / Excel</button><button class="ib" data-form="${esc(key)}" title="આખો કેસ એક ફોર્મમાં ભરો / સુધારો">✏️ આખો કેસ સુધારો</button><button class="ib" data-net="${esc(key)}" title="આ કેસના આરોપી, નંબર, B-પાર્ટી, ગાડી — કોણ કોની સાથે (ઝાડ)">🕸️ સંપર્ક જાળ</button><button class="ib" data-phc="${esc(key)}" title="આરોપી / ગાડી / ફોન / મુદ્દામાલના ફોટા">🖼️ ફોટા${(()=>{const c=casePhotoCount(x);return c?' ('+c+')':'';})()}</button><button class="ib" data-addp="${esc(key)}|acc" title="પકડાયેલ આરોપીની નવી રો">➕ આરોપી</button><button class="ib" data-addp="${esc(key)}|want" title="બાકી આરોપીની નવી રો">➕ બાકી આરોપી</button><button class="ib" data-mvreg="${esc(key)}" title="${esc(REG_DEF[other].label)} રજીસ્ટરમાં ખસેડો">↔ ${esc(REG_DEF[other].icon)} માં ખસેડો</button><button class="ib dl" data-delc="${esc(key)}" title="કેસ કાઢી નાખો">🗑️ ડિલીટ</button></div><span class="fpill" data-doc="${x.d.id}" title="${esc(x.d.name)}">${fileIcon(x.d.ext)} ${esc(x.d.name)}</span>${x.unit!=='_'?`<small class="muted">${esc(unitLabel(x.d.id+'#'+x.unit).slice(3))}</small>`:''}</td>`;}
       body+='</tr>';
     }});
   {const co=document.getElementById('cOthers');if(co)co.innerHTML=regOthersHTML();}
@@ -1907,10 +1930,13 @@ function makeWord(x){
 function caseReport(key){
   const F=findRow(key);if(!F)return;const x=F.row;
   const ov=openModal(`<h2>📄 કેસ રિપોર્ટ</h2><div class="muted" style="font-size:13px">${esc(repTitle(x))}</div>
-    <div class="row gap"><button class="btn pri" data-a="pdf">⬇️ PDF</button><button class="btn pri" data-a="doc">⬇️ Word</button><button class="btn" data-a="share">📤 શેર કરો (PDF)</button><button class="btn" data-a="print">🖨️ પ્રિન્ટ</button><button class="btn" data-a="net">🕸️ સંપર્ક જાળ</button></div>
+    <div class="row gap"><button class="btn pri" data-a="pdf">⬇️ PDF</button><button class="btn pri" data-a="doc">⬇️ Word</button><button class="btn pri" data-a="xls">⬇️ Excel</button><button class="btn" data-a="share">📤 શેર કરો (PDF)</button><button class="btn" data-a="print">🖨️ પ્રિન્ટ</button><button class="btn" data-a="net">🕸️ સંપર્ક જાળ</button></div>
     <details class="card" style="margin:10px 0;box-shadow:none;border:1px solid var(--line)"><summary style="cursor:pointer;font-weight:700">🖼️ ફોટા (${casePhotoCount(x)}) — આરોપી, ગાડી, ફોન, મુદ્દામાલ ઉમેરો / જુઓ</summary>${casePhotosHTML(x)}</details>
     <div class="repwrap"><style>${REP_CSS}</style>${reportHTML(x)}</div>`,{wide:true});
   ov.addEventListener('click',async e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;const name=repFile(x);
+    if(a==='xls'){const rows=[];for(const [k,l,g] of CASE_COLS){const v=String(x.r[k]??'').trim();if(v)rows.push([l,v]);}const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet([[repTitle(x)],['વિગત','માહિતી'],...rows]);ws['!cols']=[{wch:32},{wch:80}];XLSX.utils.book_append_sheet(wb,ws,'કેસ');
+      for(const g of ['acc','want']){const L=x.r[g]||[];if(L.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(L.map((p,i)=>({'#':i+1,'નામ':p.name||'','સરનામું':p.addr||'','મોબાઇલ':(p.mob||[]).join(', '),'IMEI':(p.imei||[]).join(', '),'B-પાર્ટી મો.':(p.bmob||[]).join(', '),'ભૂમિકા':(p.role||[]).join(', ')}))),g==='acc'?'પકડાયેલ':'બાકી');}
+      XLSX.writeFile(wb,name+'.xlsx');return;}
     if(a==='net'){ov.close();openNet('c:'+key);return;}if(!['pdf','doc','share','print'].includes(a))return;
     try{
       if(a==='doc'){download(name+'.doc',makeWord(x));return;}
@@ -2705,7 +2731,7 @@ function othersTableHTML(R){const tagP=t=>`<span style="white-space:nowrap;curso
   const cv=(f,v)=>{const t=FK[f];const k=t&&valKey(t,v);return k?`<span class="cv" data-nn="v:${t}|${esc(k)}" title="વિગત ખોલો">${esc(v)}</span>`:esc(v);};
   const lsF=(o,f,max=6)=>{const a=o[f]||[];return a.length?a.slice(0,max).map(v=>cv(f,v)).join('\n')+(a.length>max?`\n<a href="#" class="cv more" data-omore="${o.id}|${f}">…${a.length-max} વધુ — બધા જુઓ</a>`:''):'<span class="muted">—</span>';};
   const nf=docs.filter(d=>d.owner).reduce((m,d)=>(m[d.owner]=(m[d.owner]||0)+1,m),{});
-  return `<div class="card" style="padding:0;overflow:auto"><table class="otbl"><thead><tr><th></th><th>નામ / સંબંધ</th><th>મોબાઇલ / વોટ્સએપ</th><th>IMEI</th><th>ગાડી</th><th>B-પાર્ટી મો.</th><th>B-પાર્ટી IMEI</th><th>સરનામું / નોંધ / સોશિયલ</th><th>કોની સાથે</th><th></th></tr></thead><tbody>${R.map(({o,L,cases})=>{const ph=PH.first('o:'+o.id);return `<tr><td style="width:44px">${ph?`<img class="av" style="--bc:#4f46e5" src="${ph.thumb}">`:'<span style="font-size:24px">👤</span>'}</td><td><b class="click" data-oed="${o.id}" style="cursor:pointer">${esc(o.name||'નામ અજાણ')}</b>${o.rel?`<br><small class="muted">${esc(o.rel)}</small>`:''}${cases>=2?`<br><span class="pill hit">${GU_D(cases)} કેસ</span>`:''}${nf['o:'+o.id]?`<br><small>📎 ${GU_D(nf['o:'+o.id])} ફાઇલ</small>`:''}</td><td style="white-space:pre-line">${lsF(o,'mob')}${(o.wa||[]).length?`\n<small>વોટ્સએપ:</small> ${o.wa.map(v=>cv('wa',v)).join(', ')}`:''}</td><td style="white-space:pre-line">${lsF(o,'imei')}</td><td style="white-space:pre-line">${lsF(o,'veh')}</td><td style="white-space:pre-line">${lsF(o,'bmob')}</td><td style="white-space:pre-line">${lsF(o,'bimei')}</td><td style="white-space:pre-line;min-width:160px;cursor:pointer" data-oed="${o.id}" title="આખી વિગત ખોલો">${esc(o.addr||'')}${o.addr&&o.note?'\n':''}${o.note?`<small class="muted">${esc(o.note)}</small>`:''}${!o.addr&&!o.note?'<span class="muted">—</span>':''}${(o.socials||[]).length?'<br>'+o.socials.map(x=>/^https?:\/\//i.test(x.link||'')?`<a href="${esc(x.link)}" target="_blank" rel="noopener">🌐 ${esc(x.name||x.link)}</a>`:`🌐 ${esc(x.name)}${x.link?': '+esc(x.link):''}`).join('<br>'):''}</td><td>${L.slice(0,8).map(tagP).join('<br>')||'<span class="muted">—</span>'}${L.length>8?`<br><small>…${L.length-8} વધુ</small>`:''}</td><td style="white-space:nowrap"><button class="btn sm" data-oed="${o.id}" title="સુધારો">✏️</button> <button class="btn sm" data-onet="${o.id}" title="સંપર્ક જાળ">🕸️</button> <button class="btn sm danger" data-odel="${o.id}" title="કાઢી નાખો">🗑️</button></td></tr>`;}).join('')}</tbody></table></div>`;}
+  return `<div class="card" style="padding:0;overflow:auto"><table class="otbl"><thead><tr><th></th><th>નામ / સંબંધ</th><th>મોબાઇલ / વોટ્સએપ</th><th>IMEI</th><th>ગાડી</th><th>B-પાર્ટી મો.</th><th>B-પાર્ટી IMEI</th><th>સરનામું / નોંધ / સોશિયલ</th><th>કોની સાથે</th><th></th></tr></thead><tbody>${R.map(({o,L,cases})=>{const ph=PH.first('o:'+o.id);return `<tr><td style="width:44px">${ph?`<img class="av" style="--bc:#4f46e5" src="${ph.thumb}">`:'<span style="font-size:24px">👤</span>'}</td><td><b class="click" data-oed="${o.id}" style="cursor:pointer">${esc(o.name||'નામ અજાણ')}</b> <button class="btn sm" data-oexp="${o.id}" title="આ વ્યક્તિની Excel / Word / PDF" style="padding:1px 6px;font-size:12px">🖨️</button>${o.rel?`<br><small class="muted">${esc(o.rel)}</small>`:''}${cases>=2?`<br><span class="pill hit">${GU_D(cases)} કેસ</span>`:''}${nf['o:'+o.id]?`<br><small>📎 ${GU_D(nf['o:'+o.id])} ફાઇલ</small>`:''}</td><td style="white-space:pre-line">${lsF(o,'mob')}${(o.wa||[]).length?`\n<small>વોટ્સએપ:</small> ${o.wa.map(v=>cv('wa',v)).join(', ')}`:''}</td><td style="white-space:pre-line">${lsF(o,'imei')}</td><td style="white-space:pre-line">${lsF(o,'veh')}</td><td style="white-space:pre-line">${lsF(o,'bmob')}</td><td style="white-space:pre-line">${lsF(o,'bimei')}</td><td style="white-space:pre-line;min-width:160px;cursor:pointer" data-oed="${o.id}" title="આખી વિગત ખોલો">${esc(o.addr||'')}${o.addr&&o.note?'\n':''}${o.note?`<small class="muted">${esc(o.note)}</small>`:''}${!o.addr&&!o.note?'<span class="muted">—</span>':''}${(o.socials||[]).length?'<br>'+o.socials.map(x=>/^https?:\/\//i.test(x.link||'')?`<a href="${esc(x.link)}" target="_blank" rel="noopener">🌐 ${esc(x.name||x.link)}</a>`:`🌐 ${esc(x.name)}${x.link?': '+esc(x.link):''}`).join('<br>'):''}</td><td>${L.slice(0,8).map(tagP).join('<br>')||'<span class="muted">—</span>'}${L.length>8?`<br><small>…${L.length-8} વધુ</small>`:''}</td><td style="white-space:nowrap"><button class="btn sm" data-oed="${o.id}" title="સુધારો">✏️</button> <button class="btn sm" data-onet="${o.id}" title="સંપર્ક જાળ">🕸️</button> <button class="btn sm" data-oexp="${o.id}" title="આ વ્યક્તિની Excel / Word / PDF">🖨️</button> <button class="btn sm danger" data-odel="${o.id}" title="કાઢી નાખો">🗑️</button></td></tr>`;}).join('')}</tbody></table></div>`;}
 function othersMore(id,f){const o=(settings.others||[]).find(x=>x.id===id);if(!o)return;const FK={mob:'phone',wa:'phone',bmob:'phone',imei:'imei',bimei:'imei',veh:'vehicle'};const a=o[f]||[];
   const ov=openModal(`<h2>👤 ${esc(o.name||'નામ અજાણ')} — ${esc(OF_LB[f]||f)} (${GU_D(a.length)})</h2><input class="inp" id="omQ" placeholder="શોધો…" style="width:100%;margin-bottom:8px"><div id="omL" style="columns:2 180px"></div><div class="mfoot"><button class="btn" data-oed="${o.id}">✏️ આખી વિગત</button></div>`,{wide:true});
   const draw=()=>{const q=String(ov.querySelector('#omQ').value).replace(/\s/g,'');ov.querySelector('#omL').innerHTML=a.filter(v=>!q||String(v).includes(q)).map(v=>{const k=valKey(FK[f],v);return `<div class="occ" style="margin:3px 0;break-inside:avoid"><span class="cv" data-nn="v:${FK[f]}|${esc(k)}">${esc(v)}</span></div>`;}).join('');};draw();ov.querySelector('#omQ').oninput=draw;
@@ -2756,6 +2782,26 @@ async function tableExport(fmt,{title,sub='',G,file,pageSize='a4',font=11,width=
     download(`${file}-${date}.pdf`,pdf.output('blob'));toast(`📄 PDF તૈયાર — ${pages.length} પાનાં`,'ok',5000);
   }catch(e){console.error(e);toast('PDF ભૂલ: '+e.message,'err',6000);}
   finally{host.remove();progress(false);}}
+/* એક વ્યક્તિની આખી વિગત — Excel / Word / PDF */
+function personRows(o){buildNet();const id='o:'+o.id;const J=a=>(a||[]).join('\n');const rows=[];const add=(k,v)=>{if(String(v??'').trim())rows.push([k,v]);};
+  const chunk=(label,a)=>{a=a||[];if(!a.length)return;for(let i=0;i<a.length;i+=20)rows.push([`${label}${a.length>20?` (${i+1}–${Math.min(i+20,a.length)} / ${a.length})`:` (${a.length})`}`,a.slice(i,i+20).join('\n')]);};
+  add('નામ',o.name||'નામ અજાણ');add('સંબંધ',o.rel);chunk('મોબાઇલ',o.mob);chunk('વોટ્સએપ',o.wa);chunk('IMEI',o.imei);chunk('ગાડી',o.veh);
+  chunk('B-પાર્ટી મો.',(o.bmob||[]).map(n=>{const P=pairOf('v:phone|'+valKey('phone',n));return n+(P.length?'  (IMEI '+P.map(t=>t.full||t.label).join(', ')+')':'');}));chunk('B-પાર્ટી IMEI',o.bimei);
+  add('સરનામું',o.addr);add('નોંધ',o.note);add('સોશિયલ મીડિયા',(o.socials||[]).map(x=>(x.name||'')+(x.link?': '+x.link:'')).join('\n'));
+  const r=otherRows().find(x=>x.o.id===o.id);if(r&&r.L.length)add('કોની સાથે (આરોપી)',r.L.map(t=>t.label+' — '+caseShort(t.x)+' ('+(t.kind==='acc'?'પકડાયેલ':'બાકી')+')').join('\n'));
+  const up=[];for(const v of (NET.adj.get(id)||[]).filter(e=>e.out&&OWN_SET.has(e.rel)).map(e=>e.to))for(const e of (NET.adj.get(v)||[]))if(!e.out&&BREL.has(e.rel)&&e.to!==id){const t=NET.nodes.get(e.to);up.push(t.label+' ('+NET.nodes.get(v).label+')');}
+  add('⬆️ ઉપરની પાર્ટી (જેના B-પાર્ટીમાં આનો નંબર છે)',uniq(up).join('\n'));
+  const own=new Set((o.mob||[]).concat(o.wa||[]).map(n=>'v:phone|'+valKey('phone',n)));const lg=smsLog.filter(e=>e.kind==='reply'&&own.has('v:phone|'+e.num)).slice(-5).reverse();
+  if(lg.length)add('📍 છેલ્લાં SMS લોકેશન',lg.map(e=>fmtDate(e.at)+' — '+(e.gj?'ગુજરાતમાં':e.where==='out'?'ગુજરાત બહાર':'અજાણ')+(e.ll?' — '+e.ll:'')).join('\n'));
+  add('📎 ફાઇલો',docs.filter(d=>d.owner===id).map(d=>d.name).join('\n'));return rows;}
+function personExport(id,fmt){const o=(settings.others||[]).find(x=>x.id===id);if(!o)return;const rows=personRows(o);const nm=(o.name||'vyakti').replace(/[\\/:*?"<>|]+/g,'_');
+  if(fmt==='xlsx'){const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet([['અન્ય વ્યક્તિ — '+(o.name||'')],['વિગત','માહિતી'],...rows]);ws['!cols']=[{wch:30},{wch:70}];XLSX.utils.book_append_sheet(wb,ws,'વિગત');
+    const bp=(o.bmob||[]).map(n=>{const k=valKey('phone',n);const P=pairOf('v:phone|'+k);const O=ownersOf('v:phone|'+k).filter(t=>t.id!=='o:'+o.id);return {'B-પાર્ટી મોબાઇલ':n,'IMEI':P.map(t=>t.full||t.label).join(', '),'કોનો (માલિક)':O.map(t=>t.label).join(', ')};});
+    if(bp.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(bp),'B-પાર્ટી');XLSX.writeFile(wb,`${nm}.xlsx`);return;}
+  tableExport(fmt,{title:'અન્ય વ્યક્તિ — '+(o.name||'નામ અજાણ'),sub:`તા. ${fmtDate(Date.now()).split(',')[0]}`,G:{head:['વિગત','માહિતી'],body:rows,merges:[]},file:nm,pageSize:'a4',font:13,width:1100});}
+function exportMenu(title,cb){const ov=openModal(`<h2>🖨️ ${esc(title)}</h2><div class="muted" style="margin-bottom:10px">કયા રૂપમાં કાઢવું છે?</div><div class="row gap"><button class="btn pri" data-xf="xlsx">📊 Excel</button><button class="btn pri" data-xf="doc">📝 Word</button><button class="btn pri" data-xf="pdf">📄 PDF</button></div>`);
+  ov.addEventListener('click',e=>{const b=e.target.closest('[data-xf]');if(!b)return;ov.close();cb(b.dataset.xf);});}
+document.addEventListener('click',e=>{const x=e.target.closest('[data-oexp]');if(!x)return;e.preventDefault();e.stopPropagation();const o=(settings.others||[]).find(z=>z.id===x.dataset.oexp);exportMenu((o&&o.name)||'વ્યક્તિ',f=>personExport(x.dataset.oexp,f));},true);
 function othersFiltered(){const q=compact($('#oQ')?.value||''),multi=$('#oMulti')?.checked;return otherRows().filter(r=>(!multi||r.cases>=2)&&(!q||compact(JSON.stringify(r.o)).includes(q)));}
 function othersExport(fmt){const R=othersFiltered();if(!R.length){toast('કોઈ વ્યક્તિ નથી','err');return;}
   const J=a=>(a||[]).join('\n');
@@ -2966,7 +3012,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=16;
+const APP_VERSION=17;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
@@ -3193,9 +3239,9 @@ $('#bClear').onclick=async()=>{if(!confirm('બધી ફાઇલો અને 
   docs=[];docMap.clear();memBlobs.clear();compactCache.clear();await DB.clear('docs').catch(()=>{});await DB.clear('blobs').catch(()=>{});await DB.clear('photos').catch(()=>{});for(const id of PH.m.keys())syncPhotoDelete(id);PH.m.clear();PH.idx=null;settings.others=[];saveSettings();buildIndex();renderAll();toast('બધો ડેટા કાઢી નાખ્યો','ok');};
 
 /* ===================== Init ===================== */
-const THEMES=[['saffron','🟠 કેસરી','linear-gradient(135deg,#f6f0e4 50%,#c2410c 50%)'],['sky','🔵 આકાશી','linear-gradient(135deg,#eef5fc 50%,#2563eb 50%)'],['mint','🟢 હરિયાળી','linear-gradient(135deg,#edf8f2 50%,#059669 50%)'],['rose','🌸 ગુલાબી','linear-gradient(135deg,#fdf0f4 50%,#e11d48 50%)'],['lavender','🟣 જાંબલી','linear-gradient(135deg,#f4f1fc 50%,#7c3aed 50%)'],['dark','🌙 ડાર્ક (રાત્રિ)','linear-gradient(135deg,#0b0d16 50%,#f0b429 50%)']];
+const THEMES=[['clear','☀️ આછો સફેદ (મૂળ)','linear-gradient(135deg,#ffffff 50%,#1d8ce0 50%)'],['saffron','🟠 કેસરી','linear-gradient(135deg,#f6f0e4 50%,#c2410c 50%)'],['sky','🔵 આકાશી','linear-gradient(135deg,#eef5fc 50%,#2563eb 50%)'],['mint','🟢 હરિયાળી','linear-gradient(135deg,#edf8f2 50%,#059669 50%)'],['rose','🌸 ગુલાબી','linear-gradient(135deg,#fdf0f4 50%,#e11d48 50%)'],['lavender','🟣 જાંબલી','linear-gradient(135deg,#f4f1fc 50%,#7c3aed 50%)'],['dark','🌙 ડાર્ક (રાત્રિ)','linear-gradient(135deg,#0b0d16 50%,#f0b429 50%)']];
 function applyTheme(v){const r=document.documentElement;if(v==='dark'){r.dataset.theme='dark';delete r.dataset.tone;}else{r.dataset.theme='light';if(v==='saffron')delete r.dataset.tone;else r.dataset.tone=v;}try{localStorage.setItem('tk_theme',v)}catch(_){}}
-function themePicker(btn){document.querySelectorAll('.thpop').forEach(x=>x.remove());let cur='saffron';try{cur=localStorage.getItem('tk_theme')||'saffron'}catch(_){}
+function themePicker(btn){document.querySelectorAll('.thpop').forEach(x=>x.remove());let cur='clear';try{cur=localStorage.getItem('tk_theme')||'clear'}catch(_){}
   const p=document.createElement('div');p.className='thpop';p.innerHTML='<h4>🎨 થીમ પસંદ કરો</h4><div class="thgrid">'+THEMES.map(([k,l,sw])=>`<button class="thopt ${k===cur?'on':''}" data-th="${k}"><span class="thsw" style="background:${sw}"></span>${l}</button>`).join('')+'</div>';
   document.body.appendChild(p);const b=btn.getBoundingClientRect();p.style.top=Math.min(b.bottom+6,innerHeight-p.offsetHeight-8)+'px';p.style.left=Math.max(8,Math.min(b.right-p.offsetWidth,innerWidth-p.offsetWidth-8))+'px';
   p.addEventListener('click',e=>{const ic=e.target.closest('[data-ic]');if(ic){try{localStorage.setItem('tk_icon',ic.dataset.ic)}catch(_){}p.querySelectorAll('.icopt').forEach(x=>x.classList.toggle('on',x===ic));renderAll();if($('#tab-rdash').classList.contains('on'))renderRegDash();toast('ચિહ્ન બદલાયું: '+ic.title,'ok',2000);return;}
