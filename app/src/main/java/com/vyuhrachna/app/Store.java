@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 public final class Store {
     private Store() {}
 
-    static final String CH_GJ = "gj_alert";
+    static final String CH_GJ = "gj_alarm2";
     static final String CH_REP = "sms_reply";
     static final String CH_UPD = "app_update";
     private static final Pattern CGI = Pattern.compile("\\b(40[45])[\\s\\-/]*(\\d{2,3})[\\s\\-/]*(\\d{1,6})[\\s\\-/]*(\\d{1,9})\\b");
@@ -232,11 +232,17 @@ public final class Store {
     /** SmsReceiver અહીં બોલાવે છે */
     static void incoming(Context c, String from, String body, long ts) {
         if (!isReply(c, from, body)) return;
+        // "Received Request for … Request ID …" — ફક્ત સ્વીકૃતિ, લોકેશન નથી
+        String ub = body == null ? "" : body.toUpperCase(Locale.ROOT);
+        boolean hasLoc = ub.matches("(?s).*(LAT|LONG|CELL\\s*ID|CGI|LAC|ADDRESS|LOCATION).*");
+        if (!hasLoc && ub.matches("(?s).*(RECEIVED\\s*REQUEST|REQUEST\\s*(ID|RECEIVED|ACCEPTED|REGISTERED)|REQ\\s*ID|WILL\\s*BE\\s*(SENT|PROCESSED)|UNDER\\s*PROCESS).*")) return;
         addPending(c, from, body, ts);
         String why = gujaratReason(c, body);
         String num = firstMobile(body);
         if (why != null) {
             notify(c, CH_GJ, "🚨 આરોપી ગુજરાતમાં! " + num, body, true);
+            // ફોનની સ્ક્રીન પર આખું પેજ + રીંગ (એપ ખુલ્લી હોય તો સીધું)
+            if (MainActivity.current != null) AlertActivity.show(c, "🚨 આરોપી ગુજરાતમાં! " + num, body + "\n\nકારણ: " + why);
         } else {
             notify(c, CH_REP, "📩 કંપનીનો રિપ્લાય " + num, body, false);
         }
@@ -251,6 +257,12 @@ public final class Store {
             NotificationChannel gj = new NotificationChannel(CH_GJ, "ગુજરાત એલર્ટ", NotificationManager.IMPORTANCE_HIGH);
             gj.setDescription("આરોપીનું લોકેશન ગુજરાતમાં આવે ત્યારે");
             gj.enableVibration(true);
+            gj.setBypassDnd(true);
+            gj.setLockscreenVisibility(android.app.Notification.VISIBILITY_PUBLIC);
+            try {
+                android.net.Uri snd = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM);
+                if (snd != null) gj.setSound(snd, new android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_ALARM).setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
+            } catch (Exception ignored) {}
             gj.setVibrationPattern(new long[]{0, 400, 200, 400, 200, 800});
             nm.createNotificationChannel(gj);
             NotificationChannel rp = new NotificationChannel(CH_REP, "કંપનીના રિપ્લાય", NotificationManager.IMPORTANCE_DEFAULT);
@@ -277,6 +289,16 @@ public final class Store {
                     .setAutoCancel(true)
                     .setContentIntent(pi)
                     .setPriority(high ? NotificationCompat.PRIORITY_MAX : NotificationCompat.PRIORITY_DEFAULT);
+            if (CH_GJ.equals(ch)) {
+                Intent full = new Intent(c, AlertActivity.class);
+                full.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                full.putExtra("title", title);
+                full.putExtra("text", text);
+                PendingIntent fpi = PendingIntent.getActivity(c, 7700 + (int) (System.currentTimeMillis() % 1000), full, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+                b.setFullScreenIntent(fpi, true);
+                b.setContentIntent(fpi);
+                b.setOngoing(false);
+            }
             if (high && !CH_UPD.equals(ch)) {
                 b.setCategory(NotificationCompat.CATEGORY_ALARM);
                 b.setVibrate(new long[]{0, 400, 200, 400, 200, 800});

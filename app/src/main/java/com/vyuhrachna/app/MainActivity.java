@@ -511,6 +511,32 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public String canFullScreen() {
+            try {
+                if (Build.VERSION.SDK_INT >= 34) {
+                    android.app.NotificationManager nm = getSystemService(android.app.NotificationManager.class);
+                    return nm != null && nm.canUseFullScreenIntent() ? "1" : "0";
+                }
+            } catch (Exception ignored) {}
+            return "1";
+        }
+
+        @JavascriptInterface
+        public void askFullScreen() {
+            handler.post(() -> {
+                try {
+                    if (Build.VERSION.SDK_INT >= 34) startActivity(new Intent(android.provider.Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:" + getPackageName())));
+                } catch (Exception ignored) {}
+            });
+        }
+
+        @JavascriptInterface
+        public void testAlert() {
+            Store.notify(MainActivity.this, Store.CH_GJ, "🚨 ટેસ્ટ એલર્ટ", "આ ફક્ત ટેસ્ટ છે — આ રીતે ગુજરાત એલર્ટ આવશે", true);
+            AlertActivity.show(MainActivity.this, "🚨 ટેસ્ટ એલર્ટ", "આ ફક્ત ટેસ્ટ છે — આરોપી ગુજરાતમાં આવે ત્યારે આ રીતે સ્ક્રીન પર આવશે અને રીંગ વાગશે.");
+        }
+
+        @JavascriptInterface
         public String canExact() {
             return SmsScheduler.canExact(MainActivity.this) ? "1" : "0";
         }
