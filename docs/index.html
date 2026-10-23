@@ -197,6 +197,13 @@ body:has(#tab-cases.on) main{max-width:none}
 :root[data-tone="clear"] .homestrip button{background:#ffffff;color:#3d5878;border-color:#cfdcec;box-shadow:0 2px 8px rgba(30,60,110,.06)}:root[data-tone="clear"] .homestrip button b{color:#0f5fa8}:root[data-tone="clear"] .homestrip .hot b{color:#dc2626}
 :root[data-tone="clear"] .stat{background:linear-gradient(180deg,#ffffff,color-mix(in srgb,var(--c,#0f5fa8) 7%,#ffffff))}
 :root[data-tone="clear"] .card{background:#ffffff}:root[data-tone="clear"] .inp{background:#ffffff}
+:root[data-tone="clear"] .authgate{background:radial-gradient(ellipse at 50% 38%,#ffffff 0%,#eef5fd 45%,#dfe9f7 100%);color:#16213a}
+:root[data-tone="clear"] .authgate .hero-chakra{opacity:.18}:root[data-tone="clear"] .authgate .hero-t{background:linear-gradient(180deg,#1d8ce0,#0f5fa8 60%,#0b3d75);-webkit-background-clip:text;background-clip:text}
+:root[data-tone="clear"] .gate-card{background:#ffffff;border-color:#cfdcec;box-shadow:0 12px 36px rgba(30,60,110,.15);backdrop-filter:none}
+:root[data-tone="clear"] .gate-card h2{color:#0f5fa8}:root[data-tone="clear"] .gate-card .inp{background:#f8fbff;border:1px solid #cfdcec}
+:root[data-tone="clear"] .gate-card .btn:not(.pri){background:#ffffff;color:#0f5fa8;border-color:#cfdcec}
+:root[data-tone="clear"] .gate-msg{color:#3d5878}:root[data-tone="clear"] .gate-f{color:#6b7c93}:root[data-tone="clear"] .gate-show,:root[data-tone="clear"] .gate-card .muted,:root[data-tone="clear"] .gate-card .kvg b{color:#5f6b80}:root[data-tone="clear"] .gate-card .kvg span{color:#16213a}
+:root[data-tone="clear"] .gate-card a{color:#0f5fa8}
 :root[data-tone="sky"]{--bg:#eef5fc;--card:#ffffff;--ink:#0f1e33;--muted:#5b6b80;--line:#d5e3f3;--pri:#1d4ed8;--pri2:#2563eb;--soft:#e2edfb;--gold:#0ea5e9;--shadow:0 2px 12px rgba(15,40,90,.08);
   --hdr:linear-gradient(115deg,#0a1f44 0%,#1d4ed8 55%,#0ea5e9 100%);--btng:linear-gradient(135deg,#1d4ed8,#0ea5e9);--hero:radial-gradient(ellipse at 50% 40%,#1e3a8a 0%,#0b1a3a 50%,#050b18 100%)}
 :root[data-tone="mint"]{--bg:#edf8f2;--card:#ffffff;--ink:#0f2a1f;--muted:#557064;--line:#cfe7da;--pri:#047857;--pri2:#059669;--soft:#dcf2e6;--gold:#10b981;--shadow:0 2px 12px rgba(5,60,40,.08);
@@ -3073,7 +3080,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=19;
+const APP_VERSION=20;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
@@ -3304,7 +3311,12 @@ const THEMES=[['clear','☀️ આછો સફેદ (મૂળ)','linear-gradi
 function applyTheme(v){const r=document.documentElement;if(v==='dark'){r.dataset.theme='dark';delete r.dataset.tone;}else{r.dataset.theme='light';if(v==='saffron')delete r.dataset.tone;else r.dataset.tone=v;}try{localStorage.setItem('tk_theme',v)}catch(_){}}
 function themePicker(btn){document.querySelectorAll('.thpop').forEach(x=>x.remove());let cur='clear';try{cur=localStorage.getItem('tk_theme')||'clear'}catch(_){}
   const p=document.createElement('div');p.className='thpop';p.innerHTML='<h4>🎨 થીમ પસંદ કરો</h4><div class="thgrid">'+THEMES.map(([k,l,sw])=>`<button class="thopt ${k===cur?'on':''}" data-th="${k}"><span class="thsw" style="background:${sw}"></span>${l}</button>`).join('')+'</div>';
-  document.body.appendChild(p);const b=btn.getBoundingClientRect();p.style.top=Math.min(b.bottom+6,innerHeight-p.offsetHeight-8)+'px';p.style.left=Math.max(8,Math.min(b.right-p.offsetWidth,innerWidth-p.offsetWidth-8))+'px';
+  document.body.appendChild(p);
+  /* ઝૂમ હોય તો પણ થીમનું ખાનું આખું સ્ક્રીનમાં જ દેખાય (body ના zoom પ્રમાણે ગણતરી) */
+  const z=+(getComputedStyle(document.body).zoom)||1;p.style.maxWidth=Math.floor((innerWidth-16)/z)+'px';p.style.maxHeight=Math.floor((innerHeight-16)/z)+'px';
+  const b=btn.getBoundingClientRect(),vw=p.offsetWidth*z,vh=p.offsetHeight*z;
+  const top=Math.max(8,Math.min(b.bottom+6,innerHeight-vh-8)),left=Math.max(8,Math.min(b.right-vw,innerWidth-vw-8));
+  p.style.top=(top/z)+'px';p.style.left=(left/z)+'px';
   p.addEventListener('click',e=>{const ic=e.target.closest('[data-ic]');if(ic){try{localStorage.setItem('tk_icon',ic.dataset.ic)}catch(_){}p.querySelectorAll('.icopt').forEach(x=>x.classList.toggle('on',x===ic));renderAll();if($('#tab-rdash').classList.contains('on'))renderRegDash();toast('ચિહ્ન બદલાયું: '+ic.title,'ok',2000);return;}
     const o=e.target.closest('[data-th]');if(!o)return;applyTheme(o.dataset.th);p.querySelectorAll('.thopt').forEach(x=>x.classList.toggle('on',x===o));toast('થીમ બદલાઈ: '+o.textContent.trim(),'ok',1800);});
   setTimeout(()=>document.addEventListener('click',function h(e){if(!p.contains(e.target)&&e.target!==btn){p.remove();document.removeEventListener('click',h);}}),0);}
