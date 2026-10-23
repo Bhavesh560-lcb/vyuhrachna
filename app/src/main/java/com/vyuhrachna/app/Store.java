@@ -77,8 +77,33 @@ public final class Store {
         return false;
     }
 
+    static boolean enabled(Context c) {
+        return cfg(c).optBoolean("enabled", true);
+    }
+
+    /** ફક્ત સેટ કરેલા કંપનીના નંબર / Sender ID ના SMS — બીજા કોઈ અંગત SMS નહીં */
     static boolean isReply(Context c, String from, String body) {
+        if (!enabled(c)) return false;
+        if (cfg(c).optBoolean("strict", true)) return senderMatch(c, from);
         return senderMatch(c, from) || bodyHasSentNumber(c, body);
+    }
+
+    /** આપમેળે મોકલેલા SMS નો લોગ — એપ ખૂલે ત્યારે JS લઈ લે છે */
+    static synchronized void addSentLog(Context c, String num, String to, String body, boolean ok, String err) {
+        try {
+            JSONArray a = new JSONArray(prefs(c).getString("sentLog", "[]"));
+            JSONObject o = new JSONObject();
+            o.put("num", num).put("to", to).put("body", body).put("ok", ok).put("err", err == null ? "" : err).put("ts", System.currentTimeMillis());
+            a.put(o);
+            while (a.length() > 500) a.remove(0);
+            prefs(c).edit().putString("sentLog", a.toString()).apply();
+        } catch (Exception ignored) {}
+    }
+
+    static synchronized String takeSentLog(Context c) {
+        String s = prefs(c).getString("sentLog", "[]");
+        prefs(c).edit().putString("sentLog", "[]").apply();
+        return s;
     }
 
     static synchronized void rememberSent(Context c, String num) {

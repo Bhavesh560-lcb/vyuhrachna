@@ -78,6 +78,7 @@ public class MainActivity extends Activity {
         current = this;
         Store.ensureChannels(this);
         Updater.cleanup(this);
+        SmsScheduler.reschedule(this);
         Updater.schedule(this);
 
         web = new WebView(this);
@@ -213,6 +214,10 @@ public class MainActivity extends Activity {
             pendingTab = null;
         }
         js("window.onNativeSmsPending&&onNativeSmsPending()");
+    }
+
+    void onSchedSent() {
+        js("window.onSchedSent&&onSchedSent()");
     }
 
     void onNewReplies() {
@@ -488,6 +493,52 @@ public class MainActivity extends Activity {
             } catch (Exception e) {
                 js("window.onSmsStatus&&onSmsStatus('','error'," + JSONObject.quote(String.valueOf(e.getMessage())) + ")");
             }
+        }
+
+        @JavascriptInterface
+        public void setSchedule(String json, int subId) {
+            SmsScheduler.set(MainActivity.this, json, subId);
+        }
+
+        @JavascriptInterface
+        public String getSchedule() {
+            return SmsScheduler.load(MainActivity.this).toString();
+        }
+
+        @JavascriptInterface
+        public String takeSentLog() {
+            return Store.takeSentLog(MainActivity.this);
+        }
+
+        @JavascriptInterface
+        public String canExact() {
+            return SmsScheduler.canExact(MainActivity.this) ? "1" : "0";
+        }
+
+        @JavascriptInterface
+        public void askExact() {
+            handler.post(() -> {
+                try {
+                    if (Build.VERSION.SDK_INT >= 31) {
+                        Intent i = new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + getPackageName()));
+                        startActivity(i);
+                    }
+                } catch (Exception ignored) {}
+            });
+        }
+
+        @JavascriptInterface
+        public void askBattery() {
+            handler.post(() -> {
+                try {
+                    Intent i = new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName()));
+                    startActivity(i);
+                } catch (Exception e) {
+                    try {
+                        startActivity(new Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
+                    } catch (Exception ignored) {}
+                }
+            });
         }
 
         @JavascriptInterface
