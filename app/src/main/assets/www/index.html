@@ -292,6 +292,7 @@ body.home main{max-width:none;padding:0}
 .ownc{display:inline-block;font-size:12px;font-weight:600;background:#ede9fe;color:#4c1d95;border-radius:8px;padding:1px 7px;margin-left:4px}.ownc.pr{background:#e0f2fe;color:#075985}.socrow{display:grid;grid-template-columns:28px minmax(120px,1fr) minmax(160px,2fr) auto auto;gap:6px;align-items:center;margin:4px 0}.socrow .socic{font-size:20px;text-align:center}.socrow a.btn{text-decoration:none}@media(max-width:600px){.socrow{grid-template-columns:28px 1fr auto;}.socrow [data-sl]{grid-column:2/3}}
 .zmctl{display:inline-flex;gap:2px}.zmctl button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:inherit;border-radius:8px;padding:2px 7px;cursor:pointer;font-weight:700;font-size:12px}
 .cv{cursor:pointer;border-bottom:1px dashed rgba(124,45,18,.35)}.cv:hover{background:#fef3c7}.cv.more{color:var(--pri);font-size:12.5px;border:0;text-decoration:underline}
+.mapm{width:min(1200px,96vw)!important}.mapm .leaflet-container{font:inherit}
 .nfact{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;background:var(--card)}.nfh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.nfb{margin-left:auto}.nfact .upbox{margin:2px 0}
 .tn .nbtns{margin-left:auto;display:flex;gap:4px;flex:none}.tn .ned.del:hover{background:#fee2e2}.tn .ned{flex:none;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px 7px;cursor:pointer;font-size:14px}.tn .ned:hover{background:#fef3c7}
 .tn{min-width:min(250px,78vw);display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:10px;padding:6px 8px;font-size:13.5px;cursor:pointer;min-width:0}
@@ -431,7 +432,7 @@ body.locked{overflow:hidden}
   <div class="card" style="margin-top:14px"><h3>🕘 તાજેતરના કેસ</h3><div id="rdRecent" class="flist"></div></div>
   <div class="grid2" style="margin-top:14px">
     <div class="card"><div class="row" style="justify-content:space-between;margin:0"><h3 style="margin:0">👥 અન્ય વ્યક્તિ</h3><button class="btn sm" data-hgo="others">બધા ➜</button></div><div id="rdOthers" style="margin-top:8px"></div></div>
-    <div class="card"><div class="row" style="justify-content:space-between;margin:0"><h3 style="margin:0">📍 તાજેતરના SMS લોકેશન</h3><button class="btn sm" data-hgo="sms">SMS ➜</button></div><div id="rdSms" style="margin-top:8px"></div></div>
+    <div class="card"><div class="row" style="justify-content:space-between;margin:0"><h3 style="margin:0">📍 તાજેતરના SMS લોકેશન</h3><span><button class="btn sm pri" data-smap="">🗺️ રૂટ</button> <button class="btn sm" data-hgo="sms">SMS ➜</button></span></div><div id="rdSms" style="margin-top:8px"></div></div>
   </div>
   <div class="card" style="margin-top:14px"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap;margin:0"><h3 style="margin:0">🧍 વ્યક્તિ મુજબ — કોણ કેટલા કેસ / નંબર / જોડાણમાં</h3><div class="row" style="gap:6px;margin:0;flex-wrap:wrap"><div class="seg" id="rdPF" style="margin:0"></div><input class="inp" id="rdPQ" placeholder="નામ / નંબર શોધો…" style="min-width:180px"><button class="btn sm" id="rdPX">📊 Excel</button></div></div><div class="tablewrap" id="rdPeople" style="margin-top:8px;max-height:70vh;overflow:auto"></div></div>
 </section>
@@ -530,7 +531,7 @@ body.locked{overflow:hidden}
   <div class="card" style="margin-top:12px"><h3>② કંપનીનો રિપ્લાય ઉમેરો</h3>
     <textarea class="inp" id="smsRep" style="width:100%;min-height:90px" placeholder="કંપનીનો આખો રિપ્લાય SMS અહીં પેસ્ટ કરો…"></textarea>
     <div class="row gap" style="margin-bottom:0"><button class="btn pri" id="smsRepB">📥 રિપ્લાય સેવ કરો</button><button class="btn" id="smsInbox" style="display:none">📥 Inbox માંથી રિપ્લાય વાંચો</button></div></div>
-  <div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><h3 style="margin:0">③ રિપ્લાય / લોકેશન લોગ</h3><div class="row" style="gap:8px"><label><input type="checkbox" id="smsLogGJ"> ફક્ત 🚨 ગુજરાત</label><button class="btn" id="smsXls">📊 Excel</button><button class="btn danger" id="smsClean" title="ટીક ન કરેલા નંબરના / ખોટા સેવ થયેલા મેસેજ કાઢો">🧹 બીજા મેસેજ કાઢો</button></div></div>
+  <div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><h3 style="margin:0">③ રિપ્લાય / લોકેશન લોગ</h3><div class="row" style="gap:8px"><label><input type="checkbox" id="smsLogGJ"> ફક્ત 🚨 ગુજરાત</label><button class="btn pri" data-smap="" title="બધા નંબરનાં લોકેશન નકશા પર રૂટ સાથે">🗺️ નકશા પર રૂટ</button><button class="btn" id="smsXls">📊 Excel</button><button class="btn danger" id="smsClean" title="ટીક ન કરેલા નંબરના / ખોટા સેવ થયેલા મેસેજ કાઢો">🧹 બીજા મેસેજ કાઢો</button><button class="btn danger" id="smsDelAll" title="લોગના બધા મેસેજ કાઢો — ફરી નહીં આવે">🗑️ બધા મેસેજ કાઢો</button></div></div>
     <div id="smsLog" style="margin-top:10px"></div></div>
 </section>
 
@@ -1278,6 +1279,57 @@ async function handleFiles(list,opt={}){
 let navDepth=0;
 function goBack(){if(document.querySelector('.ov')){const o=[...document.querySelectorAll('.ov')].pop();if(o.back&&o.back())return;o.close();return;}if(navDepth>0)history.back();else showTab('dash',true);}
 window.addEventListener('pagehide',()=>{try{const nv=JSON.parse(sessionStorage.getItem('tk_nav')||'null');if(nv){nv.y=window.scrollY;sessionStorage.setItem('tk_nav',JSON.stringify(nv));}}catch(_){}});
+/* ===== 🗺️ SMS લોકેશન — નકશા પર રૂટ (બધા નંબર / એક નંબર) ===== */
+let lfP=null;
+function loadLeaflet(){if(window.L&&L.map)return Promise.resolve();if(lfP)return lfP;
+  const css=h=>new Promise(r=>{const l=document.createElement('link');l.rel='stylesheet';l.href=h;l.onload=()=>r(true);l.onerror=()=>{l.remove();r(false);};document.head.appendChild(l);});
+  lfP=(async()=>{if(!await css('lib/leaflet.css'))await css('https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css');
+    try{await loadScript('lib/leaflet.js',15000);}catch(_){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',20000);}})().catch(e=>{lfP=null;throw e;});return lfP;}
+const MAP_COL=['#dc2626','#2563eb','#059669','#d97706','#7c3aed','#db2777','#0891b2','#65a30d','#9333ea','#ea580c','#0f766e','#be123c'];
+function smsPoints(num){return smsLog.filter(e=>e.kind==='reply'&&e.ll&&(!num||e.num===num)).map(e=>{const [la,lo]=String(e.ll).split(',').map(Number);return {e,la,lo};}).filter(p=>isFinite(p.la)&&isFinite(p.lo)&&Math.abs(p.la)<=90&&Math.abs(p.lo)<=180).sort((a,b)=>a.e.at-b.e.at);}
+function kmBetween(a,b){const R=6371,r=x=>x*Math.PI/180;const dLa=r(b.la-a.la),dLo=r(b.lo-a.lo);const h=Math.sin(dLa/2)**2+Math.cos(r(a.la))*Math.cos(r(b.la))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+function gmapRouteUrl(P){/* Google Maps માં એક URL માં વધુમાં વધુ 10 સ્થળ — વધુ હોય તો સરખા અંતરે પસંદ (પહેલું અને છેલ્લું હંમેશા) */
+  let Q=P;if(P.length>10){Q=[];for(let i=0;i<10;i++)Q.push(P[Math.round(i*(P.length-1)/9)]);}
+  if(Q.length===1)return `https://www.google.com/maps/search/?api=1&query=${Q[0].la},${Q[0].lo}`;
+  return 'https://www.google.com/maps/dir/'+Q.map(p=>p.la+','+p.lo).join('/');}
+function openExt(u){try{if(window.AndroidApp){AndroidApp.openUrl(u);return;}}catch(_){}window.open(u,'_blank','noopener');}
+function smsKml(groups){const x=s=>String(s??'').replace(/[<&>]/g,c=>({'<':'&lt;','&':'&amp;','>':'&gt;'}[c]));
+  const st=groups.map((g,i)=>{const c=g.col.replace('#','');const kc='ff'+c.slice(4,6)+c.slice(2,4)+c.slice(0,2);return `<Style id="s${i}"><LineStyle><color>${kc}</color><width>4</width></LineStyle><IconStyle><color>${kc}</color></IconStyle></Style>`;}).join('');
+  const body=groups.map((g,i)=>`<Folder><name>${x(g.num)} ${x(g.name)}</name>${g.P.map((p,k)=>`<Placemark><name>${k+1}. ${x(g.num)}</name><description>${x(fmtDate(p.e.at))} — ${p.e.gj?'ગુજરાતમાં':p.e.where==='out'?'ગુજરાત બહાર':'અજાણ'}</description><styleUrl>#s${i}</styleUrl><TimeStamp><when>${new Date(p.e.at).toISOString()}</when></TimeStamp><Point><coordinates>${p.lo},${p.la},0</coordinates></Point></Placemark>`).join('')}${g.P.length>1?`<Placemark><name>${x(g.num)} રૂટ</name><styleUrl>#s${i}</styleUrl><LineString><tessellate>1</tessellate><coordinates>${g.P.map(p=>p.lo+','+p.la+',0').join(' ')}</coordinates></LineString></Placemark>`:''}</Folder>`).join('');
+  return `<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>વ્યૂહરચના — SMS લોકેશન રૂટ</name>${st}${body}</Document></kml>`;}
+async function smsMap(num){
+  const all=smsPoints(null);if(!all.length){toast('હજી કોઈ લોકેશનમાં Lat/Long આવ્યું નથી','err',5000);return;}
+  const nums=uniq(all.map(p=>p.e.num||'?'));const nameOf=n=>{const e=[...smsLog].reverse().find(x=>x.num===n&&x.name);if(e)return e.name;const o=(smsNumbers().find(z=>z.n===n)||{people:[]}).people[0];return o?o.name||'':'';};
+  const colOf=n=>MAP_COL[nums.indexOf(n)%MAP_COL.length];
+  const ov=openModal(`<h2 style="margin-bottom:6px">🗺️ SMS લોકેશન — નકશા પર રૂટ</h2>
+    <div class="row gap" style="margin:0 0 8px;flex-wrap:wrap"><select class="inp" id="mpN"><option value="">📍 બધા નંબર (${GU_D(nums.length)})</option>${nums.map(n=>`<option value="${esc(n)}" ${n===num?'selected':''}>${esc(n)} ${esc(nameOf(n))} (${GU_D(all.filter(p=>p.e.num===n).length)})</option>`).join('')}</select>
+      <label class="muted" style="font-size:13px"><input type="checkbox" id="mpGJ"> ફક્ત 🚨 ગુજરાત</label>
+      <button class="btn sm" id="mpSat">🛰️ સેટેલાઇટ</button><button class="btn sm pri" id="mpG">🧭 Google Maps માં રૂટ</button><button class="btn sm" id="mpK">📥 KML (Google Earth / My Maps)</button></div>
+    <div id="mpMap" style="height:62vh;min-height:320px;border-radius:12px;border:1px solid var(--line);background:#e8eef5"></div>
+    <div id="mpLeg" style="margin-top:8px"></div>`,{wide:true,cls:'mapm'});
+  try{await loadLeaflet();}catch(e){ov.querySelector('#mpMap').innerHTML='<div class="empty">નકશાની લાઇબ્રેરી લોડ ન થઈ — ઇન્ટરનેટ ચાલુ કરો</div>';return;}
+  const map=L.map(ov.querySelector('#mpMap'),{zoomControl:true,attributionControl:true});
+  const street=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
+  const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'© Esri'});
+  let isSat=false;street.addTo(map);
+  ov.querySelector('#mpSat').onclick=()=>{isSat=!isSat;if(isSat){map.removeLayer(street);sat.addTo(map);}else{map.removeLayer(sat);street.addTo(map);}ov.querySelector('#mpSat').textContent=isSat?'🗺️ રસ્તા':'🛰️ સેટેલાઇટ';};
+  const layer=L.layerGroup().addTo(map);let groups=[];
+  const draw=()=>{layer.clearLayers();const sel=ov.querySelector('#mpN').value,gjOnly=ov.querySelector('#mpGJ').checked;
+    groups=(sel?[sel]:nums).map(n=>({num:n,name:nameOf(n),col:colOf(n),P:all.filter(p=>(p.e.num||'?')===n&&(!gjOnly||p.e.gj))})).filter(g=>g.P.length);
+    const B=[];
+    for(const g of groups){const ll=g.P.map(p=>[p.la,p.lo]);B.push(...ll);
+      if(ll.length>1)L.polyline(ll,{color:g.col,weight:4,opacity:.85}).addTo(layer);
+      g.P.forEach((p,k)=>{const last=k===g.P.length-1;const ic=L.divIcon({className:'',iconSize:null,html:`<div style="background:${g.col};color:#fff;border:2px solid #fff;border-radius:50%;width:${last?30:22}px;height:${last?30:22}px;display:grid;place-items:center;font:700 ${last?13:11}px sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.4);transform:translate(-50%,-50%)${p.e.gj?';outline:3px solid #fecaca':''}">${k+1}</div>`});
+        L.marker([p.la,p.lo],{icon:ic}).addTo(layer).bindPopup(`<b>📱 ${esc(g.num)}</b> ${esc(g.name)}<br>${k+1} / ${g.P.length} • ${esc(fmtDate(p.e.at))}<br>${p.e.gj?'🚨 <b style="color:#dc2626">ગુજરાતમાં</b>':p.e.where==='out'?'ગુજરાત બહાર':'અજાણ'}${p.e.cell?'<br>Cell ID '+esc(p.e.cell):''}<br><a href="https://maps.google.com/?q=${p.la},${p.lo}" target="_blank" rel="noopener">Google Maps માં ખોલો</a>`);});}
+    if(B.length)map.fitBounds(B,{padding:[30,30],maxZoom:14});else map.setView([22.3,71.7],7);
+    ov.querySelector('#mpLeg').innerHTML=groups.length?`<div class="tablewrap"><table><thead><tr><th></th><th>નંબર</th><th>કોણ</th><th>સ્થળ</th><th>પહેલું → છેલ્લું</th><th>કુલ અંતર</th><th></th></tr></thead><tbody>${groups.map(g=>{let km=0;for(let i=1;i<g.P.length;i++)km+=kmBetween(g.P[i-1],g.P[i]);const f=g.P[0].e,l=g.P[g.P.length-1].e;
+      return `<tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${g.col}"></span></td><td><b>${esc(g.num)}</b></td><td>${esc(g.name||'—')}</td><td>${GU_D(g.P.length)}${g.P.some(p=>p.e.gj)?' <span class="tag red">🚨</span>':''}</td><td style="font-size:12.5px">${esc(fmtDate(f.at))}<br>→ ${esc(fmtDate(l.at))}</td><td>${km.toFixed(1)} કિ.મી.</td><td style="white-space:nowrap"><button class="btn sm" data-mpone="${esc(g.num)}">🔍</button> <button class="btn sm pri" data-mpg="${esc(g.num)}">🧭 Google</button></td></tr>`;}).join('')}</tbody></table></div><div class="muted" style="font-size:12px;margin-top:4px">અંક = ક્રમ (1 = સૌથી જૂનું, મોટું ગોળ = છેલ્લું લોકેશન). અંતર સીધી લીટીમાં છે. Google Maps માં એક સાથે 10 સ્થળ જ જાય છે — વધુ હોય તો સરખા અંતરે 10 પસંદ થાય છે.</div>`:'<div class="empty">આ ફિલ્ટરમાં કોઈ લોકેશન નથી</div>';};
+  ov.querySelector('#mpN').onchange=draw;ov.querySelector('#mpGJ').onchange=draw;
+  ov.querySelector('#mpG').onclick=()=>{if(groups.length!==1){toast('Google Maps માં એક સમયે એક નંબરનો રૂટ — ઉપરથી નંબર પસંદ કરો અથવા નીચે 🧭 Google દબાવો','err',6000);return;}openExt(gmapRouteUrl(groups[0].P));};
+  ov.querySelector('#mpK').onclick=()=>{if(!groups.length)return;download(`sms-location-route-${new Date().toISOString().slice(0,10)}.kml`,new Blob([smsKml(groups)],{type:'application/vnd.google-earth.kml+xml'}));toast('📥 KML તૈયાર — Google Earth / Google My Maps માં ખોલો (બધા નંબરનો રૂટ એક સાથે)','ok',6000);};
+  ov.querySelector('#mpLeg').addEventListener('click',e=>{const o=e.target.closest('[data-mpone]');if(o){ov.querySelector('#mpN').value=o.dataset.mpone;draw();return;}const g=e.target.closest('[data-mpg]');if(g){const G=groups.find(x=>x.num===g.dataset.mpg);if(G)openExt(gmapRouteUrl(G.P));}});
+  setTimeout(()=>{map.invalidateSize();draw();},120);}
+document.addEventListener('click',e=>{const m=e.target.closest('[data-smap]');if(!m)return;e.preventDefault();e.stopPropagation();smsMap(m.dataset.smap||null);},true);
 /* ===== ઝૂમ: PC માં Ctrl + માઉસ ચકરડી / Ctrl + − 0, મોબાઇલમાં બે આંગળી ===== */
 let appZoom=1;try{appZoom=+localStorage.getItem('tk_zoom')||1;}catch(_){}
 function setZoom(z,show){appZoom=Math.min(2.5,Math.max(0.5,Math.round(z*100)/100));document.body.style.zoom=appZoom===1?'':String(appZoom);try{localStorage.setItem('tk_zoom',String(appZoom));}catch(_){}if(show){let el=document.getElementById('zoomTip');if(!el){el=document.createElement('div');el.id='zoomTip';el.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100001;background:#1f2937;color:#fff;padding:6px 14px;border-radius:20px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3)';document.documentElement.appendChild(el);}el.innerHTML=`🔍 ${Math.round(appZoom*100)}% <button style="margin-left:8px;border:0;border-radius:10px;padding:2px 8px;cursor:pointer" onclick="setZoom(1,true)">100%</button>`;el.style.display='';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2200);}}
@@ -2095,10 +2147,10 @@ function renderSms(){
   /* ② પસંદ કરેલા નંબર — અલગ બોક્ષ */
   const S=L.filter(o=>smsSel.has(o.n));const miss=[...smsSel].filter(n=>!L.some(o=>o.n===n)).map(n=>({n,people:[{name:'—'}]}));const SA=[...S,...miss];
   $('#smsSelN').textContent=GU_D(SA.length);
-  $('#smsSelBox').innerHTML=SA.length?`<div class="tablewrap"><table><thead><tr><th>મોબાઇલ</th><th>કોણ / કેસ</th><th>કંપની</th><th>⏱️ આપમેળે</th><th>છેલ્લું SMS</th><th>છેલ્લું લોકેશન</th><th></th></tr></thead><tbody>${SA.map(o=>{const l=lastOf(o.n);return `<tr class="${l.rep&&l.rep.gj?'gjrow':''}"><td><b>${o.n}</b></td><td>${who(o)}</td><td>${opSel(o)}</td><td>${evTd(o)}</td><td>${sentTd(l)}</td><td>${repTd(l)}</td><td style="white-space:nowrap"><button class="btn sm" data-send1="${o.n}" title="હમણાં એક વાર SMS">📤</button> <button class="btn sm danger" data-unsel="${o.n}" title="પસંદગીમાંથી કાઢો">✕</button></td></tr>`;}).join('')}</tbody></table></div>
+  $('#smsSelBox').innerHTML=SA.length?`<div class="tablewrap"><table><thead><tr><th>મોબાઇલ</th><th>કોણ / કેસ</th><th>કંપની</th><th>⏱️ આપમેળે</th><th>છેલ્લું SMS</th><th>છેલ્લું લોકેશન</th><th></th></tr></thead><tbody>${SA.map(o=>{const l=lastOf(o.n);return `<tr class="${l.rep&&l.rep.gj?'gjrow':''}"><td><b>${o.n}</b></td><td>${who(o)}</td><td>${opSel(o)}</td><td>${evTd(o)}</td><td>${sentTd(l)}</td><td>${repTd(l)}</td><td style="white-space:nowrap"><button class="btn sm" data-smap="${o.n}" title="આ નંબરનો નકશા પર રૂટ">🗺️</button> <button class="btn sm" data-send1="${o.n}" title="હમણાં એક વાર SMS">📤</button> <button class="btn sm danger" data-unsel="${o.n}" title="પસંદગીમાંથી કાઢો">✕</button></td></tr>`;}).join('')}</tbody></table></div>
     <div class="row gap" style="margin:8px 0 0"><button class="btn sm" data-sendall="1">📤 આ બધાને હમણાં એક વાર SMS</button><button class="btn sm danger" data-unselall="1">✕ બધી પસંદગી કાઢો</button></div>`:'<div class="empty">હજી કોઈ નંબર પસંદ નથી — ઉપરની યાદીમાંથી ✔ કરો અથવા શોધમાં આખો નંબર લખો</div>';
   const LG=smsLog.filter(e=>e.kind==='reply'&&(!smsLogGJ||e.gj)).slice().reverse();
-  $('#smsLog').innerHTML=LG.length?LG.map(e=>`<div class="mcard" style="--c:${e.gj?'#dc2626':'#64748b'}"><div class="mhead">${e.gj?'<span class="tag red">🚨 ગુજરાતમાં</span>':e.where==='out'?'<span class="tag" style="background:#dcfce7;color:#166534">ગુજરાત બહાર</span>':'<span class="tag">અજાણ</span>'}<b>${esc(e.num||'નંબર મળ્યો નથી')}</b>${e.name?`<small class="muted">${esc(e.name)}</small>`:''}<span style="margin-left:auto" class="muted">${fmtDate(e.at)}</span><button class="btn sm danger" data-lgdel="${e.id}">✕</button></div>
+  $('#smsLog').innerHTML=LG.length?LG.map(e=>`<div class="mcard" style="--c:${e.gj?'#dc2626':'#64748b'}"><div class="mhead">${e.gj?'<span class="tag red">🚨 ગુજરાતમાં</span>':e.where==='out'?'<span class="tag" style="background:#dcfce7;color:#166534">ગુજરાત બહાર</span>':'<span class="tag">અજાણ</span>'}<b>${esc(e.num||'નંબર મળ્યો નથી')}</b>${e.name?`<small class="muted">${esc(e.name)}</small>`:''}<span style="margin-left:auto" class="muted">${fmtDate(e.at)}</span>${e.ll?`<button class="btn sm" data-smap="${esc(e.num||'')}" title="આ નંબરનો રૂટ">🗺️</button>`:''}<button class="btn sm danger" data-lgdel="${e.id}">✕</button></div>
     ${e.loc||e.cgi||e.cell?`<div style="margin-top:4px">${e.loc?`📍 <b>${esc(e.loc)}</b>`:''} ${e.cgi?`<span class="tag">CGI ${esc(e.cgi)}</span>`:''}${e.lac?`<span class="tag">LAC ${esc(e.lac)}</span>`:''}${e.cell?`<span class="tag">Cell ID ${esc(e.cell)}</span>`:''}${e.ll?`<a class="tag ok" target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(e.ll)}">🗺️ નકશો</a>`:''}</div>`:''}
     <div class="occ" style="white-space:pre-wrap">${esc(e.text)}</div>${e.gjWhy?`<small class="muted">${e.gj?'ગુજરાત કારણ':'કારણ'}: ${esc(e.gjWhy)}</small>`:''}${e.mm?` <span class="tag">ટાવર ${esc(e.mm)}</span>`:''}</div>`).join(''):'<div class="empty">હજી કોઈ રિપ્લાય સેવ નથી.</div>';
 }
@@ -2161,11 +2213,17 @@ function parseReply(text){
   const who=num?(smsNumbers().find(o=>o.n===num)||{people:[]}).people[0]:null;
   return {num,cgi,lac,cell,ll,loc,gj,gjWhy:why,where,mm,name:who?who.name:''};
 }
+/* કાઢેલા મેસેજ ફરી ન આવે: તેની ઓળખ (hash) યાદ રાખો */
+function smsHash(t){t=String(t||'').replace(/\s+/g,' ').trim().slice(0,400);let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return (h>>>0).toString(36)+'.'+t.length;}
+function smsForget(list){const c=smsCfg();const g=new Set(c.gone||[]);for(const e of list)if(e&&e.text)g.add(smsHash(e.text));c.gone=[...g].slice(-4000);saveSettings();}
 function isAckSms(t,p){t=String(t||'');p=p||parseReply(t);if(p.ll||p.cell||p.cgi||p.lac||p.loc)return false;return /RECEIVED\s*REQUEST|REQUEST\s*(ID|RECEIVED|ACCEPTED|REGISTERED)|REQ\s*ID|WILL\s*BE\s*(SENT|PROCESSED)|UNDER\s*PROCESS/i.test(t);}
 function smsSenderOK(from){const c=smsCfg();const N=x=>String(x||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const f=N(from);if(!f)return false;
   const ks=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(N).filter(k=>k.length>=3));
   return ks.some(k=>/^\d+$/.test(k)?(f===k||f.endsWith(k)&&f.length-k.length<=3):(f===k||f.includes(k)));}
 async function smsAddReply(text,silent,meta){
+  {const c=smsCfg();const hh=smsHash(text);
+    if(meta){if(c.clearedAt&&(+meta.ts||Date.now())<=c.clearedAt)return null;if((c.gone||[]).includes(hh))return null;}
+    else if((c.gone||[]).includes(hh)){c.gone=c.gone.filter(x=>x!==hh);saveSettings();}}
   if(meta){/* ફોનમાંથી આપમેળે આવેલો SMS — કડક ચકાસણી */
     if(!smsOn())return null;
     if(!smsSenderOK(meta.from))return null;
@@ -2245,8 +2303,11 @@ function smsEvents(){
   $('#smsNotif').onclick=async()=>{if(!('Notification' in window)){toast('આ બ્રાઉઝરમાં નોટિફિકેશન નથી','err');return;}const r=await Notification.requestPermission();toast(r==='granted'?'🔔 નોટિફિકેશન ચાલુ':'નોટિફિકેશનની મંજૂરી મળી નહીં',r==='granted'?'ok':'err');};
   $('#smsLogGJ').onchange=e=>{smsLogGJ=e.target.checked;renderSms();};
   $('#smsClean').onclick=()=>{const W=smsWatched();const bad=smsLog.filter(e=>e.kind==='reply'&&(!(e.num&&W.has(e.num))||isAckSms(e.text)));if(!bad.length){toast('કાઢવા જેવો કોઈ મેસેજ નથી — બધા ટીક કરેલા નંબરના છે','ok');return;}
-    if(!confirm(`${bad.length} મેસેજ ટીક કરેલા / આપમેળે મોકલાતા નંબરના નથી (દા.ત. બેંક, અંગત SMS).\n\nતે બધા લોગમાંથી કાઢી નાખવા છે?`))return;const ids=new Set(bad.map(e=>e.id));smsLog=smsLog.filter(e=>!ids.has(e.id));smsSave();renderSms();toast(`🧹 ${bad.length} મેસેજ કાઢ્યા`,'ok');};
-  $('#smsLog').addEventListener('click',e=>{const d=e.target.closest('[data-lgdel]');if(d&&confirm('આ રિપ્લાય કાઢી નાખવો છે?')){smsLog=smsLog.filter(x=>x.id!==d.dataset.lgdel);smsSave();renderSms();}});
+    if(!confirm(`${bad.length} મેસેજ ટીક કરેલા / આપમેળે મોકલાતા નંબરના નથી (દા.ત. બેંક, અંગત SMS).\n\nતે બધા લોગમાંથી કાઢી નાખવા છે?`))return;const ids=new Set(bad.map(e=>e.id));smsForget(bad);smsLog=smsLog.filter(e=>!ids.has(e.id));smsSave();renderSms();toast(`🧹 ${bad.length} મેસેજ કાઢ્યા`,'ok');};
+  $('#smsLog').addEventListener('click',e=>{const d=e.target.closest('[data-lgdel]');if(d&&confirm('આ રિપ્લાય કાઢી નાખવો છે?\n(ફરી Inbox માંથી નહીં આવે)')){smsForget(smsLog.filter(x=>x.id===d.dataset.lgdel));smsLog=smsLog.filter(x=>x.id!==d.dataset.lgdel);smsSave();renderSms();}});
+  $('#smsDelAll').onclick=()=>{const R=smsLog.filter(e=>e.kind==='reply');if(!R.length){toast('લોગ ખાલી છે','ok');return;}
+    if(!confirm(`લોગના બધા ${R.length} મેસેજ કાઢી નાખવા છે?\n\nકાઢ્યા પછી આ મેસેજ ફરી નહીં આવે (Inbox માંથી વાંચો તો પણ નહીં).\nહવે પછી આવતા નવા લોકેશન જ દેખાશે.`))return;
+    smsForget(R);const c=smsCfg();c.clearedAt=Date.now();saveSettings();smsLog=smsLog.filter(e=>e.kind!=='reply');smsSave();renderSms();toast(`🗑️ ${R.length} મેસેજ કાઢી નાખ્યા`,'ok');};
   $('#smsXls').onclick=()=>{const rows=smsLog.filter(e=>e.kind==='reply').map(e=>({'તારીખ':fmtDate(e.at),'મોબાઇલ':e.num,'આરોપી':e.name,'ગુજરાતમાં':e.gj?'હા':'','લોકેશન':e.loc,'CGI':e.cgi,'LAC':e.lac,'Cell ID':e.cell,'Lat,Long':e.ll,'રિપ્લાય':e.text}));if(!rows.length){toast('રિપ્લાય નથી','err');return;}const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'SMS રિપ્લાય');XLSX.writeFile(wb,`vyuhrachna-sms-${new Date().toISOString().slice(0,10)}.xlsx`);};
 }
 /* ---- Android એપ (APK) સાથે જોડાણ ---- */
@@ -3012,7 +3073,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=17;
+const APP_VERSION=19;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
