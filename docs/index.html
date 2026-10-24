@@ -2036,6 +2036,7 @@ async function syncStart(){
     const m=await SYNC.metaRef.get().catch(()=>null);if(m&&!m.exists)syncPushMeta();
     SYNC.unsub.push(SYNC.docsCol.onSnapshot(s=>applyRemoteDocs(s),e=>setSync('error',e.message)));
     SYNC.unsub.push(SYNC.metaRef.onSnapshot(s=>applyRemoteMeta(s),()=>{}));
+    try{await smsSyncStart(base);}catch(e){console.warn(e);}
     SYNC.photosCol=null;if(settings.syncPhotos){SYNC.photosCol=base.collection('photos');const ps=await SYNC.photosCol.get();const rm=new Map(ps.docs.map(x=>[x.id,x.data().updatedAt||0]));for(const p of PH.m.values())if(!rm.has(p.id)||(p.updatedAt||p.addedAt||0)>rm.get(p.id))syncPhotoPush(p);SYNC.unsub.push(SYNC.photosCol.onSnapshot(s=>applyRemotePhotos(s),()=>{}));}
     setSync('on');return true;
   }catch(e){console.error(e);SYNC.on=false;setSync('error',e.message);toast('ઓનલાઇન જોડાણ ન થયું: '+e.message,'err',7000);return false;}
@@ -2113,7 +2114,30 @@ async function smsLoad(){try{smsLog=(await DB.get('kv','smslog'))||[];}catch(_){
 /* ટીક કરેલા + આપમેળે મોકલાતા + છેલ્લા 48 કલાકમાં SMS મોકલેલા નંબર — ફક્ત તેમના જ રિપ્લાય સેવ થશે */
 function smsWatched(){const c=smsCfg();const w=new Set(smsSel);Object.entries(c.every||{}).forEach(([n,m])=>{if(+m>0)w.add(n);});const lim=Date.now()-48*3600e3;smsLog.forEach(e=>{if(e.kind==='sent'&&e.at>lim&&e.num)w.add(e.num);});return w;}
 let smsSelSig='';function smsSaveSel(){const c=smsCfg();const a=[...smsSel].sort();const sig=a.join(',');if(sig===smsSelSig)return;smsSelSig=sig;c.sel=a;saveSettings();smsPushNative();}
-const smsSave=()=>DB.put('kv',smsLog,'smslog').catch(()=>{});
+const smsSave=()=>{const r=DB.put('kv',smsLog,'smslog').catch(()=>{});smsSyncSoon();return r;};
+/* ===== SMS લોગ ઓનલાઇન — મોબાઇલમાં આવેલા લોકેશન વેબ / કમ્પ્યુટરમાં પણ ===== */
+const SMS_SYNC_KINDS=new Set(['reply','sent','manualnum']);let smsSyncT=0,smsSynced=new Set(),smsApplying=false;
+function smsSyncSoon(){if(smsApplying||!SYNC.on||!SYNC.smsCol)return;clearTimeout(smsSyncT);smsSyncT=setTimeout(smsSyncPush,1200);}
+async function smsSyncPush(){if(!SYNC.on||!SYNC.smsCol||(typeof readOnly==='function'&&readOnly()))return;
+  const loc=smsLog.filter(e=>e&&e.id&&SMS_SYNC_KINDS.has(e.kind)).slice(-4000);const ids=new Set(loc.map(e=>e.id));
+  const add=loc.filter(e=>!smsSynced.has(e.id)),del=[...smsSynced].filter(id=>!ids.has(id));
+  try{for(let i=0;i<add.length;i+=400){const b=SYNC.db.batch();for(const e of add.slice(i,i+400))b.set(SYNC.smsCol.doc(e.id),JSON.parse(JSON.stringify(e)));await b.commit();add.slice(i,i+400).forEach(e=>smsSynced.add(e.id));}
+    for(let i=0;i<del.length;i+=400){const b=SYNC.db.batch();for(const id of del.slice(i,i+400))b.delete(SYNC.smsCol.doc(id));await b.commit();del.slice(i,i+400).forEach(id=>smsSynced.delete(id));}
+    /* સ્થિતિ બદલાય (દા.ત. ⏳ → ✅ ગયો) તો અપડેટ */
+    const ch=loc.filter(e=>e._dirty);for(const e of ch){delete e._dirty;await SYNC.smsCol.doc(e.id).set(JSON.parse(JSON.stringify(e)));}
+  }catch(e){console.warn('sms sync',e);}}
+async function smsSyncStart(base){SYNC.smsCol=base.collection('sms');smsSynced=new Set();
+  try{const snap=await SYNC.smsCol.get();const c=smsCfg();const gone=new Set(c.gone||[]);const have=new Set(smsLog.map(e=>e.id));let n=0;
+    for(const d of snap.docs){smsSynced.add(d.id);if(have.has(d.id))continue;const e=d.data();if(e.kind==='reply'&&(gone.has(smsHash(e.text))||(c.clearedAt&&e.at<=c.clearedAt)))continue;smsLog.push(e);n++;}
+    if(n){smsLog.sort((a,b)=>(a.at||0)-(b.at||0));smsApplying=true;await DB.put('kv',smsLog,'smslog').catch(()=>{});smsApplying=false;}
+    await smsSyncPush();if(n)smsRefreshUI();}catch(e){console.warn('sms sync start',e);}
+  SYNC.unsub.push(SYNC.smsCol.onSnapshot(sn=>{let ch=false;const c=smsCfg();const gone=new Set(c.gone||[]);
+    for(const x of sn.docChanges()){const id=x.doc.id;if(x.type==='removed'){smsSynced.delete(id);const b4=smsLog.length;smsLog=smsLog.filter(e=>e.id!==id);if(smsLog.length<b4)ch=true;continue;}
+      smsSynced.add(id);const e=x.doc.data();const i=smsLog.findIndex(z=>z.id===id);
+      if(i<0){if(e.kind==='reply'&&(gone.has(smsHash(e.text))||(c.clearedAt&&e.at<=c.clearedAt)))continue;smsLog.push(e);ch=true;if(e.kind==='reply'&&e.gj&&e.at>Date.now()-15*60e3&&!x.doc.metadata.hasPendingWrites)try{gjAlert(e);}catch(_){}}
+      else if(JSON.stringify(smsLog[i])!==JSON.stringify(e)){smsLog[i]=e;ch=true;}}
+    if(ch){smsLog.sort((a,b)=>(a.at||0)-(b.at||0));smsApplying=true;DB.put('kv',smsLog,'smslog').catch(()=>{}).finally(()=>{smsApplying=false;});smsRefreshUI();}},e=>console.warn('sms snap',e)));}
+function smsRefreshUI(){try{if($('#tab-sms').classList.contains('on'))renderSms();if($('#tab-rdash').classList.contains('on'))renderRegDash();if($('#tab-dash').classList.contains('on'))renderHomeStrip();}catch(_){}}
 function smsNumbers(){
   const map=new Map();
   for(const d of docs)for(const x of caseRowsOf(d)){if(smsScope==='reg'&&x.reg!==curReg)continue;
@@ -2322,7 +2346,7 @@ const NATIVE=!!window.AndroidSMS;
 function b64OfBlob(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=rej;r.readAsDataURL(blob);});}
 function smsPushNative(){if(!NATIVE)return;const c=smsCfg();const senders=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(x=>String(x).trim()).filter(Boolean));
   try{AndroidSMS.setConfig(JSON.stringify({senders,gjKeys:c.gjKeys||'',gjCodes:c.gjCodes||'',enabled:smsOn(),strict:true,watch:[...smsWatched()]}));}catch(_){}}
-window.onSmsStatus=(num,st,err)=>{const e=[...smsLog].reverse().find(x=>x.kind==='sent'&&x.num===num);if(e){e.status=st;e.err=err;smsSave();}
+window.onSmsStatus=(num,st,err)=>{const e=[...smsLog].reverse().find(x=>x.kind==='sent'&&x.num===num);if(e){e.status=st;e.err=err;e._dirty=1;smsSave();}
   if(st==='failed'||st==='error')toast(`❌ ${num||''} SMS ન ગયો (${err||st})`,'err',6000);else if(st==='sent')toast(`✅ ${num} SMS ગયો`,'ok',2500);if($('#tab-sms').classList.contains('on'))renderSms();};
 window.onNativeSmsPending=async()=>{if(!NATIVE)return;let a=[];try{a=JSON.parse(AndroidSMS.getPending()||'[]');}catch(_){}
   let n=0;for(const m of a){const r=await smsAddReply(m.body||'',true,m);if(r)n++;}if(n)toast(`📩 ${n} નવા રિપ્લાય આવ્યા`,'ok',4000);};
@@ -3080,7 +3104,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=20;
+const APP_VERSION=21;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
