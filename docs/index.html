@@ -300,6 +300,8 @@ body.home main{max-width:none;padding:0}
 .zmctl{display:inline-flex;gap:2px}.zmctl button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:inherit;border-radius:8px;padding:2px 7px;cursor:pointer;font-weight:700;font-size:12px}
 .cv{cursor:pointer;border-bottom:1px dashed rgba(124,45,18,.35)}.cv:hover{background:#fef3c7}.cv.more{color:var(--pri);font-size:12.5px;border:0;text-decoration:underline}
 .mapm{width:min(1200px,96vw)!important}.mapm .leaflet-container{font:inherit}
+.mchip{cursor:pointer;border:1px solid var(--line);background:var(--card);padding:4px 10px;border-radius:16px;font-size:12.5px}.mchip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.selfoot{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:8px}.selfoot .sf1{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .nfact{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;background:var(--card)}.nfh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.nfb{margin-left:auto}.nfact .upbox{margin:2px 0}
 .tn .nbtns{margin-left:auto;display:flex;gap:4px;flex:none}.tn .ned.del:hover{background:#fee2e2}.tn .ned{flex:none;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px 7px;cursor:pointer;font-size:14px}.tn .ned:hover{background:#fef3c7}
 .tn{min-width:min(250px,78vw);display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:10px;padding:6px 8px;font-size:13.5px;cursor:pointer;min-width:0}
@@ -534,7 +536,7 @@ body.locked{overflow:hidden}
     <div class="toolbar"><div class="seg" id="smsScope" style="margin:0"></div><input class="inp grow" id="smsQ" placeholder="નંબર / નામ શોધો…"></div><div class="toolbar" style="margin-top:6px"><div class="seg" id="smsSrc" style="margin:0"></div><button class="btn" id="smsWant">🏃 ફક્ત બાકી આરોપી</button><button class="btn" id="smsClr">✕ પસંદગી કાઢો</button><button class="btn" id="smsAdd">➕ નંબર ઉમેરો</button></div>
     <div class="tablewrap" style="max-height:52vh;overflow:auto" id="smsList"></div>
     <div class="muted" id="smsCount" style="margin-top:4px"></div></div>
-  <div class="card" style="margin-top:12px;border-top:4px solid var(--pri)" id="smsSelCard"><h3>☑️ પસંદ કરેલા નંબર (<span id="smsSelN">0</span>)</h3><div class="muted" style="font-size:12.5px;margin:-4px 0 8px">ફક્ત આ નંબરના જ લોકેશન રિપ્લાય સેવ થશે. "⏱️ દર … મિનિટે" માં સમય લખો એટલે આપમેળે SMS જશે.</div><div id="smsSelBox"></div></div>
+  <div class="card" style="margin-top:12px;border-top:4px solid var(--pri)" id="smsSelCard"><h3>☑️ પસંદ કરેલા નંબર (<span id="smsSelN">0</span>)</h3><div class="muted" style="font-size:12.5px;margin:-4px 0 8px">ફક્ત આ નંબરના જ લોકેશન રિપ્લાય સેવ થશે. નીચે "📤 એક વાર મોકલો" અથવા "⏱️ બધાને દર … મિનિટે" સમય પસંદ કરી "▶️ સમય મુજબ મોકલો".</div><div id="smsSelBox"></div></div>
   <div class="card" style="margin-top:12px"><h3>② કંપનીનો રિપ્લાય ઉમેરો</h3>
     <textarea class="inp" id="smsRep" style="width:100%;min-height:90px" placeholder="કંપનીનો આખો રિપ્લાય SMS અહીં પેસ્ટ કરો…"></textarea>
     <div class="row gap" style="margin-bottom:0"><button class="btn pri" id="smsRepB">📥 રિપ્લાય સેવ કરો</button><button class="btn" id="smsInbox" style="display:none">📥 Inbox માંથી રિપ્લાય વાંચો</button></div></div>
@@ -2091,7 +2093,10 @@ async function applyRemoteDocs(s){
   if(changed){buildIndex();renderAll();if(added&&SYNC.ready)toast(`🌐 ટીમમાંથી ${added} નવી ફાઇલ / કેસ આવ્યા`,'ok');}
   SYNC.ready=true;
 }
-function applyRemoteMeta(s){if(!s.exists)return;const m=s.data();SYNC.applying=true;try{META_KEYS.forEach(k=>{if(m[k]!==undefined)settings[k]=m[k];});try{for(const o of (settings.others||[]))for(const f of ['mob','wa','imei','bmob','bimei','veh'])o[f]=normList(f,o[f]);}catch(_){}DB.put('kv',settings,'settings').catch(()=>{});}finally{SYNC.applying=false;}rebuildCols();caseCache.clear();buildIndex();renderAll();}
+function applyRemoteMeta(s){if(!s.exists)return;const m=s.data();SYNC.applying=true;try{META_KEYS.forEach(k=>{if(m[k]!==undefined)settings[k]=m[k];});try{for(const o of (settings.others||[]))for(const f of ['mob','wa','imei','bmob','bimei','veh'])o[f]=normList(f,o[f]);}catch(_){}DB.put('kv',settings,'settings').catch(()=>{});}finally{SYNC.applying=false;}
+  /* બીજા ડિવાઇસમાં પસંદ કરેલા નંબર / આપમેળે SMS / ચાલુ-બંધ બદલાય તો અહીં પણ */
+  try{const ns=[...new Set(smsCfg().sel||[])].sort();const sig=ns.join(',');if(sig!==[...smsSel].sort().join(','))smsSel=new Set(ns);smsSelSig=sig;if(NATIVE){smsPushNative();smsPushSchedule();}if($('#tab-sms').classList.contains('on'))renderSms();}catch(e){console.warn(e);}
+  rebuildCols();caseCache.clear();buildIndex();renderAll();}
 
 /* ===================== SMS તપાસ (નંબર → કંપની → રિપ્લાય) ===================== */
 const OPS=[['jio','Jio'],['airtel','Airtel'],['vi','Vi (Vodafone-Idea)'],['bsnl','BSNL'],['other','અન્ય']];
@@ -2106,14 +2111,15 @@ smsSrc='all';try{smsSrc=localStorage.getItem('tk_smssrc')||'all';}catch(_){}if(s
 const SMS_EVERY=[[0,'બંધ'],[5,'દર 5 મિનિટ'],[10,'દર 10 મિનિટ'],[15,'દર 15 મિનિટ'],[30,'દર 30 મિનિટ'],[60,'દર 1 કલાક'],[120,'દર 2 કલાક'],[180,'દર 3 કલાક'],[360,'દર 6 કલાક'],[720,'દર 12 કલાક'],[1440,'દર 24 કલાક']];
 const smsOn=()=>smsCfg().enabled!==false;
 const smsCfg=()=>{settings.sms=settings.sms||{};const c=settings.sms;c.to=c.to||{};c.tpl=c.tpl||{};c.gjKeys=c.gjKeys??GJ_KEYS_DEF;c.gjCodes=c.gjCodes||GJ_CODES_DEF;c.ops=c.ops||{};return c;};
-async function smsLoad(){try{smsLog=(await DB.get('kv','smslog'))||[];}catch(_){smsLog=[];}smsSel=new Set(smsCfg().sel||[]);
+async function smsLoad(){try{smsLog=(await DB.get('kv','smslog'))||[];}catch(_){smsLog=[];}smsSel=new Set(smsCfg().sel||[]);smsSelSig=[...smsSel].sort().join(',');
+  {const c=smsCfg();if(c.allMin===undefined){const v=Object.values(c.every||{}).map(Number).filter(x=>x>0);const cnt={};v.forEach(x=>cnt[x]=(cnt[x]||0)+1);c.allMin=v.length?+Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0]:0;c.autoOn=v.length>0&&c.autoOn!==false;}}
   /* "Received Request…" જેવી સ્વીકૃતિ લોગમાંથી કાઢો */
   {const b4=smsLog.length;smsLog=smsLog.filter(e=>!(e.kind==='reply'&&isAckSms(e.text)));if(smsLog.length<b4)smsSave();}
   /* જૂના રિપ્લાય નવા નિયમથી ફરી તપાસો (Lat/Long, ટાવર કોડ) */
   let ch=false;for(const e of smsLog){if(e.kind!=='reply'||e.v2)continue;const p=parseReply(e.text);Object.assign(e,{cgi:p.cgi,cell:p.cell,ll:p.ll,gj:p.gj,gjWhy:p.gjWhy,where:p.where,mm:p.mm,v2:1});ch=true;}if(ch)smsSave();}
 /* ટીક કરેલા + આપમેળે મોકલાતા + છેલ્લા 48 કલાકમાં SMS મોકલેલા નંબર — ફક્ત તેમના જ રિપ્લાય સેવ થશે */
-function smsWatched(){const c=smsCfg();const w=new Set(smsSel);Object.entries(c.every||{}).forEach(([n,m])=>{if(+m>0)w.add(n);});const lim=Date.now()-48*3600e3;smsLog.forEach(e=>{if(e.kind==='sent'&&e.at>lim&&e.num)w.add(e.num);});return w;}
-let smsSelSig='';function smsSaveSel(){const c=smsCfg();const a=[...smsSel].sort();const sig=a.join(',');if(sig===smsSelSig)return;smsSelSig=sig;c.sel=a;saveSettings();smsPushNative();}
+function smsWatched(){const c=smsCfg();const w=new Set(smsSel);const lim=Date.now()-48*3600e3;smsLog.forEach(e=>{if(e.kind==='sent'&&e.at>lim&&e.num)w.add(e.num);});return w;}
+let smsSelSig='';function smsSaveSel(){const c=smsCfg();const a=[...smsSel].sort();const sig=a.join(',');if(sig===smsSelSig)return;smsSelSig=sig;c.sel=a;saveSettings();smsPushNative();smsPushSchedule();}
 const smsSave=()=>{const r=DB.put('kv',smsLog,'smslog').catch(()=>{});smsSyncSoon();return r;};
 /* ===== SMS લોગ ઓનલાઇન — મોબાઇલમાં આવેલા લોકેશન વેબ / કમ્પ્યુટરમાં પણ ===== */
 const SMS_SYNC_KINDS=new Set(['reply','sent','manualnum']);let smsSyncT=0,smsSynced=new Set(),smsApplying=false;
@@ -2148,7 +2154,6 @@ function smsNumbers(){
     for(const d of docs)for(const x of caseRowsOf(d)){if(smsScope==='reg'&&x.reg!==curReg)continue;for(const g of ['acc','want'])for(const p of (x.r[g]||[])){for(const m of (p.wa||[]))put(m,{name:p.name,g,reg:x.reg,st:x.r.station,fir:'વોટ્સએપ',key:x.d.id+'|'+x.unit});for(const m of (p.bmob||[]))put(m,{name:'B-પાર્ટી — '+stripAge(p.name||''),g:'b',reg:x.reg,st:x.r.station,fir:String(x.r.fir||'').split('\n')[0]});}}
     for(const o of (settings.others||[])){for(const m of [...(o.mob||[]),...(o.wa||[])])put(m,{name:o.name||'નામ અજાણ',g:'o',reg:'',st:o.rel||'',fir:''});for(const m of (o.bmob||[]))put(m,{name:'B-પાર્ટી — '+(o.name||''),g:'b',reg:'',st:'',fir:''});}}
   for(const e of smsLog)if(e.manual&&!map.has(e.num))map.set(e.num,{n:e.num,people:[{name:e.name||'હાથથી ઉમેરેલ',g:'',reg:'',st:'',fir:''}]});
-  for(const n of Object.keys(smsCfg().every||{}))if(+smsCfg().every[n]>0&&!map.has(n))map.set(n,{n,people:[{name:'⏱️ આપમેળે મોકલવા સેટ',g:'',reg:'',st:'',fir:''}]});
   return [...map.values()];
 }
 const lastOf=n=>{const L=smsLog.filter(e=>e.num===n);return {sent:L.filter(e=>e.kind==='sent').pop(),rep:L.filter(e=>e.kind==='reply').pop()};};
@@ -2174,29 +2179,42 @@ function renderSms(){
   const evTd=o=>{const ev=+((c.every||{})[o.n]||0);const nx=SCHED_NEXT[o.n];return `<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span class="muted" style="font-size:12px">દર</span><input class="inp" type="number" min="0" step="1" inputmode="numeric" data-every="${o.n}" value="${ev||''}" placeholder="0" style="width:74px;padding:4px 6px"><span class="muted" style="font-size:12px">મિનિટે</span></div>${ev?`<div><small>${ev>=60&&ev%60===0?'⏱️ દર '+GU_D(ev/60)+' કલાક':'⏱️ દર '+GU_D(ev)+' મિનિટ'}</small></div>`:''}${ev&&nx?`<div><small class="muted">આગલું: ${fmtDate(nx)}</small></div>`:''}${ev&&!NATIVE?'<div><small style="color:var(--bad)">ફક્ત Android એપમાં</small></div>':''}`;};
   /* ① બધા નંબર — ફક્ત પસંદ કરવા */
   const P=F.filter(o=>!smsSel.has(o.n));
-  $('#smsList').innerHTML=addRow+(P.length?`<table><thead><tr><th><input type="checkbox" id="smsAll" title="દેખાતા બધા પસંદ"></th><th>મોબાઇલ</th><th>કોણ / કેસ</th><th>કંપની</th></tr></thead><tbody>${P.slice(0,600).map(o=>`<tr><td><input type="checkbox" data-sel="${o.n}"></td><td><b>${o.n}</b>${isMan(o.n)?` <button class="btn sm danger" data-smsdel="${o.n}" title="ઉમેરેલો નંબર કાઢો" style="padding:1px 7px">🗑️</button>`:''}</td><td>${who(o)}</td><td>${opSel(o)}</td></tr>`).join('')}</tbody></table>${P.length>600?`<div class="muted" style="padding:6px">પહેલા 600 બતાવ્યા — શોધ વાપરો</div>`:''}`:`<div class="empty">${L.length?(q?'શોધ મુજબ બીજો કોઈ નંબર નથી':'બધા નંબર પસંદ થઈ ગયા છે'):'હજી કોઈ નંબર નથી. રજીસ્ટર / અન્ય વ્યક્તિમાં નંબર ભરો અથવા "➕ નંબર ઉમેરો".'}</div>`);
+  $('#smsList').innerHTML=addRow+(P.length?`<table><thead><tr><th><input type="checkbox" id="smsAll" title="દેખાતા બધા પસંદ"></th><th>મોબાઇલ</th><th>કોણ / કેસ</th><th>કંપની</th><th>છેલ્લે મંગાવેલ / લોકેશન</th></tr></thead><tbody>${P.slice(0,600).map(o=>`<tr><td><input type="checkbox" data-sel="${o.n}"></td><td><b>${o.n}</b>${isMan(o.n)?` <button class="btn sm danger" data-smsdel="${o.n}" title="ઉમેરેલો નંબર કાઢો" style="padding:1px 7px">🗑️</button>`:''}</td><td>${who(o)}</td><td>${opSel(o)}</td><td>${lastAsk(o.n)}</td></tr>`).join('')}</tbody></table>${P.length>600?`<div class="muted" style="padding:6px">પહેલા 600 બતાવ્યા — શોધ વાપરો</div>`:''}`:`<div class="empty">${L.length?(q?'શોધ મુજબ બીજો કોઈ નંબર નથી':'બધા નંબર પસંદ થઈ ગયા છે'):'હજી કોઈ નંબર નથી. રજીસ્ટર / અન્ય વ્યક્તિમાં નંબર ભરો અથવા "➕ નંબર ઉમેરો".'}</div>`);
   /* ② પસંદ કરેલા નંબર — અલગ બોક્ષ */
   const S=L.filter(o=>smsSel.has(o.n));const miss=[...smsSel].filter(n=>!L.some(o=>o.n===n)).map(n=>({n,people:[{name:'—'}]}));const SA=[...S,...miss];
   $('#smsSelN').textContent=GU_D(SA.length);
-  $('#smsSelBox').innerHTML=SA.length?`<div class="tablewrap"><table><thead><tr><th>મોબાઇલ</th><th>કોણ / કેસ</th><th>કંપની</th><th>⏱️ આપમેળે</th><th>છેલ્લું SMS</th><th>છેલ્લું લોકેશન</th><th></th></tr></thead><tbody>${SA.map(o=>{const l=lastOf(o.n);return `<tr class="${l.rep&&l.rep.gj?'gjrow':''}"><td><b>${o.n}</b></td><td>${who(o)}</td><td>${opSel(o)}</td><td>${evTd(o)}</td><td>${sentTd(l)}</td><td>${repTd(l)}</td><td style="white-space:nowrap"><button class="btn sm" data-smap="${o.n}" title="આ નંબરનો નકશા પર રૂટ">🗺️</button> <button class="btn sm" data-send1="${o.n}" title="હમણાં એક વાર SMS">📤</button> <button class="btn sm danger" data-unsel="${o.n}" title="પસંદગીમાંથી કાઢો">✕</button></td></tr>`;}).join('')}</tbody></table></div>
-    <div class="row gap" style="margin:8px 0 0"><button class="btn sm" data-sendall="1">📤 આ બધાને હમણાં એક વાર SMS</button><button class="btn sm danger" data-unselall="1">✕ બધી પસંદગી કાઢો</button></div>`:'<div class="empty">હજી કોઈ નંબર પસંદ નથી — ઉપરની યાદીમાંથી ✔ કરો અથવા શોધમાં આખો નંબર લખો</div>';
+  $('#smsSelBox').innerHTML=SA.length?`<div class="tablewrap"><table><thead><tr><th>મોબાઇલ</th><th>કોણ / કેસ</th><th>કંપની</th><th>છેલ્લું SMS</th><th>છેલ્લું લોકેશન</th><th></th></tr></thead><tbody>${SA.map(o=>{const l=lastOf(o.n);return `<tr class="${l.rep&&l.rep.gj?'gjrow':''}"><td><b>${o.n}</b></td><td>${who(o)}</td><td>${opSel(o)}</td><td>${sentTd(l)}${smsRun()&&SCHED_NEXT[o.n]?`<div><small class="muted">⏱️ આગલું: ${fmtDate(SCHED_NEXT[o.n])}</small></div>`:''}${smsRun()&&!smsTo(o.n)?'<div><small style="color:var(--bad)">કંપની પસંદ કરો</small></div>':''}</td><td>${repTd(l)}</td><td style="white-space:nowrap"><button class="btn sm" data-smap="${o.n}" title="આ નંબરનો નકશા પર રૂટ">🗺️</button> <button class="btn sm" data-send1="${o.n}" title="હમણાં એક વાર SMS">📤</button> <button class="btn sm danger" data-unsel="${o.n}" title="પસંદગીમાંથી કાઢો">✕</button></td></tr>`;}).join('')}</tbody></table></div>
+    <div class="selfoot">
+      <div class="sf1"><button class="btn pri" data-sendall="1" title="પસંદ કરેલા બધા નંબરને ફક્ત એક જ વાર SMS — સમય મુજબ નહીં">📤 એક વાર મોકલો</button><span class="muted" style="font-size:12.5px">બધાને ફક્ત એક જ વાર લોકેશન SMS</span></div>
+      <div class="sf1 sfauto"><b>⏱️ બધાને દર</b> <input class="inp" type="number" min="1" id="smsAllMin" value="${+c.allMin||''}" placeholder="મિનિટ" style="width:84px;padding:5px 8px"> <b>મિનિટે</b>
+        ${[[30,'30 મિ.'],[60,'1 કલાક'],[180,'3 કલાક'],[360,'6 કલાક'],[720,'12 કલાક'],[1440,'24 કલાક']].map(([m,l])=>`<button class="chip mchip ${+c.allMin===m?'on':''}" data-mset="${m}">${l}</button>`).join('')}</div>
+      <div class="sf1">${smsRun()?`<button class="btn" data-autooff="1">⏸️ આપમેળે રોકો</button> <span class="tag ok">▶️ ચાલુ — દર ${minTxt(c.allMin)} • ${GU_D(SA.filter(o=>smsTo(o.n)).length)} નંબર</span>`:`<button class="btn pri" data-autoon="1">▶️ સમય મુજબ મોકલો</button> <span class="tag">⏸️ બંધ</span>`}${SA.some(o=>!smsTo(o.n))?` <span class="tag red">${GU_D(SA.filter(o=>!smsTo(o.n)).length)} નંબરની કંપની બાકી</span>`:''}${!NATIVE?' <small class="muted">(SMS મોબાઇલ એપમાંથી જશે)</small>':''}</div>
+      <div class="sf1"><button class="btn sm danger" data-unselall="1">✕ બધી પસંદગી કાઢો</button></div></div>`:'<div class="empty">હજી કોઈ નંબર પસંદ નથી — ઉપરની યાદીમાંથી ✔ કરો અથવા શોધમાં આખો નંબર લખો</div>';
   const LG=smsLog.filter(e=>e.kind==='reply'&&(!smsLogGJ||e.gj)).slice().reverse();
   $('#smsLog').innerHTML=LG.length?LG.map(e=>`<div class="mcard" style="--c:${e.gj?'#dc2626':'#64748b'}"><div class="mhead">${e.gj?'<span class="tag red">🚨 ગુજરાતમાં</span>':e.where==='out'?'<span class="tag" style="background:#dcfce7;color:#166534">ગુજરાત બહાર</span>':'<span class="tag">અજાણ</span>'}<b>${esc(e.num||'નંબર મળ્યો નથી')}</b>${e.name?`<small class="muted">${esc(e.name)}</small>`:''}<span style="margin-left:auto" class="muted">${fmtDate(e.at)}</span>${e.ll?`<button class="btn sm" data-smap="${esc(e.num||'')}" title="આ નંબરનો રૂટ">🗺️</button>`:''}<button class="btn sm danger" data-lgdel="${e.id}">✕</button></div>
     ${e.loc||e.cgi||e.cell?`<div style="margin-top:4px">${e.loc?`📍 <b>${esc(e.loc)}</b>`:''} ${e.cgi?`<span class="tag">CGI ${esc(e.cgi)}</span>`:''}${e.lac?`<span class="tag">LAC ${esc(e.lac)}</span>`:''}${e.cell?`<span class="tag">Cell ID ${esc(e.cell)}</span>`:''}${e.ll?`<a class="tag ok" target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(e.ll)}">🗺️ નકશો</a>`:''}</div>`:''}
     <div class="occ" style="white-space:pre-wrap">${esc(e.text)}</div>${e.gjWhy?`<small class="muted">${e.gj?'ગુજરાત કારણ':'કારણ'}: ${esc(e.gjWhy)}</small>`:''}${e.mm?` <span class="tag">ટાવર ${esc(e.mm)}</span>`:''}</div>`).join(''):'<div class="empty">હજી કોઈ રિપ્લાય સેવ નથી.</div>';
 }
 let SCHED_NEXT={};
+/* પહેલાં પસંદ કરેલ નંબર: છેલ્લે ક્યારે લોકેશન મંગાવેલ અને છેલ્લું લોકેશન ક્યારે આવેલ */
+const agoTxt=t=>{const d=Date.now()-t;if(d<36e5)return GU_D(Math.max(1,Math.round(d/6e4)))+' મિનિટ પહેલાં';if(d<864e5)return GU_D(Math.round(d/36e5))+' કલાક પહેલાં';return GU_D(Math.round(d/864e5))+' દિવસ પહેલાં';};
+function lastAsk(n){const l=lastOf(n);if(!l.sent&&!l.rep)return '<small class="muted">— ક્યારેય નહીં</small>';
+  return (l.sent?`<div style="font-size:12.5px">📤 <b>${esc(fmtDate(l.sent.at))}</b> <small class="muted">(${agoTxt(l.sent.at)})</small></div>`:'')+
+    (l.rep?`<div style="font-size:12.5px">${l.rep.gj?'🚨':'📍'} ${esc(fmtDate(l.rep.at))} ${l.rep.ll?`<a href="#" data-smap="${esc(n)}">🗺️</a>`:''} <small class="muted">${l.rep.gj?'ગુજરાતમાં':l.rep.where==='out'?'ગુજરાત બહાર':''}</small></div>`:'<div style="font-size:12px" class="muted">📍 લોકેશન આવ્યું નથી</div>');}
 function smsStateHTML(){const c=smsCfg();const on=smsOn();const b=$('#smsOnOff');if(b){b.textContent=on?'⏸️ SMS તપાસ બંધ કરો':'▶️ SMS તપાસ ચાલુ કરો';b.className='btn '+(on?'danger':'pri');}
-  const senders=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(x=>String(x).trim()).filter(Boolean));const nEv=Object.values(c.every||{}).filter(x=>+x>0).length;
+  const senders=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(x=>String(x).trim()).filter(Boolean));const nEv=smsRun()?smsSel.size:0;
   const el=$('#smsState');if(!el)return;
   const oldApk=NATIVE&&typeof AndroidSMS.setSchedule!=='function';
-  el.innerHTML=on?`<div class="occ" style="border-left:5px solid #16a34a"><b>🟢 SMS તપાસ ચાલુ છે</b>${nEv?` • ⏱️ ${GU_D(nEv)} નંબર આપમેળે મોકલાય છે`:''}<br><small>📥 ફક્ત <b>ટીક કરેલા (${GU_D(smsWatched().size)}) નંબરના</b> કંપનીના રિપ્લાય જ સેવ થશે — બેંક / અંગત / બીજા કોઈ SMS નહીં. કંપનીના નંબર / Sender ID: <b>${senders.length?esc(senders.join(', ')):'⚠️ હજી કોઈ નંબર સેટ નથી — "⚙️ કંપનીના નંબર" માં ભરો, ત્યાં સુધી કોઈ SMS વંચાશે નહીં'}</b></small>${NATIVE&&nEv&&!SCHED_EXACT?`<br><small style="color:#b45309">⚠️ સમયસર મોકલવા માટે "ચોક્કસ સમયે એલાર્મ" ની મંજૂરી આપો — <button class="btn sm" id="smsExact">મંજૂરી આપો</button> <button class="btn sm" id="smsBatt">🔋 બેટરી બચત બંધ કરો</button></small>`:''}</div>`
+  el.innerHTML=on?`<div class="occ" style="border-left:5px solid #16a34a"><b>🟢 SMS તપાસ ચાલુ છે</b>${nEv?` • ⏱️ ${GU_D(nEv)} નંબરને દર ${minTxt(c.allMin)} આપમેળે`:''}<br><small>📥 ફક્ત <b>ટીક કરેલા (${GU_D(smsWatched().size)}) નંબરના</b> કંપનીના રિપ્લાય જ સેવ થશે — બેંક / અંગત / બીજા કોઈ SMS નહીં. કંપનીના નંબર / Sender ID: <b>${senders.length?esc(senders.join(', ')):'⚠️ હજી કોઈ નંબર સેટ નથી — "⚙️ કંપનીના નંબર" માં ભરો, ત્યાં સુધી કોઈ SMS વંચાશે નહીં'}</b></small>${NATIVE&&nEv&&!SCHED_EXACT?`<br><small style="color:#b45309">⚠️ સમયસર મોકલવા માટે "ચોક્કસ સમયે એલાર્મ" ની મંજૂરી આપો — <button class="btn sm" id="smsExact">મંજૂરી આપો</button> <button class="btn sm" id="smsBatt">🔋 બેટરી બચત બંધ કરો</button></small>`:''}</div>`
     :`<div class="occ" style="border-left:5px solid #dc2626"><b>🔴 SMS તપાસ બંધ છે</b><br><small>કોઈ SMS મોકલાશે નહીં, આપમેળે મોકલવાનું બંધ છે અને કંપનીના રિપ્લાય પણ વંચાશે નહીં. ફરી ચાલુ કરવા ઉપર "▶️ SMS તપાસ ચાલુ કરો" દબાવો.</small></div>`;
   if(on&&NATIVE&&typeof AndroidSMS.testAlert==='function'){let fs='1';try{fs=AndroidSMS.canFullScreen();}catch(_){}
     el.innerHTML+=`<div class="occ" style="border-left:5px solid #b91c1c;margin-top:6px">🚨 ગુજરાત લોકેશન આવે ત્યારે ફોનની <b>આખી સ્ક્રીન પર એલર્ટ + રીંગ</b> આવશે (એપ બંધ / ફોન લૉક હોય તો પણ). ${fs==='0'?'<br><b style="color:#b45309">⚠️ આ ફોનમાં "સ્ક્રીન પર એલર્ટ" ની મંજૂરી બાકી છે</b> <button class="btn sm pri" id="smsFull">મંજૂરી આપો</button>':''} <button class="btn sm" id="smsTest">🔔 ટેસ્ટ એલર્ટ</button></div>`;}
   if(oldApk)el.innerHTML+=`<div class="occ" style="border-left:5px solid #d97706;margin-top:6px">⚠️ <b>આ ફોનમાં જૂની APK છે</b> — ⏱️ આપમેળે મોકલવું, ચાલુ/બંધ અને ફક્ત કંપનીના SMS વાંચવા માટે નવી APK ઇન્સ્ટોલ કરો. <button class="btn sm pri" id="smsNewApk">⬇️ નવી APK</button></div>`;}
 let SCHED_EXACT=true;
-function smsPushSchedule(){const c=smsCfg();c.every=c.every||{};const items=Object.entries(c.every).filter(([n,m])=>+m>0).map(([n,m])=>({num:n,to:smsTo(n),body:smsBody(n),every:+m})).filter(x=>x.to);
+const smsRun=()=>{const c=smsCfg();return c.autoOn===true&&+c.allMin>0;};
+const minTxt=m=>{m=+m||0;return m>=60&&m%60===0?GU_D(m/60)+' કલાકે':GU_D(m)+' મિનિટે';};
+/* પસંદ કરેલા બધા નંબરને એક જ સમય (c.allMin) — ▶️ ચાલુ હોય ત્યારે જ */
+function smsPushSchedule(){const c=smsCfg();const items=(smsRun()?[...smsSel]:[]).map(n=>({num:n,to:smsTo(n),body:smsBody(n),every:+c.allMin})).filter(x=>x.to);
   if(!NATIVE)return items;try{AndroidSMS.setSchedule(JSON.stringify(items),+c.subId||0);}catch(_){}smsReadSchedule();return items;}
 function smsReadSchedule(){if(!NATIVE)return;try{const a=JSON.parse(AndroidSMS.getSchedule()||'[]');SCHED_NEXT={};a.forEach(x=>SCHED_NEXT[x.num]=x.next);}catch(_){}try{SCHED_EXACT=AndroidSMS.canExact()==='1';}catch(_){SCHED_EXACT=true;}}
 window.onSchedSent=()=>{if(!NATIVE)return;let a=[];try{a=JSON.parse(AndroidSMS.takeSentLog()||'[]');}catch(_){}for(const x of a)smsLog.push({id:uid(),kind:'sent',num:x.num,at:x.ts,to:x.to,text:x.body,status:x.ok?'sent':'error',auto:true,err:x.err||''});if(a.length){smsSave();}smsReadSchedule();if($('#tab-sms').classList.contains('on'))renderSms();};
@@ -2319,7 +2337,8 @@ function smsEvents(){
         if(m<15&&NATIVE)toast('ℹ️ ફોન બેટરી બચત (Doze) માં હોય ત્યારે Android 5 મિનિટને બદલે 9–15 મિનિટે મોકલી શકે છે','',7000);
         c.every[n]=m;}else delete c.every[n];
       saveSettings();smsPushSchedule();renderSms();toast(m>0?`⏱️ ${n} — દર ${GU_D(m)} મિનિટે SMS જશે (પહેલું 1 મિનિટ પછી)`:`⏱️ ${n} — આપમેળે મોકલવાનું બંધ`,'ok',5000);}});
-  document.addEventListener('keydown',e=>{if(!e.target.closest||!e.target.closest('#smsList,#smsSelBox'))return;if(e.key==='Enter'&&e.target.matches('[data-every]'))e.target.blur();});
+  document.addEventListener('change',e=>{if(e.target.id!=='smsAllMin')return;const m=Math.round(+e.target.value||0);if(m<1)return;const c=smsCfg();c.allMin=m;saveSettings();if(smsRun()){smsPushSchedule();toast(`⏱️ હવે દર ${minTxt(m)} લોકેશન SMS`,'ok',4000);}renderSms();});
+  document.addEventListener('keydown',e=>{if(e.target.id==='smsAllMin'&&e.key==='Enter'){e.target.blur();return;}if(!e.target.closest||!e.target.closest('#smsList,#smsSelBox'))return;if(e.key==='Enter'&&e.target.matches('[data-every]'))e.target.blur();});
   $('#smsList').addEventListener('click',e=>{
     const nb=e.target.closest('[data-smsnew]');if(nb){const n=nb.dataset.smsnew;const nm=prompt('નામ (ઇચ્છા હોય તો)')||'';smsLog.push({id:uid(),kind:'manualnum',manual:true,num:n,name:nm,at:Date.now(),text:''});smsSave();smsSel.add(n);smsQ='';$('#smsQ').value='';renderSms();toast(`➕ ${n} ઉમેર્યો અને પસંદ કર્યો`,'ok');return;}
     const db=e.target.closest('[data-smsdel]');if(db){const n=db.dataset.smsdel;if(!confirm(`${n} — ઉમેરેલો નંબર કાઢી નાખવો છે?\n(તેનું આપમેળે SMS પણ બંધ થશે; જૂના રિપ્લાય લોગમાં રહેશે)`))return;
@@ -2327,6 +2346,12 @@ function smsEvents(){
   $('#smsWant').onclick=()=>{smsSel=new Set(smsNumbers().filter(o=>o.people.some(p=>p.g==='want')).map(o=>o.n));renderSms();};
   $('#smsClr').onclick=()=>{smsSel.clear();renderSms();};
   document.addEventListener('click',e=>{if(!e.target.closest('#smsSelBox'))return;const u=e.target.closest('[data-unsel]');if(u){smsSel.delete(u.dataset.unsel);renderSms();return;}
+    const ms=e.target.closest('[data-mset]');if(ms){const c=smsCfg();c.allMin=+ms.dataset.mset;saveSettings();if(smsRun())smsPushSchedule();renderSms();toast(`⏱️ દર ${minTxt(c.allMin)}${smsRun()?' — લાગુ થયું':' — હવે "▶️ સમય મુજબ મોકલો" દબાવો'}`,'ok',4000);return;}
+    if(e.target.closest('[data-autoon]')){const c=smsCfg();const m=Math.round(+document.getElementById('smsAllMin').value||0);if(m<1){toast('પહેલાં "બધાને દર … મિનિટે" માં સમય લખો / પસંદ કરો','err',5000);return;}
+      if(!smsOn()){toast('🔴 SMS તપાસ બંધ છે — ઉપર ▶️ ચાલુ કરો','err',5000);return;}
+      c.allMin=m;c.autoOn=true;saveSettings();smsPushSchedule();renderSms();const miss=[...smsSel].filter(n=>!smsTo(n)).length;
+      toast(`▶️ ${GU_D(smsSel.size-miss)} નંબરને દર ${minTxt(m)} લોકેશન SMS (પહેલું 1 મિનિટ પછી)${miss?` • ${GU_D(miss)} નંબરની કંપની બાકી`:''}`,miss?'err':'ok',7000);if(m<15&&NATIVE)toast('ℹ️ બેટરી બચત (Doze) માં Android 9–15 મિનિટે મોકલી શકે છે','',6000);return;}
+    if(e.target.closest('[data-autooff]')){if(!confirm('આપમેળે SMS રોકવું છે?\n(સમય સચવાયેલો રહેશે — "▶️ સમય મુજબ મોકલો" થી ફરી શરૂ)'))return;const c=smsCfg();c.autoOn=false;saveSettings();smsPushSchedule();renderSms();toast('⏸️ આપમેળે SMS રોક્યું','',4000);return;}
     if(e.target.closest('[data-unselall]')){if(confirm('બધી પસંદગી કાઢવી છે?')){smsSel.clear();renderSms();}return;}
     const s1=e.target.closest('[data-send1]');if(s1){smsSendQueue([s1.dataset.send1]);return;}if(e.target.closest('[data-sendall]'))smsSendQueue();});$('#smsCfgB').onclick=smsSettingsModal;
   $('#smsAdd').onclick=()=>{const v=prompt('મોબાઇલ નંબર (10 આંકડા)');const n=String(v||'').replace(/\D/g,'').slice(-10);if(n.length!==10){if(v)toast('સાચો નંબર લખો','err');return;}const nm=prompt('નામ (ઇચ્છા હોય તો)')||'';smsLog.push({id:uid(),kind:'manualnum',manual:true,num:n,name:nm,at:Date.now(),text:''});smsSave();smsSel.add(n);renderSms();};
@@ -3104,7 +3129,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=21;
+const APP_VERSION=25;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
