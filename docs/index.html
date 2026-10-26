@@ -302,6 +302,7 @@ body.home main{max-width:none;padding:0}
 .mapm{width:min(1200px,96vw)!important}.mapm .leaflet-container{font:inherit}
 .mchip{cursor:pointer;border:1px solid var(--line);background:var(--card);padding:4px 10px;border-radius:16px;font-size:12.5px}.mchip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
 .selfoot{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:8px}.selfoot .sf1{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.reltag{background:#eef4fb!important;color:#0f5fa8!important;font-size:11.5px}
 .nfact{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;background:var(--card)}.nfh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.nfb{margin-left:auto}.nfact .upbox{margin:2px 0}
 .tn .nbtns{margin-left:auto;display:flex;gap:4px;flex:none}.tn .ned.del:hover{background:#fee2e2}.tn .ned{flex:none;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:3px 7px;cursor:pointer;font-size:14px}.tn .ned:hover{background:#fef3c7}
 .tn{min-width:min(250px,78vw);display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:10px;padding:6px 8px;font-size:13.5px;cursor:pointer;min-width:0}
@@ -536,6 +537,13 @@ body.locked{overflow:hidden}
     <div class="toolbar"><div class="seg" id="smsScope" style="margin:0"></div><input class="inp grow" id="smsQ" placeholder="નંબર / નામ શોધો…"></div><div class="toolbar" style="margin-top:6px"><div class="seg" id="smsSrc" style="margin:0"></div><button class="btn" id="smsWant">🏃 ફક્ત બાકી આરોપી</button><button class="btn" id="smsClr">✕ પસંદગી કાઢો</button><button class="btn" id="smsAdd">➕ નંબર ઉમેરો</button></div>
     <div class="tablewrap" style="max-height:52vh;overflow:auto" id="smsList"></div>
     <div class="muted" id="smsCount" style="margin-top:4px"></div></div>
+  <div class="card" style="margin-top:12px;border-top:4px solid #d97706" id="smsAskCard"><div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><h3 style="margin:0">📍 લોકેશન મંગાવેલ નંબર (<span id="smsAskN">0</span>)</h3><div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm pri" id="smsAskRe">↩ ટીક કરેલા ફરી પસંદ કરો</button><button class="btn sm" id="smsAskMap">🗺️ નકશા પર રૂટ</button><button class="btn sm" id="smsAskXls">📊 Excel</button></div></div>
+    <div class="muted" style="font-size:12.5px;margin:4px 0 8px">જે નંબરના લોકેશન એક વાર પણ મંગાવ્યા છે અને હાલ "પસંદ કરેલા" માં નથી તે અહીં સચવાય છે. <b>#ક્રમ</b> કાયમ એ જ રહે છે — નકશા પર એ નંબરના બધા લોકેશન પર એ જ અંક દેખાય છે.</div>
+    <div class="toolbar"><input class="inp grow" id="smsAskQ" placeholder="નંબર / નામ / #ક્રમ શોધો…"><select class="inp" id="smsAskS" style="padding:5px 8px"><option value="no">ક્રમ મુજબ</option><option value="new">છેલ્લું અપડેટ પહેલાં</option><option value="cnt">સૌથી વધુ લોકેશન</option></select></div>
+    <div class="occ" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center" id="smsAskDt"><b>📅 મંગાવ્યાનો સમય:</b> <span class="muted" style="font-size:12.5px">થી</span><input class="inp" type="datetime-local" id="smsAskFrom" style="padding:4px 6px"><span class="muted" style="font-size:12.5px">સુધી</span><input class="inp" type="datetime-local" id="smsAskTo" style="padding:4px 6px">
+      <button class="chip mchip" data-askd="today">આજે</button><button class="chip mchip" data-askd="yest">ગઈકાલે</button><button class="chip mchip" data-askd="3">3 દિવસ</button><button class="chip mchip" data-askd="7">7 દિવસ</button><button class="chip mchip" data-askd="30">30 દિવસ</button><button class="btn sm" data-askd="clr">✕ બધી તારીખ</button><span id="smsAskDtInfo" style="font-size:12.5px"></span></div>
+    <div class="seg" id="smsAskF" style="margin:6px 0"></div>
+    <div class="tablewrap" style="max-height:60vh;overflow:auto" id="smsAskBox"></div></div>
   <div class="card" style="margin-top:12px;border-top:4px solid var(--pri)" id="smsSelCard"><h3>☑️ પસંદ કરેલા નંબર (<span id="smsSelN">0</span>)</h3><div class="muted" style="font-size:12.5px;margin:-4px 0 8px">ફક્ત આ નંબરના જ લોકેશન રિપ્લાય સેવ થશે. નીચે "📤 એક વાર મોકલો" અથવા "⏱️ બધાને દર … મિનિટે" સમય પસંદ કરી "▶️ સમય મુજબ મોકલો".</div><div id="smsSelBox"></div></div>
   <div class="card" style="margin-top:12px"><h3>② કંપનીનો રિપ્લાય ઉમેરો</h3>
     <textarea class="inp" id="smsRep" style="width:100%;min-height:90px" placeholder="કંપનીનો આખો રિપ્લાય SMS અહીં પેસ્ટ કરો…"></textarea>
@@ -588,7 +596,8 @@ service cloud.firestore {
       <p class="muted">⚠️ આરોપીની અંગત માહિતી છે — ટીમ કોડ અને ફાઇલ ફક્ત અધિકૃત સ્ટાફને જ આપો. મૂળ PDF / ફોટો ફાઇલ ઓનલાઇન જતી નથી, ફક્ત નીકળેલી માહિતી જાય છે.</p>
     </details>
   </div>
-  <div class="card" style="margin-top:14px"><h3>🚫 અવગણેલી માહિતી</h3><p class="muted" style="margin-top:0;font-size:13.5px">જે નામ/નંબર મેચમાં નથી જોઈતા (દા.ત. સ્ટાફના નામ, ઓફિસનો નંબર) તે અહીં દેખાશે.</p><div id="ignList"></div></div>
+  <div class="card" style="margin-top:14px"><h3>🚫 અવગણેલી માહિતી</h3><p class="muted" style="margin-top:0;font-size:13.5px">જે નામ/નંબર મેચમાં નથી જોઈતા (દા.ત. સ્ટાફના નામ, ઓફિસનો નંબર) તે અહીં દેખાશે. ↩ = પાછું લાવો, 🗑️ = એપમાંથી કાયમ કાઢો.</p><div id="ignList"></div></div>
+  <div class="card" style="margin-top:14px"><h3>🗑️ કાઢી નાખેલ નંબર / માહિતી</h3><p class="muted" style="margin-top:0;font-size:13.5px">જે નંબર તમે 🗑️ થી બધેથી કાઢ્યા છે તેની નોંધ — એ એપમાં ક્યાંય નથી (અન્ય વ્યક્તિ, રજીસ્ટર, ફાઇલ). ભૂલથી કાઢ્યો હોય તો ↩ થી ફાઇલોમાં પાછો લાવી શકાય.</p><div id="delList"></div></div>
 </section>
 </main>
 <div class="toasts" id="toasts"></div>
@@ -700,7 +709,7 @@ function extractFrom(t,unit,isRow){
   let n=t;
   for(m of [...n.matchAll(/(?<!\d)\d{15}(?!\d)/g)]){add('imei',m[0],m[0],m.index,15);n=mask(n,m.index,m.index+15);}
   for(m of [...n.matchAll(/(?<!\d)(1\d{13})(?:\s*\/\s*(?:20)?\d{2})?(?!\d)/g)]){add('fir',m[0],m[1],m.index,m[0].length);n=mask(n,m.index,m.index+m[0].length);}
-  for(m of [...n.matchAll(/(?<![\d#])([2-9]\d{3})[ \-]?(\d{4})[ \-]?(\d{4})(?![\d#])/g)]){add('aadhaar',m[0],m[1]+m[2]+m[3],m.index,m[0].length);n=mask(n,m.index,m.index+m[0].length);}
+  for(m of [...n.matchAll(/(?<![\d#])([2-9]\d{3})[ \-]?(\d{4})[ \-]?(\d{4})(?![\d#])/g)]){if(/^91[6-9]/.test(m[1]+m[2]+m[3])&&!/[ \-]/.test(m[0]))continue;add('aadhaar',m[0],m[1]+m[2]+m[3],m.index,m[0].length);n=mask(n,m.index,m.index+m[0].length);}
   for(m of n.matchAll(/(?<![\d#])(?:\+?91[\s\-]?|0)?([6-9]\d{4}[\s\-]?\d{5}|[6-9]\d{2}[\s\-]?\d{3}[\s\-]?\d{4})(?![\d#])/g)){const d=m[1].replace(/\D/g,'');if(d.length===10)add('phone',m[0],d,m.index,m[0].length);}
   if(/[\u0A80-\u0AFF]/.test(t)){
     let s=t.replace(/(?:સન|ડો|વાઇફ)\s*\/\s*ઓફ/g,x=>' '.repeat(x.length));
@@ -1165,24 +1174,34 @@ function matchCard(g,newSet){
   <div class="mfiles">${dl.map(d=>`<span class="fpill ${newSet&&newSet.has(d.id)?'new':''}" data-doc="${d.id}" title="${esc(d.name)}">${newSet&&newSet.has(d.id)?'🆕 ':''}${fileIcon(d.ext)} ${esc(d.name)}</span>`).join('')}</div></div>`;
 }
 /* શોધ / પોપ-અપ: ફાઇલ ઉપરાંત ડેટા (કેસ, અન્ય વ્યક્તિ, B-પાર્ટી) મુજબ કોણ છે / કોની સાથે છે */
-function netFacts(id){const n=NET.nodes.get(id);if(!n)return '';const rows=[];const tl=t=>`<a href="#" data-nn="${esc(t.id)}"><b>${esc(nodeTitle(t))}</b></a>${nodeBadges(t)}${t.x&&t.kind!=='case'?` <small class="muted">${esc(caseShort(t.x))}</small>`:''}`;
+/* વ્યક્તિનો સંબંધ / ભૂમિકા — શોધ, પોપ-અપ, SMS બધે */
+function relOf(t){if(!t)return '';if(t.kind==='other')return (t.o&&t.o.rel)||'';if(t.kind==='acc'||t.kind==='want')return ((t.p&&t.p.role)||[]).join(', ');return '';}
+const relTag=t=>{const r=relOf(t);return r?` <span class="tag reltag">🤝 ${esc(r)}</span>`:'';};
+/* નંબરનાં SMS લોકેશન — છેલ્લે ક્યારે મંગાવેલ અને આવેલ */
+function smsLocHTML(nums){nums=uniq((nums||[]).filter(Boolean));if(!nums.length)return '';const R=smsLog.filter(e=>e.kind==='reply'&&nums.includes(e.num)).sort((a,b)=>b.at-a.at);const S=smsLog.filter(e=>e.kind==='sent'&&nums.includes(e.num)).sort((a,b)=>b.at-a.at);
+  if(!R.length&&!S.length)return '';
+  const line=e=>`<div>${e.gj?'🚨 <b style="color:var(--bad)">ગુજરાતમાં</b>':e.where==='out'?'📍 ગુજરાત બહાર':'📍 અજાણ'} — ${esc(fmtDate(e.at))} <small class="muted">(${agoTxt(e.at)})</small>${nums.length>1?` <small class="muted">${esc(e.num)}</small>`:''}${e.ll?` <a target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(e.ll)}">🗺️ નકશો</a>`:''}${e.cell&&!e.ll?` <small class="muted">Cell ${esc(e.cell)}</small>`:''}</div>`;
+  return `${S.length?`<div>📤 છેલ્લે મંગાવેલ: <b>${esc(fmtDate(S[0].at))}</b> <small class="muted">(${agoTxt(S[0].at)} • કુલ ${GU_D(S.length)} વાર)</small></div>`:''}${R.length?R.slice(0,3).map(line).join('')+(R.length>3?`<small class="muted">…કુલ ${GU_D(R.length)} લોકેશન</small> `:''):'<div class="muted">📍 હજી લોકેશન આવ્યું નથી</div>'}${R.some(e=>e.ll)?`<button class="btn sm" data-smap="${esc(nums.length===1?nums[0]:'')}" style="margin-top:4px">🗺️ નકશા પર રૂટ</button>`:''}`;}
+function netFacts(id){const n=NET.nodes.get(id);if(!n)return '';const rows=[];const tl=t=>`<a href="#" data-nn="${esc(t.id)}"><b>${esc(nodeTitle(t))}</b></a>${nodeBadges(t)}${relTag(t)}${t.x&&t.kind!=='case'?` <small class="muted">${esc(caseShort(t.x))}</small>`:''}`;
   if(id.startsWith('v:')){const O=ownersOf(id);if(O.length)rows.push(['👤 કોનો છે (માલિક)',O.map(tl).join('<br>')]);
     const P=pairOf(id);if(P.length)rows.push([n.kind==='phone'?'📟 IMEI':'📱 મોબાઇલ',P.map(t=>esc(t.full||t.label)).join(', ')]);
     const up=(NET.adj.get(id)||[]).filter(e=>!e.out&&BREL.has(e.rel)).map(e=>NET.nodes.get(e.to)).filter(isPerson);if(up.length)rows.push(['⬆️ કોના B-પાર્ટીમાં છે',up.map(tl).join('<br>')]);
     const oth=(NET.adj.get(id)||[]).filter(e=>!(!e.out&&(BREL.has(e.rel)||(OWN_REL[n.kind]||[]).includes(e.rel)))&&e.rel!=='pair').map(e=>({t:NET.nodes.get(e.to),e})).filter(x=>x.t);if(oth.length)rows.push(['🔗 બીજું જોડાણ',oth.slice(0,20).map(x=>tl(x.t)+` <small class="muted">${esc(x.e.lab)}</small>`).join('<br>')]);
-    if(O.length===1&&O[0].kind==='other'){const o=O[0].o;if(o.addr)rows.push(['🏠 સરનામું',esc(o.addr)]);if(o.rel)rows.push(['🤝 સંબંધ',esc(o.rel)]);if(o.note)rows.push(['📝 નોંધ',esc(o.note)]);}}
+    if(O.length===1&&O[0].kind==='other'){const o=O[0].o;if(o.addr)rows.push(['🏠 સરનામું',esc(o.addr)]);if(o.note)rows.push(['📝 નોંધ',esc(o.note)]);}
+    {const nums=n.kind==='phone'?[n.key]:n.kind==='imei'?P.filter(t=>t.kind==='phone').map(t=>t.key):[];const L=smsLocHTML(nums);if(L)rows.push(['📍 SMS લોકેશન',L]);}}
   else if(isPerson(n)){if(n.x)rows.push(['📁 કેસ',esc(caseShort(n.x))+' • '+(n.kind==='acc'?'પકડાયેલ':'બાકી')]);const own=(NET.adj.get(id)||[]).filter(e=>e.out&&OWN_SET.has(e.rel)).map(e=>NET.nodes.get(e.to));if(own.length)rows.push(['📱 પોતાના નંબર',own.map(t=>esc(t.label)).join(', ')]);
     const bp=(NET.adj.get(id)||[]).filter(e=>e.out&&BREL.has(e.rel)).length;if(bp)rows.push(['📞 B-પાર્ટી',GU_D(bp)+' નંબર / IMEI']);const up=upHTML(id);if(up)rows.push(['⬆️ ઉપરની પાર્ટી','<div>'+up+'</div>']);
+    {const L=smsLocHTML(own.filter(t=>t.kind==='phone').map(t=>t.key));if(L)rows.push(['📍 SMS લોકેશન',L]);}
     if(n.kind==='other'){const o=n.o;if(o.addr)rows.push(['🏠 સરનામું',esc(o.addr)]);if(o.rel)rows.push(['🤝 સંબંધ',esc(o.rel)]);if((o.socials||[]).length)rows.push(['🌐 સોશિયલ',o.socials.map(x=>esc((x.name||'')+(x.link?': '+x.link:''))).join('<br>')]);}}
   else if(n.kind==='case'){rows.push(['📁 કેસ',esc(n.label)]);}
   return `<div class="nfact"><div class="nfh">${tl(n)}<span class="nfb"><button class="btn sm pri" data-nact="root" data-id="${esc(id)}">🌳 ઝાડ</button> <button class="btn sm" data-nact="edit" data-id="${esc(id)}">✏️ સુધારો</button></span></div>${rows.length?`<div class="kvg">${rows.map(([k,v])=>`<b>${k}</b><span>${v}</span>`).join('')}</div>`:'<div class="muted" style="font-size:13px">હજી કોઈ વ્યક્તિ / કેસ સાથે જોડાયેલ નથી — ✏️ સુધારો દબાવી માલિક / વિગત ઉમેરો</div>'}</div>`;}
 function netIdsFor(q){buildNet();const t=String(q||'').trim();const out=[];
   for(const type of ['phone','imei','vehicle']){const k=valKey(type,t);if(k&&NET.nodes.has('v:'+type+'|'+k))out.push('v:'+type+'|'+k);}
   if(!out.length)for(const n of netSearch(t).slice(0,8))out.push(n.id);return out;}
-function netInfoHTML(q,title){const ids=netIdsFor(q);if(!ids.length)return '';return `<div class="card" style="margin-bottom:12px;border-top:4px solid #4f46e5"><h3>${title||'🕸️ ડેટા મુજબ માહિતી (કેસ / અન્ય વ્યક્તિ / B-પાર્ટી)'}</h3>${ids.map(netFacts).join('')}</div>`;}
+function netInfoHTML(q,title){const ids=netIdsFor(q);if(!ids.length){const k=valKey('phone',q);const L=k&&smsLocHTML([k]);return L?`<div class="card" style="margin-bottom:12px;border-top:4px solid #4f46e5"><h3>${title||'🕸️ ડેટા મુજબ માહિતી'}</h3><div class="nfact"><div class="nfh"><b>📱 ${esc(k)}</b> <span class="muted">માલિક અજાણ</span><span class="nfb"><button class="btn sm" data-nact="edit" data-id="v:phone|${esc(k)}">✏️ નામ / સંબંધ ઉમેરો</button></span></div><div class="kvg"><b>📍 SMS લોકેશન</b><span>${L}</span></div></div></div>`:'';}return `<div class="card" style="margin-bottom:12px;border-top:4px solid #4f46e5"><h3>${title||'🕸️ ડેટા મુજબ માહિતી (કેસ / અન્ય વ્યક્તિ / B-પાર્ટી)'}</h3>${ids.map(netFacts).join('')}</div>`;}
 function statList(k){if(k==='files'){document.getElementById('fileList')?.scrollIntoView({behavior:'smooth'});return;}if(k==='match'){showTab('common');return;}
   buildNet();const L=dataRows(sindex).filter(r=>r.type===k).sort((a,b)=>(b.files+b.man.length)-(a.files+a.man.length)||b.occ-a.occ);const T=TYPES[k];
-  const own=g=>{const vk=valKey(k,g.val)||keyFor(k,g.val);const id=vk&&'v:'+k+'|'+vk;if(!id||!NET.nodes.has(id))return '';const O=ownersOf(id),P=pairOf(id);return [O.length?'👤 '+O.map(t=>esc(t.label)).join(', '):'',P.length?(k==='phone'?'📟 ':'📱 ')+P.map(t=>esc(t.full||t.label)).join(', '):''].filter(Boolean).join(' • ');};
+  const own=g=>{const vk=valKey(k,g.val)||keyFor(k,g.val);const id=vk&&'v:'+k+'|'+vk;if(!id||!NET.nodes.has(id))return '';const O=ownersOf(id),P=pairOf(id);return [O.length?'👤 '+O.map(t=>esc(t.label)+(relOf(t)?' 🤝 '+esc(relOf(t)):'')).join(', '):'',P.length?(k==='phone'?'📟 ':'📱 ')+P.map(t=>esc(t.full||t.label)).join(', '):''].filter(Boolean).join(' • ');};
   const ov=openModal(`<h2>${T.icon} ${T.label} — ${GU_D(L.length)}</h2><input class="inp" id="slQ" placeholder="શોધો…" style="width:100%;margin-bottom:8px"><div class="tablewrap" style="max-height:65vh;overflow:auto"><table><thead><tr><th>#</th><th>${T.label}</th><th>કોનો / જોડી</th><th>ફાઇલ</th><th>વાર</th></tr></thead><tbody id="slB"></tbody></table></div>
     <div class="mfoot"><button class="btn" id="slX">📊 Excel</button></div>`,{wide:true});
   const draw=()=>{const q=compact(ov.querySelector('#slQ').value);const F=L.filter(g=>!q||compact(g.val).includes(q));ov.querySelector('#slB').innerHTML=F.slice(0,1500).map((g,i)=>`<tr class="click" ${g.k?`data-ent="${esc(g.k)}"`:g.type==='name'&&g.man[0]?`data-oed="${esc(g.man[0].o.id)}"`:`data-nn="${esc('v:'+k+'|'+(valKey(k,g.val)||keyFor(k,g.val)))}"`}><td>${i+1}</td><td><b>${esc(g.val)}</b>${g.man.length&&!g.files?' <small class="muted">✍️ જાતે ભરેલ</small>':''}</td><td>${own(g)||(g.man.length?g.man.slice(0,2).map(m=>esc(m.txt)).join('<br>'):'<span class="muted">—</span>')}</td><td>${g.files||'—'}</td><td>${g.occ}</td></tr>`).join('')+(F.length>1500?`<tr><td colspan="5" class="muted">…${F.length-1500} વધુ — શોધ વાપરો</td></tr>`:'');};draw();
@@ -1304,15 +1323,16 @@ function gmapRouteUrl(P){/* Google Maps માં એક URL માં વધુ
 function openExt(u){try{if(window.AndroidApp){AndroidApp.openUrl(u);return;}}catch(_){}window.open(u,'_blank','noopener');}
 function smsKml(groups){const x=s=>String(s??'').replace(/[<&>]/g,c=>({'<':'&lt;','&':'&amp;','>':'&gt;'}[c]));
   const st=groups.map((g,i)=>{const c=g.col.replace('#','');const kc='ff'+c.slice(4,6)+c.slice(2,4)+c.slice(0,2);return `<Style id="s${i}"><LineStyle><color>${kc}</color><width>4</width></LineStyle><IconStyle><color>${kc}</color></IconStyle></Style>`;}).join('');
-  const body=groups.map((g,i)=>`<Folder><name>${x(g.num)} ${x(g.name)}</name>${g.P.map((p,k)=>`<Placemark><name>${k+1}. ${x(g.num)}</name><description>${x(fmtDate(p.e.at))} — ${p.e.gj?'ગુજરાતમાં':p.e.where==='out'?'ગુજરાત બહાર':'અજાણ'}</description><styleUrl>#s${i}</styleUrl><TimeStamp><when>${new Date(p.e.at).toISOString()}</when></TimeStamp><Point><coordinates>${p.lo},${p.la},0</coordinates></Point></Placemark>`).join('')}${g.P.length>1?`<Placemark><name>${x(g.num)} રૂટ</name><styleUrl>#s${i}</styleUrl><LineString><tessellate>1</tessellate><coordinates>${g.P.map(p=>p.lo+','+p.la+',0').join(' ')}</coordinates></LineString></Placemark>`:''}</Folder>`).join('');
+  const body=groups.map((g,i)=>`<Folder><name>#${x(g.no||'')} ${x(g.num)} ${x(g.name)}</name>${g.P.map((p,k)=>`<Placemark><name>#${x(g.no||'')} (${k+1}) ${x(fmtDate(p.e.at))}</name><description>${x(g.num)} — ${x(fmtDate(p.e.at))} — ${p.e.gj?'ગુજરાતમાં':p.e.where==='out'?'ગુજરાત બહાર':'અજાણ'}</description><styleUrl>#s${i}</styleUrl><TimeStamp><when>${new Date(p.e.at).toISOString()}</when></TimeStamp><Point><coordinates>${p.lo},${p.la},0</coordinates></Point></Placemark>`).join('')}${g.P.length>1?`<Placemark><name>${x(g.num)} રૂટ</name><styleUrl>#s${i}</styleUrl><LineString><tessellate>1</tessellate><coordinates>${g.P.map(p=>p.lo+','+p.la+',0').join(' ')}</coordinates></LineString></Placemark>`:''}</Folder>`).join('');
   return `<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>વ્યૂહરચના — SMS લોકેશન રૂટ</name>${st}${body}</Document></kml>`;}
-async function smsMap(num){
-  const all=smsPoints(null);if(!all.length){toast('હજી કોઈ લોકેશનમાં Lat/Long આવ્યું નથી','err',5000);return;}
-  const nums=uniq(all.map(p=>p.e.num||'?'));const nameOf=n=>{const e=[...smsLog].reverse().find(x=>x.num===n&&x.name);if(e)return e.name;const o=(smsNumbers().find(z=>z.n===n)||{people:[]}).people[0];return o?o.name||'':'';};
-  const colOf=n=>MAP_COL[nums.indexOf(n)%MAP_COL.length];
-  const ov=openModal(`<h2 style="margin-bottom:6px">🗺️ SMS લોકેશન — નકશા પર રૂટ</h2>
-    <div class="row gap" style="margin:0 0 8px;flex-wrap:wrap"><select class="inp" id="mpN"><option value="">📍 બધા નંબર (${GU_D(nums.length)})</option>${nums.map(n=>`<option value="${esc(n)}" ${n===num?'selected':''}>${esc(n)} ${esc(nameOf(n))} (${GU_D(all.filter(p=>p.e.num===n).length)})</option>`).join('')}</select>
-      <label class="muted" style="font-size:13px"><input type="checkbox" id="mpGJ"> ફક્ત 🚨 ગુજરાત</label>
+const mpShort=t=>{const d=new Date(t),p=x=>String(x).padStart(2,'0');return `${p(d.getDate())}/${p(d.getMonth()+1)} ${p(d.getHours())}:${p(d.getMinutes())}`;};
+async function smsMap(num,opt){opt=opt||{};
+  const all=smsPoints(null).filter(p=>(!opt.nums||opt.nums.includes(p.e.num))&&(!opt.from||(p.e.at>=opt.from&&p.e.at<=opt.to+(opt.pad||0))));if(!all.length){toast(opt.from?'📅 આ સમયમાં કોઈ Lat/Long લોકેશન નથી':'હજી કોઈ લોકેશનમાં Lat/Long આવ્યું નથી','err',5000);return;}
+  const nums=uniq(all.map(p=>p.e.num||'?')).sort((a,b)=>(smsNo(a)||1e9)-(smsNo(b)||1e9));const nameOf=n=>{const e=[...smsLog].reverse().find(x=>x.num===n&&x.name);if(e)return e.name;const o=(smsNumbers().find(z=>z.n===n)||{people:[]}).people[0];return o?o.name||'':'';};
+  const colOf=n=>MAP_COL[((smsNo(n)||nums.indexOf(n)+1)-1)%MAP_COL.length];const noOf=n=>smsNo(n)||'?';
+  const ov=openModal(`<h2 style="margin-bottom:6px">🗺️ SMS લોકેશન — નકશા પર રૂટ${opt.from?` <span class="tag" style="background:#fde68a;color:#78350f;font-size:13px">📅 ${esc(fmtDate(opt.from))} → ${esc(fmtDate(opt.to))}</span>`:''}</h2>
+    <div class="row gap" style="margin:0 0 8px;flex-wrap:wrap"><button class="btn sm pri" id="mpBack" style="display:none">⬅️ બધા નંબર</button><select class="inp" id="mpN"><option value="">📍 બધા નંબર (${GU_D(nums.length)})</option>${nums.map(n=>`<option value="${esc(n)}" ${n===num?'selected':''}>#${noOf(n)} • ${esc(n)} ${esc(nameOf(n))} (${GU_D(all.filter(p=>p.e.num===n).length)})</option>`).join('')}</select>
+      <label class="muted" style="font-size:13px"><input type="checkbox" id="mpT" checked> 🕒 તારીખ-સમય</label><label class="muted" style="font-size:13px"><input type="checkbox" id="mpL" checked> 〰️ રૂટ લીટી</label><label class="muted" style="font-size:13px"><input type="checkbox" id="mpGJ"> ફક્ત 🚨 ગુજરાત</label>
       <button class="btn sm" id="mpSat">🛰️ સેટેલાઇટ</button><button class="btn sm pri" id="mpG">🧭 Google Maps માં રૂટ</button><button class="btn sm" id="mpK">📥 KML (Google Earth / My Maps)</button></div>
     <div id="mpMap" style="height:62vh;min-height:320px;border-radius:12px;border:1px solid var(--line);background:#e8eef5"></div>
     <div id="mpLeg" style="margin-top:8px"></div>`,{wide:true,cls:'mapm'});
@@ -1322,21 +1342,33 @@ async function smsMap(num){
   const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'© Esri'});
   let isSat=false;street.addTo(map);
   ov.querySelector('#mpSat').onclick=()=>{isSat=!isSat;if(isSat){map.removeLayer(street);sat.addTo(map);}else{map.removeLayer(sat);street.addTo(map);}ov.querySelector('#mpSat').textContent=isSat?'🗺️ રસ્તા':'🛰️ સેટેલાઇટ';};
-  const layer=L.layerGroup().addTo(map);let groups=[];
-  const draw=()=>{layer.clearLayers();const sel=ov.querySelector('#mpN').value,gjOnly=ov.querySelector('#mpGJ').checked;
-    groups=(sel?[sel]:nums).map(n=>({num:n,name:nameOf(n),col:colOf(n),P:all.filter(p=>(p.e.num||'?')===n&&(!gjOnly||p.e.gj))})).filter(g=>g.P.length);
+  const layer=L.layerGroup().addTo(map);let groups=[],marks=new Map();
+  const startNum=num||'';
+  const draw=()=>{layer.clearLayers();marks=new Map();const sel=ov.querySelector('#mpN').value,gjOnly=ov.querySelector('#mpGJ').checked,showT=ov.querySelector('#mpT').checked,showL=ov.querySelector('#mpL').checked;
+    ov.querySelector('#mpBack').style.display=sel?'':'none';
+    groups=(sel?[sel]:nums).map(n=>({num:n,no:noOf(n),name:nameOf(n),col:colOf(n),P:all.filter(p=>(p.e.num||'?')===n&&(!gjOnly||p.e.gj))})).filter(g=>g.P.length);
     const B=[];
     for(const g of groups){const ll=g.P.map(p=>[p.la,p.lo]);B.push(...ll);
-      if(ll.length>1)L.polyline(ll,{color:g.col,weight:4,opacity:.85}).addTo(layer);
-      g.P.forEach((p,k)=>{const last=k===g.P.length-1;const ic=L.divIcon({className:'',iconSize:null,html:`<div style="background:${g.col};color:#fff;border:2px solid #fff;border-radius:50%;width:${last?30:22}px;height:${last?30:22}px;display:grid;place-items:center;font:700 ${last?13:11}px sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.4);transform:translate(-50%,-50%)${p.e.gj?';outline:3px solid #fecaca':''}">${k+1}</div>`});
-        L.marker([p.la,p.lo],{icon:ic}).addTo(layer).bindPopup(`<b>📱 ${esc(g.num)}</b> ${esc(g.name)}<br>${k+1} / ${g.P.length} • ${esc(fmtDate(p.e.at))}<br>${p.e.gj?'🚨 <b style="color:#dc2626">ગુજરાતમાં</b>':p.e.where==='out'?'ગુજરાત બહાર':'અજાણ'}${p.e.cell?'<br>Cell ID '+esc(p.e.cell):''}<br><a href="https://maps.google.com/?q=${p.la},${p.lo}" target="_blank" rel="noopener">Google Maps માં ખોલો</a>`);});}
-    if(B.length)map.fitBounds(B,{padding:[30,30],maxZoom:14});else map.setView([22.3,71.7],7);
-    ov.querySelector('#mpLeg').innerHTML=groups.length?`<div class="tablewrap"><table><thead><tr><th></th><th>નંબર</th><th>કોણ</th><th>સ્થળ</th><th>પહેલું → છેલ્લું</th><th>કુલ અંતર</th><th></th></tr></thead><tbody>${groups.map(g=>{let km=0;for(let i=1;i<g.P.length;i++)km+=kmBetween(g.P[i-1],g.P[i]);const f=g.P[0].e,l=g.P[g.P.length-1].e;
-      return `<tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${g.col}"></span></td><td><b>${esc(g.num)}</b></td><td>${esc(g.name||'—')}</td><td>${GU_D(g.P.length)}${g.P.some(p=>p.e.gj)?' <span class="tag red">🚨</span>':''}</td><td style="font-size:12.5px">${esc(fmtDate(f.at))}<br>→ ${esc(fmtDate(l.at))}</td><td>${km.toFixed(1)} કિ.મી.</td><td style="white-space:nowrap"><button class="btn sm" data-mpone="${esc(g.num)}">🔍</button> <button class="btn sm pri" data-mpg="${esc(g.num)}">🧭 Google</button></td></tr>`;}).join('')}</tbody></table></div><div class="muted" style="font-size:12px;margin-top:4px">અંક = ક્રમ (1 = સૌથી જૂનું, મોટું ગોળ = છેલ્લું લોકેશન). અંતર સીધી લીટીમાં છે. Google Maps માં એક સાથે 10 સ્થળ જ જાય છે — વધુ હોય તો સરખા અંતરે 10 પસંદ થાય છે.</div>`:'<div class="empty">આ ફિલ્ટરમાં કોઈ લોકેશન નથી</div>';};
-  ov.querySelector('#mpN').onchange=draw;ov.querySelector('#mpGJ').onchange=draw;
+      if(ll.length>1&&showL)L.polyline(ll,{color:g.col,weight:4,opacity:.8,dashArray:sel?null:'8 6'}).addTo(layer);
+      g.P.forEach((p,k)=>{const last=k===g.P.length-1;const sz=last?34:26;const lbl=String(g.no);
+        const tl=showT?`<div style="position:absolute;left:50%;top:${sz-2}px;transform:translateX(-50%);white-space:nowrap;background:#fff;color:#111;border:1.5px solid ${g.col};border-radius:6px;padding:0 4px;font:600 10.5px/1.5 sans-serif;box-shadow:0 1px 3px rgba(0,0,0,.25)">${sel?`<b style="color:${g.col}">${k+1}.</b> `:''}${mpShort(p.e.at)}</div>`:'';
+        const ic=L.divIcon({className:'',iconSize:null,html:`<div style="position:relative;transform:translate(-50%,-50%);width:${sz}px;height:${sz}px"><div style="background:${g.col};color:#fff;border:2px solid #fff;border-radius:50%;width:${sz}px;height:${sz}px;box-sizing:border-box;display:grid;place-items:center;font:800 ${lbl.length>2?10:last?14:12}px sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.45)${p.e.gj?';outline:3px solid #fca5a5':''}${last?';outline:3px solid #111':''}">${lbl}</div>${tl}</div>`});
+        const m=L.marker([p.la,p.lo],{icon:ic,zIndexOffset:last?1000:0}).addTo(layer).bindPopup(`<b style="color:${g.col}">#${g.no}</b> • <b>📱 ${esc(g.num)}</b> ${esc(g.name)}<br>લોકેશન ${k+1} / ${g.P.length}${last?' <b>(છેલ્લું)</b>':''}<br>🕒 <b>${esc(fmtDate(p.e.at))}</b><br>${p.e.gj?'🚨 <b style="color:#dc2626">ગુજરાતમાં</b>':esc(smsWhereTag(p.e,1))}${smsCellTxt(p.e)?'<br>📶 '+esc(smsCellTxt(p.e)):''}${p.e.loc?'<br>🏠 '+esc(p.e.loc):''}${k?`<br>↔ આગલાથી ${kmBetween(g.P[k-1],p).toFixed(1)} કિ.મી.`:''}<br><a href="https://maps.google.com/?q=${p.la},${p.lo}" target="_blank" rel="noopener">Google Maps માં ખોલો</a>`);
+        marks.set(g.num+'|'+k,m);});}
+    if(B.length)map.fitBounds(B,{padding:[40,40],maxZoom:14});else map.setView([22.3,71.7],7);
+    const one=sel&&groups[0];
+    ov.querySelector('#mpLeg').innerHTML=groups.length?`<div class="tablewrap"><table><thead><tr><th>#</th><th>નંબર</th><th>કોણ</th><th>સ્થળ</th><th>પહેલું → છેલ્લું</th><th>કુલ અંતર</th><th></th></tr></thead><tbody>${groups.map(g=>{let km=0;for(let i=1;i<g.P.length;i++)km+=kmBetween(g.P[i-1],g.P[i]);const f=g.P[0].e,l=g.P[g.P.length-1].e;
+      return `<tr><td><span style="display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 4px;border-radius:13px;background:${g.col};color:#fff;font-weight:800;font-size:12px">${g.no}</span></td><td><b>${esc(g.num)}</b></td><td>${esc(g.name||'—')}</td><td>${GU_D(g.P.length)}${g.P.some(p=>p.e.gj)?' <span class="tag red">🚨</span>':''}</td><td style="font-size:12.5px">${esc(fmtDate(f.at))}<br>→ ${esc(fmtDate(l.at))}</td><td>${km.toFixed(1)} કિ.મી.</td><td style="white-space:nowrap">${sel?'':`<button class="btn sm" data-mpone="${esc(g.num)}" title="ફક્ત આ નંબર">🔍 ફક્ત આ</button> `}<button class="btn sm pri" data-mpg="${esc(g.num)}">🧭 Google</button></td></tr>`;}).join('')}</tbody></table></div>
+      ${one?`<h3 style="margin:12px 0 6px">📍 #${one.no} — ${esc(one.num)} ના બધા લોકેશન (${GU_D(one.P.length)})</h3><div class="tablewrap" style="max-height:40vh;overflow:auto"><table><thead><tr><th>ક્રમ</th><th>તારીખ-સમય</th><th>સ્થિતિ</th><th>Cell ID / સરનામું</th><th>Lat, Long</th><th>આગલાથી અંતર</th><th></th></tr></thead><tbody>${one.P.map((p,k)=>`<tr${k===one.P.length-1?' style="font-weight:700"':''}><td>${k+1}${k===one.P.length-1?' <small>(છેલ્લું)</small>':''}</td><td style="white-space:nowrap">${esc(fmtDate(p.e.at))}</td><td>${smsWhereTag(p.e)}</td><td style="font-size:12px">${esc([smsCellTxt(p.e),p.e.loc].filter(Boolean).join(' • ')||'—')}</td><td style="font-size:12px;font-family:monospace">${p.la.toFixed(5)}, ${p.lo.toFixed(5)}</td><td>${k?kmBetween(one.P[k-1],p).toFixed(1)+' કિ.મી.':'—'}</td><td><button class="btn sm" data-mpgo="${esc(one.num)}|${k}" title="નકશા પર બતાવો">🎯</button></td></tr>`).join('')}</tbody></table></div>`:''}
+      <div class="muted" style="font-size:12px;margin-top:4px">ગોળમાં <b>#અંક</b> = નંબરનો ક્રમ (એ જ નંબરના બધા લોકેશન પર એ જ અંક). નીચે નાના ખાનામાં તારીખ / સમય${sel?' અને લોકેશનનો ક્રમ (1 = સૌથી જૂનું)':''}. કાળી કિનારીવાળું મોટું ગોળ = છેલ્લું લોકેશન. અંતર સીધી લીટીમાં છે. Google Maps માં એક સાથે 10 સ્થળ જ જાય છે.</div>`:'<div class="empty">આ ફિલ્ટરમાં કોઈ લોકેશન નથી</div>';};
+  ov.back=()=>{const s=ov.querySelector('#mpN');if(s.value&&nums.length>1){s.value='';draw();return true;}return false;};
+  ov.querySelector('#mpBack').onclick=()=>{ov.querySelector('#mpN').value='';draw();};
+  ['#mpN','#mpGJ','#mpT','#mpL'].forEach(q=>ov.querySelector(q).onchange=draw);
   ov.querySelector('#mpG').onclick=()=>{if(groups.length!==1){toast('Google Maps માં એક સમયે એક નંબરનો રૂટ — ઉપરથી નંબર પસંદ કરો અથવા નીચે 🧭 Google દબાવો','err',6000);return;}openExt(gmapRouteUrl(groups[0].P));};
-  ov.querySelector('#mpK').onclick=()=>{if(!groups.length)return;download(`sms-location-route-${new Date().toISOString().slice(0,10)}.kml`,new Blob([smsKml(groups)],{type:'application/vnd.google-earth.kml+xml'}));toast('📥 KML તૈયાર — Google Earth / Google My Maps માં ખોલો (બધા નંબરનો રૂટ એક સાથે)','ok',6000);};
-  ov.querySelector('#mpLeg').addEventListener('click',e=>{const o=e.target.closest('[data-mpone]');if(o){ov.querySelector('#mpN').value=o.dataset.mpone;draw();return;}const g=e.target.closest('[data-mpg]');if(g){const G=groups.find(x=>x.num===g.dataset.mpg);if(G)openExt(gmapRouteUrl(G.P));}});
+  ov.querySelector('#mpK').onclick=()=>{if(!groups.length)return;download(`sms-location-route-${new Date().toISOString().slice(0,10)}.kml`,new Blob([smsKml(groups)],{type:'application/vnd.google-earth.kml+xml'}));toast('📥 KML તૈયાર — Google Earth / Google My Maps માં ખોલો','ok',6000);};
+  ov.querySelector('#mpLeg').addEventListener('click',e=>{const o=e.target.closest('[data-mpone]');if(o){ov.querySelector('#mpN').value=o.dataset.mpone;draw();ov.querySelector('#mpMap').scrollIntoView({behavior:'smooth',block:'start'});return;}
+    const go=e.target.closest('[data-mpgo]');if(go){const m=marks.get(go.dataset.mpgo);if(m){map.setView(m.getLatLng(),Math.max(map.getZoom(),15));m.openPopup();ov.querySelector('#mpMap').scrollIntoView({behavior:'smooth',block:'start'});}return;}
+    const g=e.target.closest('[data-mpg]');if(g){const G=groups.find(x=>x.num===g.dataset.mpg);if(G)openExt(gmapRouteUrl(G.P));}});
   setTimeout(()=>{map.invalidateSize();draw();},120);}
 document.addEventListener('click',e=>{const m=e.target.closest('[data-smap]');if(!m)return;e.preventDefault();e.stopPropagation();smsMap(m.dataset.smap||null);},true);
 /* ===== ઝૂમ: PC માં Ctrl + માઉસ ચકરડી / Ctrl + − 0, મોબાઇલમાં બે આંગળી ===== */
@@ -1527,17 +1559,38 @@ function renderData(){
   const q=compact($('#dSearch').value),only=$('#dOnly').checked;
   const arr=all.filter(r=>(dType==='all'||(dType==='man'?r.man.length:r.type===dType))&&(!only||dMatch(r))&&(!q||compact(r.val).includes(q)||r.man.some(m=>compact(m.txt).includes(q)))).sort((a,b)=>(b.files+b.man.length)-(a.files+a.man.length)||tOrd(a.type)-tOrd(b.type));
   const attr=r=>{if(r.k)return `data-ent="${esc(r.k)}"`;if(r.type==='name'&&r.man[0])return `data-oed="${esc(r.man[0].o.id)}"`;const vk=valKey(r.type,r.val)||keyFor(r.type,r.val);return `data-nn="${esc('v:'+r.type+'|'+vk)}"`;};
-  lastDataArr=arr;
-  $('#dataTable').innerHTML=arr.length?`<table><thead><tr><th>પ્રકાર</th><th>માહિતી</th><th>ફાઇલ</th><th>કેટલી વાર</th><th>ક્યાંથી (ફાઇલ / જાતે ભરેલ)</th><th></th></tr></thead><tbody>${arr.slice(0,1500).map((r,ri)=>`<tr class="click" ${attr(r)}><td>${TYPES[r.type].icon} ${TYPES[r.type].label}</td><td><b>${esc(r.val)}</b>${dMatch(r)?' <span class="tag red">મેચ</span>':''}</td><td>${r.files>1?`<span class="tag red">${r.files}</span>`:r.files||'—'}</td><td>${r.occ}</td><td class="muted" style="font-size:12.5px">${r.fnames.slice(0,3).map(esc).join(', ')}${r.files>3?'…':''}${r.files&&r.man.length?'<br>':''}${r.man.slice(0,4).map(m=>`<span class="tag" style="background:#ede9fe;color:#4c1d95">${esc(m.txt)}</span>`).join(' ')}${r.man.length>4?` …${r.man.length-4} વધુ`:''}</td><td style="white-space:nowrap"><button class="btn sm" data-dedit="${ri}" title="સુધારો">✏️</button> <button class="btn sm danger" data-ddel="${ri}" title="કાઢો">🗑️</button></td></tr>`).join('')}</tbody></table>${arr.length>1500?`<div class="empty">પહેલા 1500 બતાવ્યા (કુલ ${arr.length}) — શોધ વાપરો</div>`:''}`:'<div class="card empty">કોઈ માહિતી નથી</div>';
+  lastDataArr=arr;try{buildNet();}catch(_){}
+  $('#dataTable').innerHTML=arr.length?`<table><thead><tr><th>પ્રકાર</th><th>માહિતી</th><th>ફાઇલ</th><th>કેટલી વાર</th><th>ક્યાંથી (ફાઇલ / જાતે ભરેલ)</th><th></th></tr></thead><tbody>${arr.slice(0,1500).map((r,ri)=>`<tr class="click" ${attr(r)}><td>${TYPES[r.type].icon} ${TYPES[r.type].label}</td><td><b>${esc(r.val)}</b>${dMatch(r)?' <span class="tag red">મેચ</span>':''}${r.type==='phone'?(()=>{try{const O=ownersOf('v:phone|'+r.val);return O.length?`<div style="font-size:12px">👤 ${O.slice(0,2).map(t=>esc(t.label)+(relOf(t)?' <span class="tag reltag">🤝 '+esc(relOf(t))+'</span>':'')).join(', ')}</div>`:'';}catch(_){return '';}})()+(smsLog.some(e=>e.kind==='reply'&&e.num===r.val)?' <span class="tag" title="આ નંબરનું SMS લોકેશન છે">📍</span>':''):''}</td><td>${r.files>1?`<span class="tag red">${r.files}</span>`:r.files||'—'}</td><td>${r.occ}</td><td class="muted" style="font-size:12.5px">${r.fnames.slice(0,3).map(esc).join(', ')}${r.files>3?'…':''}${r.files&&r.man.length?'<br>':''}${r.man.slice(0,4).map(m=>`<span class="tag" style="background:#ede9fe;color:#4c1d95">${esc(m.txt)}</span>`).join(' ')}${r.man.length>4?` …${r.man.length-4} વધુ`:''}</td><td style="white-space:nowrap"><button class="btn sm" data-dedit="${ri}" title="સુધારો">✏️</button> <button class="btn sm danger" data-ddel="${ri}" title="કાઢો">🗑️</button></td></tr>`).join('')}</tbody></table>${arr.length>1500?`<div class="empty">પહેલા 1500 બતાવ્યા (કુલ ${arr.length}) — શોધ વાપરો</div>`:''}`:'<div class="card empty">કોઈ માહિતી નથી</div>';
 }
 let lastDataArr=[];
 async function dataEdit(r){buildNet();if(r.type==='name'){if(r.man[0]){otherForm(r.man[0].o.id);return;}if(r.k){openEntity(r.k);return;}}
   const k=valKey(r.type,r.val)||keyFor(r.type,r.val);const id='v:'+r.type+'|'+k;if(NET.nodes.has(id)){valueEdit(id);return;}
   const pre={mob:[],imei:[],veh:[]};if(r.type==='phone')pre.mob=[k];else if(r.type==='imei')pre.imei=[r.val];else if(r.type==='vehicle')pre.veh=[k];otherForm(null,pre);}
+/* એક નંબર / IMEI / ગાડી બધેથી કાયમ કાઢો: અન્ય વ્યક્તિ, રજીસ્ટરના આરોપી, ફાઇલો — અને "કાઢી નાખેલ" યાદીમાં નોંધ */
+const DEL_F={phone:['mob','wa','bmob'],imei:['imei','bimei'],vehicle:['veh']};
+function delKeyOf(type,x){x=String(x??'');if(type==='phone')return normVal('mob',x);if(type==='imei')return String(normVal('imei',x)).slice(0,14);if(type==='vehicle')return normVal('veh',x);return keyFor(type,x);}
+async function deleteValueEverywhere(type,val,{silent=false}={}){const rk=delKeyOf(type,val);if(!rk)return 0;let n=0;const F=DEL_F[type]||[];
+  for(const o of (settings.others||[]))for(const f of F){const a=o[f]||[];const b=a.filter(x=>delKeyOf(type,x)!==rk);if(b.length<a.length){o[f]=b;o.updatedAt=Date.now();n+=a.length-b.length;}}
+  if(type==='custom')for(const o of (settings.others||[])){const b=(o.socials||[]).filter(x=>keyFor('custom',socKey(x))!==rk);if(b.length<(o.socials||[]).length){n++;o.socials=b;}}
+  /* રજીસ્ટરના આરોપી */
+  for(const d of docs){let ch=false;for(const x of caseRowsOf(d,true)){for(const g of ['acc','want']){const L=(x.r[g]||[]).map(p=>JSON.parse(JSON.stringify(p)));let hit=false;
+      for(const p of L)for(const f of F){const a=p[f]||[];const b=a.filter(v=>delKeyOf(type,v)!==rk);if(b.length<a.length){p[f]=b;hit=true;n+=a.length-b.length;}}
+      if(hit){d.caseEdit=d.caseEdit||{};const ce=d.caseEdit[x.unit]=d.caseEdit[x.unit]||{};ce[g]=L;ch=true;}}}
+    /* ફાઇલમાંથી */
+    const ek=type+'|'+(valKey(type,val)||keyFor(type,val));const before=(d.entities||[]).length;const ents=(d.entities||[]).filter(e=>!(e.type===type&&(e.type+'|'+e.key===ek||delKeyOf(type,e.value)===rk)));
+    if(ents.length<before){d.removed=uniq([...(d.removed||[]),...(d.entities||[]).filter(e=>!ents.includes(e)).map(e=>e.type+'|'+e.key)]);d.entities=ents;ch=true;n+=before-ents.length;}
+    if(ch){d.updatedAt=Date.now();await saveDoc(d);}}
+  settings.ignore=(settings.ignore||[]).filter(k=>!(k.split('|')[0]===type&&delKeyOf(type,k.split('|').slice(1).join('|'))===rk));
+  settings.deleted=(settings.deleted||[]).filter(x=>!(x.t===type&&x.k===rk));settings.deleted.push({t:type,k:rk,v:String(val),at:Date.now()});if(settings.deleted.length>3000)settings.deleted=settings.deleted.slice(-3000);
+  await saveOthers();buildIndex();renderAll();if(!silent)toast(`🗑️ ${val} બધેથી કાઢી નાખ્યો`,'ok');return n;}
+async function restoreDeleted(t,k){const x=(settings.deleted||[]).find(z=>z.t===t&&z.k===k);settings.deleted=(settings.deleted||[]).filter(z=>!(z.t===t&&z.k===k));
+  for(const d of docs){const b4=(d.removed||[]).length;d.removed=(d.removed||[]).filter(r=>!(r.split('|')[0]===t&&delKeyOf(t,r.split('|').slice(1).join('|'))===k));if(d.removed.length<b4){extractDoc(d);d.updatedAt=Date.now();await saveDoc(d);}}
+  await saveOthers();buildIndex();renderAll();renderSettings();toast(`↩ ${x?x.v:k} ફાઇલોમાં પાછો આવ્યો (વ્યક્તિમાંથી કાઢેલ હોય તો ત્યાં જાતે ઉમેરવો)`,'ok',6000);}
 async function dataDelete(r){
   if(r.type==='name'&&r.man.length){const ids=uniq(r.man.map(m=>m.o.id));if(ids.length===1){await deleteOther(ids[0]);renderData();return;}toast('આ નામ એક થી વધુ વ્યક્તિમાં છે — અન્ય વ્યક્તિમાંથી 🗑️ થી કાઢો','err',6000);return;}
-  const where=[...r.man.map(m=>m.txt.replace('👥 ','')),...(r.files?[`${GU_D(r.files)} ફાઇલ (${r.fnames.slice(0,3).join(', ')}) — અવગણાશે`]:[])];
+  const where=[...r.man.map(m=>m.txt.replace('👥 ','')),...(r.files?[`${GU_D(r.files)} ફાઇલ (${r.fnames.slice(0,3).join(', ')}) — ફાઇલમાંથી પણ નીકળશે`]:[])];
   if(!confirm(`"${r.val}" ને બધી જગ્યાએથી કાઢી નાખવું છે?\n\n• ${where.join('\n• ')}`))return;
+  if(DEL_F[r.type]||r.type==='custom'||r.type==='aadhaar'){await deleteValueEverywhere(r.type,r.val);renderData();return;}
   const key=x=>r.type==='imei'?String(normVal('imei',x)).slice(0,14):r.type==='phone'?normVal('mob',x):r.type==='vehicle'?normVal('veh',x):String(x).trim();const rk=key(r.val);
   for(const m of r.man){const o=m.o;if(m.f==='social'){o.socials=(o.socials||[]).filter(x=>socKey(x)!==r.val);continue;}if(m.f&&Array.isArray(o[m.f]))o[m.f]=o[m.f].filter(x=>key(x)!==rk);o.updatedAt=Date.now();}
   if(r.files&&r.k&&!settings.ignore.includes(r.k))settings.ignore.push(r.k);
@@ -1585,7 +1638,8 @@ function renderSettings(){
   $('#lockSet').innerHTML=LOGIN_MODE?onlineSettingsHTML():lockSettingsHTML();
   if(document.activeElement!==$('#fbCfg'))$('#fbCfg').value=settings.fbConfig||'';if(document.activeElement!==$('#fbTeam'))$('#fbTeam').value=settings.team||SHARED_CONFIG.team||'';
   $('#setList').innerHTML=SETS.map(([k,l,s])=>`<div class="setrow"><div>${l}${s?`<small>${s}</small>`:''}</div><label class="sw"><input type="checkbox" data-set="${k}" ${settings[k]?'checked':''}><i></i></label></div>`).join('');
-  $('#ignList').innerHTML=settings.ignore.length?settings.ignore.map(k=>{const [t,...r]=k.split('|');const T=TYPES[t]||TYPES.custom;return `<span class="chip" style="--c:${T.color}">${T.icon} ${esc(r.join('|'))}<button class="x" data-unign="${esc(k)}" title="પાછું લાવો">↩</button></span>`}).join(''):'<div class="empty">કંઈ અવગણેલું નથી</div>';
+  $('#ignList').innerHTML=settings.ignore.length?settings.ignore.map(k=>{const [t,...r]=k.split('|');const T=TYPES[t]||TYPES.custom;return `<span class="chip" style="--c:${T.color}">${T.icon} ${esc(r.join('|'))}<button class="x" data-unign="${esc(k)}" title="પાછું લાવો">↩</button><button class="x" data-igdel="${esc(k)}" title="કાયમ કાઢો">🗑️</button></span>`}).join('')+`<div style="margin-top:8px"><button class="btn sm danger" data-igdelall="1">🗑️ બધા અવગણેલા કાયમ કાઢો</button></div>`:'<div class="empty">કંઈ અવગણેલું નથી</div>';
+  {const D=(settings.deleted||[]).slice().reverse();const el=document.getElementById('delList');if(el)el.innerHTML=D.length?D.slice(0,500).map(x=>{const T=TYPES[x.t]||TYPES.custom;return `<span class="chip" style="--c:#94a3b8;text-decoration:line-through" title="${esc(fmtDate(x.at))}">${T.icon} ${esc(x.v)}<button class="x" data-delrs="${esc(x.t+'|'+x.k)}" title="ફાઇલોમાં પાછો લાવો" style="text-decoration:none">↩</button><button class="x" data-delfg="${esc(x.t+'|'+x.k)}" title="યાદીમાંથી પણ કાઢો" style="text-decoration:none">✕</button></span>`;}).join('')+`<div style="margin-top:8px"><button class="btn sm" data-delfgall="1">✕ યાદી ખાલી કરો</button></div>`:'<div class="empty">હજી કંઈ કાઢી નાખ્યું નથી</div>';}
 }
 
 /* ===================== Case register UI ===================== */
@@ -2016,7 +2070,7 @@ const VC=window.VYUH_CONFIG||{};
 const SHARED_CONFIG={firebase:VC.firebase&&VC.firebase.apiKey?VC.firebase:null,team:'',owner:String(VC.email||'').toLowerCase().trim().replace(/^તમારો.*$/,'')};
 const LOGIN_MODE=!!SHARED_CONFIG.firebase;
 const SYNC={on:false,db:null,team:'',unsub:[],applying:false,ready:false,docsCol:null,metaRef:null,photosCol:null};
-const META_KEYS=['customCols','routes','regTitle','regTitles','ignore','watch','sms','others'];
+const META_KEYS=['deleted','customCols','routes','regTitle','regTitles','ignore','watch','sms','others'];
 function loadScript(src,ms=20000){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`))return res();const s=document.createElement('script');const t=setTimeout(()=>{s.remove();rej(new Error('સમય પૂરો — લોડ ન થયું: '+src));},ms);s.src=src;s.onload=()=>{clearTimeout(t);res();};s.onerror=()=>{clearTimeout(t);s.remove();rej(new Error('લોડ ન થયું: '+src));};document.head.appendChild(s);});}
 function parseFbConfig(t){if(!t)return null;if(typeof t==='object')return t;const o={};for(const k of ['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId','databaseURL']){const m=String(t).match(new RegExp(k+'["\']?\\s*:\\s*["\']([^"\']+)["\']'));if(m)o[k]=m[1];}return o.apiKey&&o.projectId?o:null;}
 window.addEventListener('offline',()=>{if(SYNC.on||AUTH.on)toast('📴 ઇન્ટરનેટ નથી — એપ ચાલુ જ રહેશે. ફેરફાર આ ડિવાઇસમાં સેવ થાય છે અને ઇન્ટરનેટ આવતાં આપમેળે ટીમમાં જશે.','',7000);setSync(SYNC.on?'on':'off');});
@@ -2156,7 +2210,12 @@ function smsNumbers(){
   for(const e of smsLog)if(e.manual&&!map.has(e.num))map.set(e.num,{n:e.num,people:[{name:e.name||'હાથથી ઉમેરેલ',g:'',reg:'',st:'',fir:''}]});
   return [...map.values()];
 }
-const lastOf=n=>{const L=smsLog.filter(e=>e.num===n);return {sent:L.filter(e=>e.kind==='sent').pop(),rep:L.filter(e=>e.kind==='reply').pop()};};
+let lastIdx=null,lastIdxSig='';
+const lastOf=n=>{const sig=smsLog.length+'|'+(smsLog.length?smsLog[smsLog.length-1].id:'')+'|'+smsStatVer;if(sig!==lastIdxSig){lastIdx=new Map();for(const e of smsLog){if(!e.num)continue;let o=lastIdx.get(e.num);if(!o){o={};lastIdx.set(e.num,o);}if(e.kind==='sent')o.sent=e;else if(e.kind==='reply')o.rep=e;}lastIdxSig=sig;}return lastIdx.get(n)||{};};
+let smsStatVer=0,smsStatT=0;
+/* ઘણા SMS ની સ્થિતિ એકસાથે આવે ત્યારે દરેક વખતે આખું પાનું ન બને — 1.5 સેકન્ડે એક જ વાર */
+function smsStatusSoon(){smsStatVer++;clearTimeout(smsStatT);smsStatT=setTimeout(()=>{smsSave();if($('#tab-sms').classList.contains('on'))renderSms();},1500);}
+function applySmsStatus(num,st,err,ts){const e=[...smsLog].reverse().find(x=>x.kind==='sent'&&x.num===num&&(!ts||x.at<=ts+5000));if(!e)return false;if(e.status===st)return false;if(e.status==='sent'&&st==='queued')return false;e.status=st;e.err=err||'';e._dirty=1;return true;}
 function renderSms(){
   if(NATIVE)try{smsReadSchedule();}catch(_){}
   try{smsSaveSel();}catch(_){}
@@ -2169,38 +2228,67 @@ function renderSms(){
   $('#smsScope').innerHTML=`<button data-sc="reg" class="${smsScope==='reg'?'on':''}">${REG_DEF[curReg].icon} ફક્ત આ વિભાગ</button><button data-sc="all" class="${smsScope==='all'?'on':''}">બંને વિભાગ</button>`;
   $('#smsSrc').innerHTML=`<button data-src="acc" class="${smsSrc==='acc'?'on':''}">👤 આરોપી + જાતે ઉમેરેલ</button><button data-src="all" class="${smsSrc==='all'?'on':''}">📋 બધા નંબર (અન્ય વ્યક્તિ, B-પાર્ટી સહિત)</button>`;
   smsStateHTML();
-  $('#smsCount').textContent=`${smsSel.size} પસંદ / ${L.length} નંબર`;
+  $('#smsCount').textContent=`${GU_D(L.filter(o=>!smsSel.has(o.n)&&!smsAsked().has(o.n)).length)} નંબર હજી મંગાવ્યા નથી • ${GU_D(smsSel.size)} પસંદ • ${GU_D([...smsAsked()].filter(n=>!smsSel.has(n)).length)} મંગાવેલ (નીચે)`;
   const isMan=n=>smsLog.some(e=>e.manual&&e.num===n);
   const addRow=newNum?`<div class="occ" style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span style="flex:1">📱 <b>${newNum}</b> યાદીમાં નથી</span><button class="btn sm pri" data-smsnew="${newNum}">➕ ઉમેરો અને પસંદ કરો</button></div>`:'';
   const who=o=>o.people.slice(0,3).map(p=>`<div>${p.reg?REG_DEF[p.reg].icon:''} ${esc(p.name||'—')} <small class="muted">${p.g==='want'?'🏃 બાકી':p.g==='acc'?'👤 પકડાયેલ':p.g==='o'?'👥 અન્ય વ્યક્તિ':p.g==='b'?'📞':''} ${esc([p.st,p.fir].filter(Boolean).join(' • '))}</small></div>`).join('');
   const opSel=o=>{const op=c.ops[o.n]||'';return `<select class="inp" data-op="${o.n}" style="padding:4px 6px"><option value="">—</option>${OPS.map(([k,l])=>`<option value="${k}" ${op===k?'selected':''}>${l}</option>`).join('')}</select>`;};
   const sentTd=l=>l.sent?`<small>${fmtDate(l.sent.at)}</small>${l.sent.status?`<div><span class="tag ${l.sent.status==='sent'?'ok':/fail|err/.test(l.sent.status)?'red':''}">${{sent:'✅ ગયો',queued:'⏳ મોકલાય છે',failed:'❌ નિષ્ફળ',error:'❌ ભૂલ'}[l.sent.status]||esc(l.sent.status)}</span>${l.sent.auto?' <small class="muted">⏱️</small>':''}</div>`:''}`:'<small class="muted">—</small>';
-  const repTd=l=>l.rep?`${l.rep.gj?'<span class="tag red">🚨 ગુજરાત</span> ':l.rep.where==='out'?'<span class="tag" style="background:#dcfce7;color:#166534">બહાર</span> ':''}<small>${fmtDate(l.rep.at)}</small><div style="font-size:12.5px">${l.rep.ll?`<a target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(l.rep.ll)}">🗺️ ${esc(l.rep.ll)}</a>`:esc(l.rep.loc||l.rep.cell||l.rep.cgi||l.rep.text.slice(0,90))}</div>`:'<small class="muted">—</small>';
+  const repTd=l=>l.rep?`${smsWhereTag(l.rep)} <small>${fmtDate(l.rep.at)}</small>${l.rep.ll?`<div style="font-size:12.5px"><a target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(l.rep.ll)}">🗺️ ${esc(l.rep.ll)}</a></div>`:''}${smsCellTxt(l.rep)?`<div style="font-size:12px;font-family:monospace">📶 ${esc(smsCellTxt(l.rep))}</div>`:''}${l.rep.loc?`<div style="font-size:12.5px">🏠 ${esc(l.rep.loc)}</div>`:''}${!l.rep.ll&&!l.rep.loc&&!smsCellTxt(l.rep)?`<div style="font-size:12px" class="muted">📩 ${esc(l.rep.text.slice(0,110))}</div>`:''}`:(l.sent?'<small class="muted">⏳ જવાબ આવ્યો નથી</small>':'<small class="muted">—</small>');
   const evTd=o=>{const ev=+((c.every||{})[o.n]||0);const nx=SCHED_NEXT[o.n];return `<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span class="muted" style="font-size:12px">દર</span><input class="inp" type="number" min="0" step="1" inputmode="numeric" data-every="${o.n}" value="${ev||''}" placeholder="0" style="width:74px;padding:4px 6px"><span class="muted" style="font-size:12px">મિનિટે</span></div>${ev?`<div><small>${ev>=60&&ev%60===0?'⏱️ દર '+GU_D(ev/60)+' કલાક':'⏱️ દર '+GU_D(ev)+' મિનિટ'}</small></div>`:''}${ev&&nx?`<div><small class="muted">આગલું: ${fmtDate(nx)}</small></div>`:''}${ev&&!NATIVE?'<div><small style="color:var(--bad)">ફક્ત Android એપમાં</small></div>':''}`;};
   /* ① બધા નંબર — ફક્ત પસંદ કરવા */
-  const P=F.filter(o=>!smsSel.has(o.n));
-  $('#smsList').innerHTML=addRow+(P.length?`<table><thead><tr><th><input type="checkbox" id="smsAll" title="દેખાતા બધા પસંદ"></th><th>મોબાઇલ</th><th>કોણ / કેસ</th><th>કંપની</th><th>છેલ્લે મંગાવેલ / લોકેશન</th></tr></thead><tbody>${P.slice(0,600).map(o=>`<tr><td><input type="checkbox" data-sel="${o.n}"></td><td><b>${o.n}</b>${isMan(o.n)?` <button class="btn sm danger" data-smsdel="${o.n}" title="ઉમેરેલો નંબર કાઢો" style="padding:1px 7px">🗑️</button>`:''}</td><td>${who(o)}</td><td>${opSel(o)}</td><td>${lastAsk(o.n)}</td></tr>`).join('')}</tbody></table>${P.length>600?`<div class="muted" style="padding:6px">પહેલા 600 બતાવ્યા — શોધ વાપરો</div>`:''}`:`<div class="empty">${L.length?(q?'શોધ મુજબ બીજો કોઈ નંબર નથી':'બધા નંબર પસંદ થઈ ગયા છે'):'હજી કોઈ નંબર નથી. રજીસ્ટર / અન્ય વ્યક્તિમાં નંબર ભરો અથવા "➕ નંબર ઉમેરો".'}</div>`);
+  const AK=smsAsked();const P=F.filter(o=>!smsSel.has(o.n)&&!AK.has(o.n));
+  $('#smsList').innerHTML=addRow+(P.length?`<table><thead><tr><th><input type="checkbox" id="smsAll" title="દેખાતા બધા પસંદ"></th><th>મોબાઇલ</th><th>આ નંબર કોનો / સંબંધ</th><th>કોણ / કેસ</th><th>કંપની</th><th>છેલ્લે મંગાવેલ / લોકેશન</th></tr></thead><tbody>${P.slice(0,600).map(o=>`<tr><td><input type="checkbox" data-sel="${o.n}"></td><td><b>${o.n}</b>${isMan(o.n)?` <button class="btn sm danger" data-smsdel="${o.n}" title="ઉમેરેલો નંબર કાઢો" style="padding:1px 7px">🗑️</button>`:''}</td><td>${ownerTd(o.n)}</td><td>${who(o)}</td><td>${opSel(o)}</td><td>${lastAsk(o.n)}</td></tr>`).join('')}</tbody></table>${P.length>600?`<div class="muted" style="padding:6px">પહેલા 600 બતાવ્યા — શોધ વાપરો</div>`:''}`:`<div class="empty">${L.length?(q?'શોધ મુજબ બીજો કોઈ નંબર નથી (મંગાવેલ નંબર નીચે "📍 લોકેશન મંગાવેલ" માં છે)':'બધા નંબર પસંદ / મંગાવેલ છે'):'હજી કોઈ નંબર નથી. રજીસ્ટર / અન્ય વ્યક્તિમાં નંબર ભરો અથવા "➕ નંબર ઉમેરો".'}</div>`);
   /* ② પસંદ કરેલા નંબર — અલગ બોક્ષ */
   const S=L.filter(o=>smsSel.has(o.n));const miss=[...smsSel].filter(n=>!L.some(o=>o.n===n)).map(n=>({n,people:[{name:'—'}]}));const SA=[...S,...miss];
   $('#smsSelN').textContent=GU_D(SA.length);
-  $('#smsSelBox').innerHTML=SA.length?`<div class="tablewrap"><table><thead><tr><th>મોબાઇલ</th><th>કોણ / કેસ</th><th>કંપની</th><th>છેલ્લું SMS</th><th>છેલ્લું લોકેશન</th><th></th></tr></thead><tbody>${SA.map(o=>{const l=lastOf(o.n);return `<tr class="${l.rep&&l.rep.gj?'gjrow':''}"><td><b>${o.n}</b></td><td>${who(o)}</td><td>${opSel(o)}</td><td>${sentTd(l)}${smsRun()&&SCHED_NEXT[o.n]?`<div><small class="muted">⏱️ આગલું: ${fmtDate(SCHED_NEXT[o.n])}</small></div>`:''}${smsRun()&&!smsTo(o.n)?'<div><small style="color:var(--bad)">કંપની પસંદ કરો</small></div>':''}</td><td>${repTd(l)}</td><td style="white-space:nowrap"><button class="btn sm" data-smap="${o.n}" title="આ નંબરનો નકશા પર રૂટ">🗺️</button> <button class="btn sm" data-send1="${o.n}" title="હમણાં એક વાર SMS">📤</button> <button class="btn sm danger" data-unsel="${o.n}" title="પસંદગીમાંથી કાઢો">✕</button></td></tr>`;}).join('')}</tbody></table></div>
+  $('#smsSelBox').innerHTML=SA.length?`<div class="tablewrap"><table><thead><tr><th>મોબાઇલ</th><th>આ નંબર કોનો / સંબંધ</th><th>કોણ / કેસ</th><th>કંપની</th><th>છેલ્લું SMS</th><th>છેલ્લું લોકેશન</th><th></th></tr></thead><tbody>${SA.map(o=>{const l=lastOf(o.n);return `<tr class="${l.rep&&l.rep.gj?'gjrow':''}"><td>${noTag(o.n)}<b>${o.n}</b></td><td>${ownerTd(o.n)}</td><td>${who(o)}</td><td>${opSel(o)}</td><td>${sentTd(l)}${smsRun()&&SCHED_NEXT[o.n]?`<div><small class="muted">⏱️ આગલું: ${fmtDate(SCHED_NEXT[o.n])}</small></div>`:''}${smsRun()&&!smsTo(o.n)?'<div><small style="color:var(--bad)">કંપની પસંદ કરો</small></div>':''}</td><td>${repTd(l)}</td><td style="white-space:nowrap"><button class="btn sm" data-smap="${o.n}" title="આ નંબરનો નકશા પર રૂટ">🗺️</button> <button class="btn sm" data-send1="${o.n}" title="હમણાં એક વાર SMS">📤</button> <button class="btn sm danger" data-unsel="${o.n}" title="પસંદગીમાંથી કાઢો">✕</button></td></tr>`;}).join('')}</tbody></table></div>
+    ${(()=>{const R=smsLog.filter(e=>e.kind==='sent'&&!e.auto&&e.at>Date.now()-3*36e5&&smsSel.has(e.num));const q=R.filter(e=>e.status==='queued').length,f=R.filter(e=>/fail|err/.test(e.status||'')).length,g=R.filter(e=>e.status==='sent').length;return `<div class="occ" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">${R.length?`📊 છેલ્લા 3 કલાકમાં: <span class="tag ok">✅ ${GU_D(g)} ગયા</span>${q?`<span class="tag">⏳ ${GU_D(q)} મોકલાય છે</span>`:''}${f?`<span class="tag red">❌ ${GU_D(f)} નિષ્ફળ</span>`:''}`:'<span class="muted">📊 છેલ્લા 3 કલાકમાં SMS મોકલ્યા નથી</span>'}<button class="btn sm pri" data-recheck="1" title="Inbox માંથી રિપ્લાય ફરી વાંચી દરેક નંબરનું છેલ્લું અપડેટ બતાવે">🔄 ફરી તપાસો — છેલ્લું અપડેટ</button></div>`;})()}
     <div class="selfoot">
       <div class="sf1"><button class="btn pri" data-sendall="1" title="પસંદ કરેલા બધા નંબરને ફક્ત એક જ વાર SMS — સમય મુજબ નહીં">📤 એક વાર મોકલો</button><span class="muted" style="font-size:12.5px">બધાને ફક્ત એક જ વાર લોકેશન SMS</span></div>
       <div class="sf1 sfauto"><b>⏱️ બધાને દર</b> <input class="inp" type="number" min="1" id="smsAllMin" value="${+c.allMin||''}" placeholder="મિનિટ" style="width:84px;padding:5px 8px"> <b>મિનિટે</b>
         ${[[30,'30 મિ.'],[60,'1 કલાક'],[180,'3 કલાક'],[360,'6 કલાક'],[720,'12 કલાક'],[1440,'24 કલાક']].map(([m,l])=>`<button class="chip mchip ${+c.allMin===m?'on':''}" data-mset="${m}">${l}</button>`).join('')}</div>
       <div class="sf1">${smsRun()?`<button class="btn" data-autooff="1">⏸️ આપમેળે રોકો</button> <span class="tag ok">▶️ ચાલુ — દર ${minTxt(c.allMin)} • ${GU_D(SA.filter(o=>smsTo(o.n)).length)} નંબર</span>`:`<button class="btn pri" data-autoon="1">▶️ સમય મુજબ મોકલો</button> <span class="tag">⏸️ બંધ</span>`}${SA.some(o=>!smsTo(o.n))?` <span class="tag red">${GU_D(SA.filter(o=>!smsTo(o.n)).length)} નંબરની કંપની બાકી</span>`:''}${!NATIVE?' <small class="muted">(SMS મોબાઇલ એપમાંથી જશે)</small>':''}</div>
       <div class="sf1"><button class="btn sm danger" data-unselall="1">✕ બધી પસંદગી કાઢો</button></div></div>`:'<div class="empty">હજી કોઈ નંબર પસંદ નથી — ઉપરની યાદીમાંથી ✔ કરો અથવા શોધમાં આખો નંબર લખો</div>';
+  renderSmsAsked({who,repTd,L});
   const LG=smsLog.filter(e=>e.kind==='reply'&&(!smsLogGJ||e.gj)).slice().reverse();
-  $('#smsLog').innerHTML=LG.length?LG.map(e=>`<div class="mcard" style="--c:${e.gj?'#dc2626':'#64748b'}"><div class="mhead">${e.gj?'<span class="tag red">🚨 ગુજરાતમાં</span>':e.where==='out'?'<span class="tag" style="background:#dcfce7;color:#166534">ગુજરાત બહાર</span>':'<span class="tag">અજાણ</span>'}<b>${esc(e.num||'નંબર મળ્યો નથી')}</b>${e.name?`<small class="muted">${esc(e.name)}</small>`:''}<span style="margin-left:auto" class="muted">${fmtDate(e.at)}</span>${e.ll?`<button class="btn sm" data-smap="${esc(e.num||'')}" title="આ નંબરનો રૂટ">🗺️</button>`:''}<button class="btn sm danger" data-lgdel="${e.id}">✕</button></div>
+  $('#smsLog').innerHTML=LG.length?LG.map(e=>`<div class="mcard" style="--c:${e.gj?'#dc2626':e.where==='off'?'#d97706':'#64748b'}"><div class="mhead">${smsWhereTag(e)}<b>${esc(e.num||'નંબર મળ્યો નથી')}</b>${e.name?`<small class="muted">${esc(e.name)}</small>`:''}<span style="margin-left:auto" class="muted">${fmtDate(e.at)}</span>${e.ll?`<button class="btn sm" data-smap="${esc(e.num||'')}" title="આ નંબરનો રૂટ">🗺️</button>`:''}<button class="btn sm danger" data-lgdel="${e.id}">✕</button></div>
     ${e.loc||e.cgi||e.cell?`<div style="margin-top:4px">${e.loc?`📍 <b>${esc(e.loc)}</b>`:''} ${e.cgi?`<span class="tag">CGI ${esc(e.cgi)}</span>`:''}${e.lac?`<span class="tag">LAC ${esc(e.lac)}</span>`:''}${e.cell?`<span class="tag">Cell ID ${esc(e.cell)}</span>`:''}${e.ll?`<a class="tag ok" target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(e.ll)}">🗺️ નકશો</a>`:''}</div>`:''}
     <div class="occ" style="white-space:pre-wrap">${esc(e.text)}</div>${e.gjWhy?`<small class="muted">${e.gj?'ગુજરાત કારણ':'કારણ'}: ${esc(e.gjWhy)}</small>`:''}${e.mm?` <span class="tag">ટાવર ${esc(e.mm)}</span>`:''}</div>`).join(''):'<div class="empty">હજી કોઈ રિપ્લાય સેવ નથી.</div>';
 }
 let SCHED_NEXT={};
+function smsAskRows(L,incSel){L=L||smsNumbers();const NB=new Map(L.map(o=>[o.n,o]));const nm=n=>{const e=[...smsLog].reverse().find(x=>x.num===n&&x.name);return e?e.name:'';};
+  return [...smsAsked()].filter(n=>incSel||!smsSel.has(n)).map(n=>{const E=smsLog.filter(e=>e.num===n);const S=E.filter(e=>e.kind==='sent').sort((a,b)=>a.at-b.at);const Rp=E.filter(e=>e.kind==='reply').sort((a,b)=>a.at-b.at);
+    const rep=Rp[Rp.length-1];const k=!rep?'wait':rep.gj?'gj':rep.where||'unk';const o=NB.get(n)||{n,people:[{name:nm(n)||'—'}]};
+    return {n,o,no:smsNo(n),S,Rp,rep,k,ever:Rp.some(e=>e.gj),pts:Rp.filter(e=>e.ll).length,last:Math.max(0,...E.map(e=>e.at))};});}
+function renderSmsAsked({who,repTd,L}){const box=$('#smsAskBox');if(!box)return;const rg=smsAskRange();let A=smsAskRows(L,!!rg);
+  if(rg){A=A.map(x=>{const S=x.S.filter(e=>e.at>=rg.f&&e.at<=rg.t);const Rp=smsRpIn(x,rg);const rep=Rp[Rp.length-1];return {...x,S,Rp,rep,k:!rep?'wait':rep.gj?'gj':rep.where||'unk',ever:Rp.some(e=>e.gj),pts:Rp.filter(e=>e.ll).length};}).filter(x=>x.S.length||x.Rp.length);}
+  $('#smsAskN').textContent=GU_D(A.length);
+  {const fi=$('#smsAskFrom'),ti=$('#smsAskTo');const toL=t=>{const d=new Date(t-new Date().getTimezoneOffset()*6e4);return d.toISOString().slice(0,16);};if(document.activeElement!==fi)fi.value=smsAskFr?toL(smsAskFr):'';if(document.activeElement!==ti)ti.value=smsAskT?toL(smsAskT):'';
+    $('#smsAskDtInfo').innerHTML=rg?`<span class="tag" style="background:#fde68a;color:#78350f">📅 ${esc(fmtDate(rg.f))} → ${esc(fmtDate(rg.t))} • ${GU_D(A.length)} નંબર • ${GU_D(A.reduce((a,x)=>a+x.Rp.length,0))} જવાબ</span>`:'<span class="muted">બધી તારીખ</span>';}
+  const cnt=f=>A.filter(f).length;const FL=[['','બધા',()=>1],['gj','🚨 હાલ ગુજરાતમાં',x=>x.k==='gj'],['ever','🚨 ક્યારેક ગુજરાતમાં',x=>x.ever],['out','📍 બહાર',x=>x.k==='out'],['off','📴 બંધ',x=>x.k==='off'],['unk','📶 Cell ID / અજાણ',x=>x.k==='unk'],['wait','⏳ જવાબ નથી',x=>x.k==='wait']];
+  $('#smsAskF').innerHTML=FL.filter(([k,,f])=>!k||cnt(f)).map(([k,l,f])=>`<button data-askf="${k}" class="${smsAskF===k?'on':''}">${l} (${GU_D(cnt(f))})</button>`).join('');
+  const ff=(FL.find(x=>x[0]===smsAskF)||FL[0])[2];const q=compact(smsAskQ),qd=String(smsAskQ).replace(/\D/g,''),qh=/^#\s*\d+$/.test(String(smsAskQ).trim());
+  A=A.filter(ff).filter(x=>!smsAskQ||(qh?String(x.no)===qd:(qd&&x.n.includes(qd))||x.o.people.some(p=>compact(p.name||'').includes(q))||(qd&&String(x.no)===qd)));
+  A.sort(smsAskS==='new'?(a,b)=>b.last-a.last:smsAskS==='cnt'?(a,b)=>b.Rp.length-a.Rp.length||a.no-b.no:(a,b)=>a.no-b.no);
+  smsAskLast=A.map(x=>x.n);
+  const where=x=>x.Rp.length?x.Rp.slice().reverse().slice(0,6).map(e=>`<div style="font-size:12px;border-bottom:1px dashed var(--line);padding:2px 0">🕒 <b>${esc(fmtDate(e.at))}</b> ${smsWhereTag(e)}${e.ll?` <a target="_blank" rel="noopener" href="https://maps.google.com/?q=${encodeURIComponent(e.ll)}">🗺️ ${esc(e.ll)}</a>`:''}${smsCellTxt(e)?`<br><span style="font-family:monospace">📶 ${esc(smsCellTxt(e))}</span>`:''}${e.loc?`<br>🏠 ${esc(e.loc)}`:''}${!e.ll&&!e.loc&&!smsCellTxt(e)?`<br><span class="muted">📩 ${esc(String(e.text||'').slice(0,90))}</span>`:''}</div>`).join('')+(x.Rp.length>6?`<small class="muted">…બીજા ${GU_D(x.Rp.length-6)} — 📜 દબાવો</small>`:''):'<small class="muted">⏳ એ સમયમાં જવાબ આવ્યો નથી</small>';
+  box.innerHTML=A.length?`<table><thead><tr><th><input type="checkbox" id="smsAskAll" title="દેખાતા બધા"></th><th>#</th><th>મોબાઇલ</th><th>આ નંબર કોનો / સંબંધ</th><th>કોણ / કેસ</th><th>મંગાવેલ${rg?' (એ સમયમાં)':''}</th><th>પહેલું → છેલ્લું મંગાવેલ</th><th>${rg?'📍 એ સમયે ક્યાં હતા':'છેલ્લું લોકેશન'}</th><th></th></tr></thead><tbody>${A.slice(0,500).map(x=>{const l={sent:x.S[x.S.length-1],rep:x.rep};const f=x.S[0];
+    return `<tr class="${x.k==='gj'?'gjrow':''}"><td><input type="checkbox" data-asksel="${x.n}"></td><td><span class="tag" style="background:#1e3a8a;color:#fff;font-weight:800">#${GU_D(x.no)}</span></td><td><b>${x.n}</b>${smsSel.has(x.n)?'<br><span class="tag ok" style="font-size:11px">☑️ હાલ પસંદ</span>':''}</td><td>${ownerTd(x.n)}</td><td>${who(x.o)}</td>
+      <td style="font-size:12.5px;white-space:nowrap">📤 ${GU_D(x.S.length)} વાર<br>📩 ${GU_D(x.Rp.length)} જવાબ${x.pts?`<br>🧭 ${GU_D(x.pts)} લોકેશન`:''}${x.ever?'<br><span class="tag red">🚨 ગુજરાત આવેલ</span>':''}</td>
+      <td style="font-size:12.5px">${f?`${esc(fmtDate(f.at))}<br>→ <b>${esc(fmtDate(l.sent.at))}</b><br><small class="muted">(${agoTxt(l.sent.at)})</small>`:'<small class="muted">એ સમયમાં મંગાવ્યું નથી</small>'}</td><td style="min-width:220px">${rg?where(x):repTd(l)}</td>
+      <td style="white-space:nowrap">${smsSel.has(x.n)?'':`<button class="btn sm pri" data-askre="${x.n}" title="ફરી પસંદ કરેલામાં લો">↩ પસંદ</button> `}${x.pts?`<button class="btn sm" data-askmap="${x.n}" title="નકશા પર રૂટ${rg?' (એ સમયનો)':''}">🗺️</button> `:''}<button class="btn sm" data-askhis="${x.n}" title="બધા મેસેજ / છેલ્લું અપડેટ">📜</button> <button class="btn sm danger" data-askdel="${x.n}" title="આ નંબરનો SMS લોગ કાઢો">🗑️</button></td></tr>`;}).join('')}</tbody></table>${A.length>500?'<div class="muted" style="padding:6px">પહેલા 500 બતાવ્યા — શોધ વાપરો</div>':''}`
+    :`<div class="empty">${rg?'📅 આ સમયમાં કોઈ નંબરનું લોકેશન મંગાવેલ નથી':smsAskQ||smsAskF?'આ શોધ / ફિલ્ટરમાં કોઈ નંબર નથી':'હજી કોઈ નંબર અહીં નથી — "પસંદ કરેલા" માંથી ✕ કરેલા અને પહેલાં મંગાવેલ નંબર અહીં આવશે'}</div>`;}
+/* નંબરનો માલિક અને સંબંધ (અન્ય વ્યક્તિમાં લખેલ "સંબંધ", આરોપીની ભૂમિકા) */
+function ownerTd(n){try{buildNet();const id='v:phone|'+n;if(!NET.nodes.has(id))return `<span class="muted" style="font-size:12.5px">માલિક અજાણ</span> <button class="btn sm" data-nact="edit" data-id="${esc(id)}" style="padding:1px 6px" title="કોનો છે તે ઉમેરો">✏️</button>`;
+  const O=ownersOf(id);if(!O.length)return `<span class="muted" style="font-size:12.5px">માલિક અજાણ</span> <button class="btn sm" data-nact="edit" data-id="${esc(id)}" style="padding:1px 6px" title="કોનો છે તે ઉમેરો">✏️</button>`;
+  return O.slice(0,3).map(t=>{let rel='';if(t.kind==='other')rel=(t.o&&t.o.rel)||'અન્ય વ્યક્તિ';else rel=[t.kind==='acc'?'પકડાયેલ આરોપી':'બાકી આરોપી',...((t.p&&t.p.role)||[])].join(', ');
+    return `<div><b class="cv" data-nn="${esc(t.id)}">${esc(t.label)}</b>${rel?`<br><span class="tag" style="background:#eef4fb;color:#0f5fa8;font-size:11.5px">${esc(rel)}</span>`:''}</div>`;}).join('')+(O.length>3?`<small class="muted">…${GU_D(O.length-3)}</small>`:'');}catch(e){return '—';}}
 /* પહેલાં પસંદ કરેલ નંબર: છેલ્લે ક્યારે લોકેશન મંગાવેલ અને છેલ્લું લોકેશન ક્યારે આવેલ */
 const agoTxt=t=>{const d=Date.now()-t;if(d<36e5)return GU_D(Math.max(1,Math.round(d/6e4)))+' મિનિટ પહેલાં';if(d<864e5)return GU_D(Math.round(d/36e5))+' કલાક પહેલાં';return GU_D(Math.round(d/864e5))+' દિવસ પહેલાં';};
 function lastAsk(n){const l=lastOf(n);if(!l.sent&&!l.rep)return '<small class="muted">— ક્યારેય નહીં</small>';
   return (l.sent?`<div style="font-size:12.5px">📤 <b>${esc(fmtDate(l.sent.at))}</b> <small class="muted">(${agoTxt(l.sent.at)})</small></div>`:'')+
-    (l.rep?`<div style="font-size:12.5px">${l.rep.gj?'🚨':'📍'} ${esc(fmtDate(l.rep.at))} ${l.rep.ll?`<a href="#" data-smap="${esc(n)}">🗺️</a>`:''} <small class="muted">${l.rep.gj?'ગુજરાતમાં':l.rep.where==='out'?'ગુજરાત બહાર':''}</small></div>`:'<div style="font-size:12px" class="muted">📍 લોકેશન આવ્યું નથી</div>');}
+    (l.rep?`<div style="font-size:12.5px">${l.rep.gj?'🚨':l.rep.where==='off'?'📴':'📍'} ${esc(fmtDate(l.rep.at))} ${l.rep.ll?`<a href="#" data-smap="${esc(n)}">🗺️</a>`:''} <small class="muted">${esc(smsWhereTag(l.rep,1).replace(/^\S+\s/,''))}</small>${smsCellTxt(l.rep)?`<br><small style="font-family:monospace">${esc(smsCellTxt(l.rep))}</small>`:''}</div>`:'<div style="font-size:12px" class="muted">📍 લોકેશન આવ્યું નથી</div>');}
 function smsStateHTML(){const c=smsCfg();const on=smsOn();const b=$('#smsOnOff');if(b){b.textContent=on?'⏸️ SMS તપાસ બંધ કરો':'▶️ SMS તપાસ ચાલુ કરો';b.className='btn '+(on?'danger':'pri');}
   const senders=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(x=>String(x).trim()).filter(Boolean));const nEv=smsRun()?smsSel.size:0;
   const el=$('#smsState');if(!el)return;
@@ -2217,6 +2305,53 @@ const minTxt=m=>{m=+m||0;return m>=60&&m%60===0?GU_D(m/60)+' કલાકે':GU
 function smsPushSchedule(){const c=smsCfg();const items=(smsRun()?[...smsSel]:[]).map(n=>({num:n,to:smsTo(n),body:smsBody(n),every:+c.allMin})).filter(x=>x.to);
   if(!NATIVE)return items;try{AndroidSMS.setSchedule(JSON.stringify(items),+c.subId||0);}catch(_){}smsReadSchedule();return items;}
 function smsReadSchedule(){if(!NATIVE)return;try{const a=JSON.parse(AndroidSMS.getSchedule()||'[]');SCHED_NEXT={};a.forEach(x=>SCHED_NEXT[x.num]=x.next);}catch(_){}try{SCHED_EXACT=AndroidSMS.canExact()==='1';}catch(_){SCHED_EXACT=true;}}
+function smsPullStatus(){if(!NATIVE||typeof AndroidSMS.takeStatusLog!=='function')return;let a=[];try{a=JSON.parse(AndroidSMS.takeStatusLog()||'[]');}catch(_){}let ch=false;for(const x of a)if(applySmsStatus(x.num,x.st,x.err,x.ts))ch=true;if(ch)smsStatusSoon();}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)try{smsPullStatus();window.onSchedSent&&window.onSchedSent();}catch(_){}});
+/* 🔄 ફોનના Sent / Failed SMS વાંચી "⏳ મોકલાય છે" વાળાની સાચી સ્થિતિ */
+async function smsRecheck(){
+  let sentOk=0,sentBad=0,added=0,note='';
+  if(NATIVE&&typeof AndroidSMS.readInbox==='function'){
+    if(AndroidSMS.ready()!=='1'){if(confirm('📩 Inbox / Sent SMS ફરી વાંચવા માટે "SMS વાંચવાની" મંજૂરી જોઈએ.\n\nOK દબાવી આવતા બોક્ષમાં "Allow" દબાવો, પછી ફરી "🔄 ફરી તપાસો" દબાવો.'))AndroidSMS.requestPerms();return;}
+    toast('🔄 Inbox માંથી રિપ્લાય ફરી વાંચાય છે…','ok',2500);await new Promise(r=>setTimeout(r,30));
+    try{smsPullStatus();}catch(_){}
+    /* ① મોકલેલા SMS ની સ્થિતિ (Sent box) */
+    const Q=smsLog.filter(e=>e.kind==='sent'&&e.status!=='sent'&&e.at>Date.now()-7*864e5);
+    if(Q.length&&typeof AndroidSMS.readSentBox==='function'){let box=[];try{box=JSON.parse(AndroidSMS.readSentBox(String(Math.min(...Q.map(e=>e.at))-120000))||'[]');}catch(_){}
+      const N=x=>String(x||'').replace(/\D/g,'').slice(-10);const used=new Set();
+      for(const e of Q){const to=N(e.to);const m=box.find((b,i)=>!used.has(i)&&(N(b.to)===to||String(b.to).replace(/\s/g,'')===String(e.to||'').replace(/\s/g,''))&&String(b.body||'').includes(e.num)&&Math.abs(b.date-e.at)<30*60e3&&(used.add(i),true));
+        if(m){const st=m.type==='failed'?'failed':m.type==='sent'?'sent':'queued';if(applySmsStatus(e.num,st,m.type)){st==='sent'?sentOk++:st==='failed'?sentBad++:0;}}}
+      smsStatusSoon();}
+    /* ② Inbox ફરી વાંચો — ફોન બંધ / Cell ID વાળા રિપ્લાય પણ */
+    if(smsOn()){const W=smsWatched();const S=smsLog.filter(e=>e.kind==='sent'&&W.has(e.num)).map(e=>e.at);const since=(S.length?Math.min(...S.filter(t=>t>Date.now()-7*864e5).concat([Date.now()-864e5])):Date.now()-3*864e5)-60000;
+      let a=[];try{a=JSON.parse(AndroidSMS.readInbox(String(since))||'[]');}catch(_){}
+      for(const m of a){const r=await smsAddReply(m.body||'',true,m);if(r)added++;}}
+    else note='🔴 SMS તપાસ બંધ છે — Inbox ના નવા રિપ્લાય સેવ થયા નથી; નીચે સેવ થયેલું છેલ્લું અપડેટ છે.';
+  }else note=NATIVE?'આ માટે નવી APK જોઈએ — નીચે સેવ થયેલું છેલ્લું અપડેટ છે.':'🌐 વેબ પર Inbox વંચાતું નથી — મોબાઇલમાંથી ઓનલાઇન આવેલું છેલ્લું અપડેટ નીચે છે.';
+  smsLastUpdateModal({sentOk,sentBad,added,note});}
+function smsLastUpdateModal(r,only){r=r||{};const W=smsWatched();const nums=only||uniq([...smsSel,...W]);const NB=new Map(smsNumbers().map(o=>[o.n,o]));
+  const rows=nums.map(n=>{const L=smsLog.filter(e=>e.num===n);const sent=L.filter(e=>e.kind==='sent').sort((a,b)=>b.at-a.at)[0];const reps=L.filter(e=>e.kind==='reply').sort((a,b)=>b.at-a.at);const rep=reps[0];
+    const k=!rep?(sent?'wait':'none'):rep.gj?'gj':rep.where||'unk';return {n,sent,rep,reps,k,o:NB.get(n)};});
+  const ord={gj:0,off:1,out:2,unk:3,wait:4,none:5};rows.sort((a,b)=>(ord[a.k]-ord[b.k])||((b.rep||b.sent||{at:0}).at-(a.rep||a.sent||{at:0}).at));
+  const cnt=k=>rows.filter(x=>x.k===k).length;const lastLocOf=x=>x.reps.find(e=>e.ll||e.cgi||e.cell);
+  const card=x=>{const e=x.rep;const own=x.o&&x.o.people&&x.o.people[0]?x.o.people[0].name:'';
+    const st=e?smsWhereTag(e):x.sent?'<span class="tag" style="background:#e0e7ff;color:#3730a3">⏳ જવાબ આવ્યો નથી</span>':'<span class="tag">— SMS મોકલ્યો નથી</span>';
+    const sentTxt=x.sent?`📤 છેલ્લે મંગાવેલ: <b>${esc(fmtDate(x.sent.at))}</b> <small class="muted">(${agoTxt(x.sent.at)})</small> ${x.sent.status==='sent'?'<span class="tag ok">✅ ગયો</span>':/fail|err/.test(x.sent.status||'')?'<span class="tag red">❌ નિષ્ફળ</span>':x.sent.status==='queued'?'<span class="tag">⏳ મોકલાય છે</span>':''}`:'';
+    const prev=e&&!(e.ll||e.cgi||e.cell)?lastLocOf(x):null;
+    return `<div class="mcard" style="--c:${e&&e.gj?'#dc2626':e&&e.where==='off'?'#d97706':'#64748b'};margin-bottom:8px"><div class="mhead">${st}${noTag(x.n)}<b>${esc(x.n)}</b>${own?`<small class="muted">${esc(own)}</small>`:''}<span style="margin-left:auto" class="muted">${e?esc(fmtDate(e.at))+' <small>('+agoTxt(e.at)+')</small>':''}</span>${x.reps.some(z=>z.ll)?`<button class="btn sm" data-smap="${esc(x.n)}" title="રૂટ">🗺️</button>`:''}</div>
+      <div style="font-size:12.5px;margin:4px 0">${sentTxt}</div>
+      ${e?`${smsCellTxt(e)?`<div style="font-size:13px">📶 <b style="font-family:monospace">${esc(smsCellTxt(e))}</b>${e.mm?` <small class="muted">(ટાવર ${esc(e.mm)})</small>`:''}</div>`:''}
+        ${e.ll?`<div style="font-size:13px">🧭 Lat/Long: <b>${esc(e.ll)}</b> <a href="https://www.google.com/maps?q=${encodeURIComponent(e.ll)}" target="_blank" rel="noopener">Google Map</a></div>`:''}
+        ${e.loc?`<div style="font-size:13px">🏠 ${esc(e.loc)}</div>`:''}
+        ${e.gjWhy?`<div style="font-size:12px" class="muted">કારણ: ${esc(e.gjWhy)}</div>`:''}
+        <div class="occ" style="white-space:pre-wrap;font-size:12.5px;margin-top:4px">📩 ${esc(e.text||'')}</div>
+        ${prev?`<div style="font-size:12px;margin-top:4px" class="muted">📍 આ પહેલાનું છેલ્લું લોકેશન: ${esc(fmtDate(prev.at))} — ${esc(smsWhereTag(prev,1))}${smsCellTxt(prev)?' — '+esc(smsCellTxt(prev)):''}${prev.ll?' — '+esc(prev.ll):''}</div>`:''}
+        ${x.reps.length>1?`<details style="margin-top:4px" ${only&&only.length===1?'open':''}><summary style="font-size:12px;cursor:pointer">🕘 આગળના ${GU_D(x.reps.length-1)} મેસેજ</summary>${x.reps.slice(1,only?200:11).map(z=>`<div style="font-size:12px;border-top:1px dashed var(--line);padding:3px 0">${esc(fmtDate(z.at))} — ${esc(smsWhereTag(z,1))}${smsCellTxt(z)?' — '+esc(smsCellTxt(z)):''}<br><span class="muted" style="white-space:pre-wrap">${esc(z.text||'')}</span></div>`).join('')}</details>`:''}`
+       :'<div class="muted" style="font-size:12.5px">કંપનીનો કોઈ મેસેજ હજી આવ્યો નથી.</div>'}</div>`;};
+  const sum=`<div class="row gap" style="flex-wrap:wrap;margin:6px 0">${[['gj','🚨 ગુજરાતમાં'],['off','📴 ફોન બંધ'],['out','📍 ગુજરાત બહાર'],['unk','📶 Cell ID / અજાણ'],['wait','⏳ જવાબ નથી'],['none','— મોકલ્યો નથી']].filter(([k])=>cnt(k)).map(([k,l])=>`<button class="btn sm" data-luf="${k}">${l}: <b>${GU_D(cnt(k))}</b></button>`).join('')}<button class="btn sm" data-luf="">બધા (${GU_D(rows.length)})</button></div>`;
+  const info=[r.added?`📥 Inbox માંથી <b>${GU_D(r.added)}</b> નવા મેસેજ ઉમેર્યા`:(NATIVE&&!r.note&&!r.hist?'📥 Inbox માં નવો મેસેજ નથી — છેલ્લું સેવ થયેલું બતાવ્યું છે':''),r.sentOk?`✅ ${GU_D(r.sentOk)} SMS ગયા`:'',r.sentBad?`❌ ${GU_D(r.sentBad)} નિષ્ફળ`:'',r.note||''].filter(Boolean).join(' • ');
+  const ov=openModal(`<h2>${only?(only.length===1?`📜 ${noTag(only[0])}${esc(only[0])} — બધા મેસેજ`:`📜 નંબર (${GU_D(rows.length)})`):`🔄 છેલ્લું અપડેટ — પસંદ કરેલ નંબર (${GU_D(rows.length)})`}</h2>${info?`<div class="occ" style="font-size:13px">${info}</div>`:''}${sum}<div id="luList">${rows.length?rows.map(x=>`<div data-luk="${x.k}">${card(x)}</div>`).join(''):'<div class="empty">કોઈ નંબર પસંદ કરેલ નથી</div>'}</div>`);
+  ov.addEventListener('click',ev=>{const f=ev.target.closest('[data-luf]');if(f){ov.querySelectorAll('[data-luk]').forEach(d=>d.style.display=!f.dataset.luf||d.dataset.luk===f.dataset.luf?'':'none');return;}});
+  if($('#tab-sms').classList.contains('on'))renderSms();}
 window.onSchedSent=()=>{if(!NATIVE)return;let a=[];try{a=JSON.parse(AndroidSMS.takeSentLog()||'[]');}catch(_){}for(const x of a)smsLog.push({id:uid(),kind:'sent',num:x.num,at:x.ts,to:x.to,text:x.body,status:x.ok?'sent':'error',auto:true,err:x.err||''});if(a.length){smsSave();}smsReadSchedule();if($('#tab-sms').classList.contains('on'))renderSms();};
 function smsBody(n){const c=smsCfg();const op=c.ops[n]||'other';return (c.tpl[op]||c.tpl.other||'{NUM}').replace(/\{NUM\}/g,n);}
 function smsTo(n){const c=smsCfg();const op=c.ops[n]||'other';return (c.to[op]||c.to.other||'').replace(/\s/g,'');}
@@ -2238,13 +2373,32 @@ function smsSendQueue(only){
     ov.querySelector('#sqGo').addEventListener('click',()=>{smsLog.push({id:uid(),kind:'sent',num:n,at:Date.now(),to:smsTo(n),text:smsBody(n)});smsSave();});};
   draw();ov.addEventListener('click',e=>{const b=e.target.closest('[data-sq]');if(!b)return;i++;draw();renderSms();});
 }
+const SMS_OFF_RE=/SWITCH(?:ED)?[\s_-]*OFF|POWER(?:ED)?[\s_-]*OFF|NOT[\s_-]*REACHABLE|UNREACHABLE|OUT[\s_-]*OF[\s_-]*(?:COVERAGE|SERVICE|NETWORK|RANGE)|NO[\s_-]*(?:NETWORK|COVERAGE|SIGNAL)|ABSENT[\s_-]*SUBSCRIBER|SUBSCRIBER[\s_-]*(?:ABSENT|NOT[\s_-]*AVAILABLE|UNAVAILABLE|DETACHED)|DETACHED|IMSI[\s_-]*DETACH|NOT[\s_-]*(?:REGISTERED|ATTACHED|IN[\s_-]*NETWORK)|PHONE[\s_-]*(?:IS[\s_-]*)?OFF|HANDSET[\s_-]*OFF|DEVICE[\s_-]*OFF|INACTIVE|NOT[\s_-]*ACTIVE|LOCATION[\s_-]*NOT[\s_-]*(?:FOUND|AVAILABLE)|UNABLE[\s_-]*TO[\s_-]*(?:LOCATE|FIND|FETCH)|NO[\s_-]*(?:LOCATION|DATA|RECORD)[\s_-]*(?:FOUND|AVAILABLE)?|સ્વિચ\s*ઓફ|સ્વીચ\s*ઓફ|બંધ\s*છે|પહોંચની\s*બહાર/i;
+function smsWhereTag(e,plain){const k=e.gj?'gj':e.where||'unk';const L={gj:'🚨 ગુજરાતમાં',out:'📍 ગુજરાત બહાર',off:'📴 ફોન બંધ / પહોંચ બહાર',unk:(e.cell||e.cgi)?'📶 ફક્ત Cell ID':'❓ અજાણ'}[k]||'❓ અજાણ';
+  if(plain)return L;const st={gj:'class="tag red"',out:'class="tag" style="background:#dcfce7;color:#166534"',off:'class="tag" style="background:#fde68a;color:#78350f"'}[k]||'class="tag"';return `<span ${st}>${L}</span>`;}
+function smsCellTxt(e){return [e.cgi?'CGI '+e.cgi:'',e.cell&&!e.cgi?'Cell ID '+e.cell:'',e.lac?'LAC '+e.lac:''].filter(Boolean).join(' • ');}
+/* દરેક મંગાવેલ નંબરનો કાયમી ક્રમ (#) — પહેલી વાર મંગાવ્યા મુજબ; નકશા અને યાદીમાં એ જ */
+let smsNoSig='',smsNoMap={};
+function smsSerialMap(){const sig=smsLog.length+'|'+(smsLog.length?smsLog[smsLog.length-1].id:'');if(sig===smsNoSig)return smsNoMap;
+  const c=smsCfg();c.serial=c.serial||{};let mx=Math.max(0,...Object.values(c.serial).map(Number).filter(isFinite));const first=new Map();
+  for(const e of smsLog){if((e.kind==='sent'||e.kind==='reply')&&/^\d{10}$/.test(e.num||'')){const t=first.get(e.num);if(t===undefined||e.at<t)first.set(e.num,e.at);}}
+  const nw=[...first].filter(([n])=>!c.serial[n]).sort((a,b)=>a[1]-b[1]);if(nw.length){nw.forEach(([n])=>c.serial[n]=++mx);setTimeout(saveSettings,50);}
+  smsNoSig=sig;smsNoMap=c.serial;smsAskedSet=new Set(first.keys());return smsNoMap;}
+let smsAskedSet=new Set();
+const smsNo=n=>smsSerialMap()[n]||0;
+const smsAsked=()=>{smsSerialMap();return smsAskedSet;};
+const noTag=n=>{const k=smsNo(n);return k?`<span class="tag" style="background:#1e3a8a;color:#fff;font-weight:800;padding:1px 7px">#${GU_D(k)}</span> `:'';};
+let smsAskQ='',smsAskF='',smsAskS='no',smsAskFr=0,smsAskT=0,smsAskLast=[];
+/* એ સમયના જવાબ: સમયની અંદર + છેલ્લી મંગણીનો 2 કલાકમાં આવેલ જવાબ (પછીની નવી મંગણીનો નહીં) */
+const smsRpIn=(x,rg)=>x.Rp.filter(e=>e.at>=rg.f&&(e.at<=rg.t||(e.at<=rg.t+2*36e5&&!x.S.some(z=>z.at>rg.t&&z.at<e.at))));
+const smsAskRange=()=>smsAskFr||smsAskT?{f:smsAskFr||0,t:smsAskT||Date.now()}:null;
 function parseReply(text){
   const c=smsCfg();const t=String(text||'');const T=t.toUpperCase();
   const nums=uniq((t.match(/(?<!\d)(?:\+?91[\s-]?)?([6-9]\d{9})(?!\d)/g)||[]).map(x=>x.replace(/\D/g,'').slice(-10)));
   const known=new Set(smsNumbers().map(o=>o.n));const sent=new Set(smsLog.filter(e=>e.kind==='sent').map(e=>e.num));
   const W=smsWatched();const num=nums.find(n=>W.has(n))||nums.find(n=>sent.has(n))||nums.find(n=>known.has(n))||nums[0]||'';
   /* IMSI / IMEI / MSISDN લાઇન લોકેશન નથી — તે કાઢીને જ CGI શોધો (IMSI = સિમ કયા સર્કલનું છે, ફોન ક્યાં છે તે નહીં) */
-  const tl=t.split(/\n/).filter(l=>!/^\s*(IMSI|IMEI|MSISDN|REQ(UEST)?\s*ID)/i.test(l)).join('\n');
+  const tl=t.replace(/\b(IMSI|IMEI|MSISDN|MOBILE\s*NO|REQ(?:UEST)?\s*ID)\b\s*[:\-#=.]?\s*[0-9A-F\-]{6,20}/gi,' ');
   const cgiM=tl.match(/\b(40[45])[\s\-\/]*(\d{2,3})[\s\-\/]*(\d{1,6})[\s\-\/]*(\d{1,9})\b/);
   const cgi=cgiM?`${cgiM[1]}-${cgiM[2]}-${cgiM[3]}-${cgiM[4]}`:((tl.match(/CGI\s*[:\-]?\s*([\d\-\s]{8,30})/i)||[])[1]||'').trim();
   const lac=(t.match(/LAC\s*[:\-]?\s*(\w+)/i)||[])[1]||'';const cell=(tl.match(/(?:CELL\s*ID|CELLID|\bCI)\s*[:\-]?\s*(\w+)/i)||[])[1]||'';
@@ -2259,13 +2413,14 @@ function parseReply(text){
   if(!gj&&where!=='out'&&mm){const N=x=>x.replace(/\D/g,'');const hit=codes.find(k=>N(k)&&N(mm)===N(k));if(hit){gj=true;why='ટાવર MCC-MNC '+mm+' (ગુજરાત)';where='gj';}}
   if(!gj&&where!=='out'&&cgi){const cc=cgi.replace(/\s/g,'');const hit=codes.find(k=>cc.startsWith(k));if(hit){gj=true;why='MCC-MNC '+hit;where='gj';}}
   if(!gj&&where!=='out'){const keys=String(c.gjKeys||'').split(',').map(x=>x.trim()).filter(Boolean);const hit=keys.find(k=>{const K=k.toUpperCase();return /^[A-Z ]+$/.test(K)?new RegExp('\\b'+K.replace(/\s+/g,'\\s*')+'\\b').test(T):t.includes(k);});if(hit){gj=true;why='શબ્દ: '+hit;where='gj';}}
+  const off=SMS_OFF_RE.test(t)&&!ll;if(off&&where==='unk'){where='off';why=why||'ફોન બંધ / પહોંચની બહાર';}
   const who=num?(smsNumbers().find(o=>o.n===num)||{people:[]}).people[0]:null;
-  return {num,cgi,lac,cell,ll,loc,gj,gjWhy:why,where,mm,name:who?who.name:''};
+  return {num,cgi,lac,cell,ll,loc,gj,gjWhy:why,where,mm,off,name:who?who.name:''};
 }
 /* કાઢેલા મેસેજ ફરી ન આવે: તેની ઓળખ (hash) યાદ રાખો */
 function smsHash(t){t=String(t||'').replace(/\s+/g,' ').trim().slice(0,400);let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return (h>>>0).toString(36)+'.'+t.length;}
 function smsForget(list){const c=smsCfg();const g=new Set(c.gone||[]);for(const e of list)if(e&&e.text)g.add(smsHash(e.text));c.gone=[...g].slice(-4000);saveSettings();}
-function isAckSms(t,p){t=String(t||'');p=p||parseReply(t);if(p.ll||p.cell||p.cgi||p.lac||p.loc)return false;return /RECEIVED\s*REQUEST|REQUEST\s*(ID|RECEIVED|ACCEPTED|REGISTERED)|REQ\s*ID|WILL\s*BE\s*(SENT|PROCESSED)|UNDER\s*PROCESS/i.test(t);}
+function isAckSms(t,p){t=String(t||'');p=p||parseReply(t);if(p.ll||p.cell||p.cgi||p.lac||p.loc||p.off)return false;return /RECEIVED\s*REQUEST|REQUEST\s*(ID|RECEIVED|ACCEPTED|REGISTERED)|REQ\s*ID|WILL\s*BE\s*(SENT|PROCESSED)|UNDER\s*PROCESS/i.test(t);}
 function smsSenderOK(from){const c=smsCfg();const N=x=>String(x||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const f=N(from);if(!f)return false;
   const ks=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(N).filter(k=>k.length>=3));
   return ks.some(k=>/^\d+$/.test(k)?(f===k||f.endsWith(k)&&f.length-k.length<=3):(f===k||f.includes(k)));}
@@ -2279,7 +2434,7 @@ async function smsAddReply(text,silent,meta){
     const W=smsWatched();const nums=uniq((String(text).match(/(?<!\d)(?:\+?91[\s-]?)?([6-9]\d{9})(?!\d)/g)||[]).map(x=>x.replace(/\D/g,'').slice(-10)));
     if(nums.length){if(!nums.some(n=>W.has(n)))return null;}
     else{/* નંબર વગરનો રિપ્લાય: એ જ કંપનીને 2 કલાકમાં મોકલેલા છેલ્લા નંબરનો ગણો */
-      const lim=Date.now()-2*3600e3;const last=[...smsLog].reverse().find(e=>e.kind==='sent'&&e.at>lim&&W.has(e.num));if(!last)return null;text=String(text)+'\n['+last.num+']';}}
+      const ts=+meta.ts||Date.now();const lim=ts-2*3600e3;const last=[...smsLog].reverse().find(e=>e.kind==='sent'&&e.at>lim&&e.at<=ts+60000&&W.has(e.num));if(!last)return null;text=String(text)+'\n['+last.num+']';}}
   const p=parseReply(text);
   /* "Received Request for … Request ID …" જેવી ફક્ત સ્વીકૃતિ — લોકેશન નથી, સેવ ન કરો */
   if(isAckSms(text,p))return null;
@@ -2343,6 +2498,25 @@ function smsEvents(){
     const nb=e.target.closest('[data-smsnew]');if(nb){const n=nb.dataset.smsnew;const nm=prompt('નામ (ઇચ્છા હોય તો)')||'';smsLog.push({id:uid(),kind:'manualnum',manual:true,num:n,name:nm,at:Date.now(),text:''});smsSave();smsSel.add(n);smsQ='';$('#smsQ').value='';renderSms();toast(`➕ ${n} ઉમેર્યો અને પસંદ કર્યો`,'ok');return;}
     const db=e.target.closest('[data-smsdel]');if(db){const n=db.dataset.smsdel;if(!confirm(`${n} — ઉમેરેલો નંબર કાઢી નાખવો છે?\n(તેનું આપમેળે SMS પણ બંધ થશે; જૂના રિપ્લાય લોગમાં રહેશે)`))return;
       smsLog=smsLog.filter(x=>!(x.manual&&x.num===n));smsSel.delete(n);const c=smsCfg();if(c.every)delete c.every[n];delete c.ops[n];saveSettings();smsSave();smsPushSchedule();renderSms();toast('🗑️ નંબર કાઢી નાખ્યો','ok');}});
+  $('#smsAskQ').addEventListener('input',e=>{smsAskQ=e.target.value;renderSms();});
+  $('#smsAskS').onchange=e=>{smsAskS=e.target.value;renderSms();};
+  $('#smsAskF').addEventListener('click',e=>{const b=e.target.closest('[data-askf]');if(b){smsAskF=b.dataset.askf;renderSms();}});
+  $('#smsAskMap').onclick=()=>{const rg=smsAskRange();smsMap(null,rg?{nums:smsAskLast,from:rg.f,to:rg.t,pad:2*36e5}:{nums:smsAskLast});};
+  const dtv=id=>{const v=$(id).value;return v?new Date(v).getTime():0;};
+  $('#smsAskFrom').onchange=()=>{smsAskFr=dtv('#smsAskFrom');renderSms();};$('#smsAskTo').onchange=()=>{smsAskT=dtv('#smsAskTo');renderSms();};
+  $('#smsAskDt').addEventListener('click',e=>{const b=e.target.closest('[data-askd]');if(!b)return;const k=b.dataset.askd;const d0=new Date();d0.setHours(0,0,0,0);const t0=d0.getTime();
+    if(k==='clr'){smsAskFr=smsAskT=0;}else if(k==='today'){smsAskFr=t0;smsAskT=t0+864e5-1;}else if(k==='yest'){smsAskFr=t0-864e5;smsAskT=t0-1;}else{smsAskFr=t0-(+k-1)*864e5;smsAskT=t0+864e5-1;}renderSms();});
+  $('#smsAskRe').onclick=()=>{const L=[...document.querySelectorAll('#smsAskBox [data-asksel]:checked')].map(x=>x.dataset.asksel);if(!L.length){toast('પહેલાં યાદીમાં ☑️ કરો','err');return;}L.forEach(n=>smsSel.add(n));smsSaveSel();renderSms();toast(`↩ ${GU_D(L.length)} નંબર ફરી "પસંદ કરેલા" માં`,'ok');};
+  $('#smsAskXls').onclick=()=>{const rg=smsAskRange();let XS=smsAskRows(null,!!rg);if(rg)XS=XS.map(x=>{const S=x.S.filter(e=>e.at>=rg.f&&e.at<=rg.t);const Rp=smsRpIn(x,rg);return {...x,S,Rp,rep:Rp[Rp.length-1],ever:Rp.some(e=>e.gj),pts:Rp.filter(e=>e.ll).length};}).filter(x=>x.S.length||x.Rp.length);
+    const rows=XS.sort((a,b)=>a.no-b.no).map(x=>({'ક્રમ':x.no,'મોબાઇલ':x.n,'કોણ':x.o.people.map(p=>p.name).filter(Boolean).join(', '),'મંગાવેલ (વાર)':x.S.length,'જવાબ':x.Rp.length,'લોકેશન (Lat/Long)':x.pts,'ક્યારેક ગુજરાતમાં':x.ever?'હા':'','પહેલું મંગાવેલ':x.S[0]?fmtDate(x.S[0].at):'','છેલ્લું મંગાવેલ':x.S.length?fmtDate(x.S[x.S.length-1].at):'','છેલ્લો જવાબ':x.rep?fmtDate(x.rep.at):'','છેલ્લી સ્થિતિ':x.rep?smsWhereTag(x.rep,1):'જવાબ નથી','CGI / Cell ID':x.rep?smsCellTxt(x.rep):'','Lat,Long':x.rep?x.rep.ll||'':'','છેલ્લો મેસેજ':x.rep?x.rep.text:'','બધા લોકેશન (સમય — સ્થિતિ — સ્થળ)':x.Rp.map(e=>fmtDate(e.at)+' — '+smsWhereTag(e,1)+(e.ll?' — '+e.ll:'')+(smsCellTxt(e)?' — '+smsCellTxt(e):'')).join('\n')}));
+    if(!rows.length){toast('યાદી ખાલી છે','err');return;}const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'મંગાવેલ નંબર');XLSX.writeFile(wb,`vyuhrachna-mangavel-number-${new Date().toISOString().slice(0,10)}.xlsx`);};
+  $('#smsAskBox').addEventListener('change',e=>{if(e.target.id==='smsAskAll')document.querySelectorAll('#smsAskBox [data-asksel]').forEach(x=>x.checked=e.target.checked);});
+  $('#smsAskBox').addEventListener('click',e=>{const r=e.target.closest('[data-askre]');if(r){smsSel.add(r.dataset.askre);smsSaveSel();renderSms();toast(`↩ ${r.dataset.askre} ફરી પસંદ કરેલામાં`,'ok',2500);return;}
+    const am=e.target.closest('[data-askmap]');if(am){const rg=smsAskRange();smsMap(am.dataset.askmap,rg?{nums:[am.dataset.askmap],from:rg.f,to:rg.t,pad:2*36e5}:null);return;}
+    const h=e.target.closest('[data-askhis]');if(h){smsLastUpdateModal({hist:1},[h.dataset.askhis]);return;}
+    const d=e.target.closest('[data-askdel]');if(d){const n=d.dataset.askdel;const E=smsLog.filter(x=>x.num===n&&(x.kind==='sent'||x.kind==='reply'));
+      if(!confirm(`${n} — આ નંબરનો આખો SMS લોગ (${E.length} મેસેજ) કાઢી નાખવો છે?\n\nનંબર પાછો "① નંબર પસંદ કરો" માં જશે. કાઢેલા જવાબ ફરી Inbox માંથી નહીં આવે.`))return;
+      smsForget(E.filter(x=>x.kind==='reply'));const ids=new Set(E.map(x=>x.id));smsLog=smsLog.filter(x=>!ids.has(x.id));const c=smsCfg();if(c.serial)delete c.serial[n];saveSettings();smsSave();renderSms();toast(`🗑️ ${n} નો લોગ કાઢ્યો`,'ok');}});
   $('#smsWant').onclick=()=>{smsSel=new Set(smsNumbers().filter(o=>o.people.some(p=>p.g==='want')).map(o=>o.n));renderSms();};
   $('#smsClr').onclick=()=>{smsSel.clear();renderSms();};
   document.addEventListener('click',e=>{if(!e.target.closest('#smsSelBox'))return;const u=e.target.closest('[data-unsel]');if(u){smsSel.delete(u.dataset.unsel);renderSms();return;}
@@ -2353,6 +2527,7 @@ function smsEvents(){
       toast(`▶️ ${GU_D(smsSel.size-miss)} નંબરને દર ${minTxt(m)} લોકેશન SMS (પહેલું 1 મિનિટ પછી)${miss?` • ${GU_D(miss)} નંબરની કંપની બાકી`:''}`,miss?'err':'ok',7000);if(m<15&&NATIVE)toast('ℹ️ બેટરી બચત (Doze) માં Android 9–15 મિનિટે મોકલી શકે છે','',6000);return;}
     if(e.target.closest('[data-autooff]')){if(!confirm('આપમેળે SMS રોકવું છે?\n(સમય સચવાયેલો રહેશે — "▶️ સમય મુજબ મોકલો" થી ફરી શરૂ)'))return;const c=smsCfg();c.autoOn=false;saveSettings();smsPushSchedule();renderSms();toast('⏸️ આપમેળે SMS રોક્યું','',4000);return;}
     if(e.target.closest('[data-unselall]')){if(confirm('બધી પસંદગી કાઢવી છે?')){smsSel.clear();renderSms();}return;}
+    if(e.target.closest('[data-recheck]')){smsRecheck();return;}
     const s1=e.target.closest('[data-send1]');if(s1){smsSendQueue([s1.dataset.send1]);return;}if(e.target.closest('[data-sendall]'))smsSendQueue();});$('#smsCfgB').onclick=smsSettingsModal;
   $('#smsAdd').onclick=()=>{const v=prompt('મોબાઇલ નંબર (10 આંકડા)');const n=String(v||'').replace(/\D/g,'').slice(-10);if(n.length!==10){if(v)toast('સાચો નંબર લખો','err');return;}const nm=prompt('નામ (ઇચ્છા હોય તો)')||'';smsLog.push({id:uid(),kind:'manualnum',manual:true,num:n,name:nm,at:Date.now(),text:''});smsSave();smsSel.add(n);renderSms();};
   $('#smsRepB').onclick=async()=>{const t=$('#smsRep').value.trim();if(!t){toast('રિપ્લાય પેસ્ટ કરો','err');return;}await smsAddReply(t);$('#smsRep').value='';};
@@ -2371,8 +2546,7 @@ const NATIVE=!!window.AndroidSMS;
 function b64OfBlob(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=rej;r.readAsDataURL(blob);});}
 function smsPushNative(){if(!NATIVE)return;const c=smsCfg();const senders=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(x=>String(x).trim()).filter(Boolean));
   try{AndroidSMS.setConfig(JSON.stringify({senders,gjKeys:c.gjKeys||'',gjCodes:c.gjCodes||'',enabled:smsOn(),strict:true,watch:[...smsWatched()]}));}catch(_){}}
-window.onSmsStatus=(num,st,err)=>{const e=[...smsLog].reverse().find(x=>x.kind==='sent'&&x.num===num);if(e){e.status=st;e.err=err;e._dirty=1;smsSave();}
-  if(st==='failed'||st==='error')toast(`❌ ${num||''} SMS ન ગયો (${err||st})`,'err',6000);else if(st==='sent')toast(`✅ ${num} SMS ગયો`,'ok',2500);if($('#tab-sms').classList.contains('on'))renderSms();};
+window.onSmsStatus=(num,st,err)=>{if(applySmsStatus(num,st,err))smsStatusSoon();if(st==='failed'||st==='error')toast(`❌ ${num||''} SMS ન ગયો (${err||st})`,'err',6000);};
 window.onNativeSmsPending=async()=>{if(!NATIVE)return;let a=[];try{a=JSON.parse(AndroidSMS.getPending()||'[]');}catch(_){}
   let n=0;for(const m of a){const r=await smsAddReply(m.body||'',true,m);if(r)n++;}if(n)toast(`📩 ${n} નવા રિપ્લાય આવ્યા`,'ok',4000);};
 window.handleNativeShare=async t=>{document.body.classList.remove('home');showTab('sms');await smsAddReply(t);};
@@ -2384,7 +2558,7 @@ function nativeInit(){
     window.open=function(u){if(u&&/^https?:/i.test(u)){AndroidApp.openUrl(u);return null;}toast('એપમાં સીધી પ્રિન્ટ નથી — PDF / Excel ડાઉનલોડ કરીને પ્રિન્ટ કરો','err',5000);return null;};
   }
   if(!NATIVE)return;
-  smsPushNative();try{if(AndroidSMS.setSchedule)smsPushSchedule();}catch(_){}window.onSchedSent();
+  smsPushNative();try{if(AndroidSMS.setSchedule)smsPushSchedule();}catch(_){}window.onSchedSent();smsPullStatus();
   $('#smsNative').style.display='';$('#smsNative').innerHTML='📱 <b>Android એપ ચાલુ છે</b> — "SMS મોકલો" દબાવતાં બધા SMS <b>આપમેળે</b> જશે, "⏱️ આપમેળે" માં સમય પસંદ કરો તો એપ બંધ હોય તો પણ નિયમિત જશે, અને કંપનીનો રિપ્લાય આવતાં જ <b>આપમેળે</b> અહીં સેવ થઈ, ગુજરાતમાં હોય તો એપ બંધ હોય તો પણ 🚨 નોટિફિકેશન આવશે.'+(AndroidSMS.ready()==='1'?'':' <button class="btn sm" id="smsPerm">⚠️ SMS મંજૂરી આપો</button>');
   $('#smsHow').style.display='none';$('#smsInbox').style.display='';
   $('#smsNative').addEventListener('click',e=>{if(e.target.id==='smsPerm')AndroidSMS.requestPerms();});
@@ -2725,7 +2899,8 @@ function nodeCardHTML(id,inGraph){const n=NET.nodes.get(id);if(!n)return '';cons
   const vals=f=>(NET.adj.get(id)||[]).filter(e=>e.out&&e.rel===f).map(e=>NET.nodes.get(e.to).label);
   if(n.kind==='acc'||n.kind==='want'){kv.push(['કેસ',caseShort(n.x)]);if(n.p.addr)kv.push(['સરનામું',n.p.addr]);for(const f of ['mob','wa','imei','bmob','bimei'])if(vals(f).length)kv.push([NF[f][1],vals(f).join(', ')]);if((n.p.role||[]).length)kv.push(['ભૂમિકા',n.p.role.join(', ')]);}
   else if(n.kind==='other'){const o=n.o;if(o.rel)kv.push(['સંબંધ',o.rel]);for(const x of (o.socials||[]))kv.push(['🌐 '+(x.name||'સોશિયલ'),x.link||'']);if(o.addr)kv.push(['સરનામું',o.addr]);for(const f of ['mob','wa','imei','bmob','bimei','veh'])if(vals(f).length)kv.push([NF[f][1],vals(f).join(', ')]);if(o.note)kv.push(['નોંધ',o.note]);}
-  else if(n.id.startsWith('v:')){const O=ownersOf(id);if(O.length)kv.push([n.kind==='vehicle'?'ગાડીનો માલિક':'માલિક (કોનો છે)',O.map(t=>t.label+(t.kind==='other'?'':' ('+(t.kind==='acc'?'પકડાયેલ':'બાકી')+')')).join(', ')]);
+  else if(n.id.startsWith('v:')){const O=ownersOf(id);if(O.length)kv.push([n.kind==='vehicle'?'ગાડીનો માલિક':'માલિક (કોનો છે)',O.map(t=>t.label+(t.kind==='other'?'':' ('+(t.kind==='acc'?'પકડાયેલ':'બાકી')+')')+(relOf(t)?' — 🤝 '+relOf(t):'')).join(', ')]);
+    if(n.kind==='phone'){const R=smsLog.filter(e=>e.kind==='reply'&&e.num===n.key).sort((a,b)=>b.at-a.at);const S=smsLog.filter(e=>e.kind==='sent'&&e.num===n.key).sort((a,b)=>b.at-a.at);if(S.length)kv.push(['📤 છેલ્લે મંગાવેલ',fmtDate(S[0].at)+' ('+agoTxt(S[0].at)+')']);if(R.length)kv.push(['📍 છેલ્લું લોકેશન',fmtDate(R[0].at)+' — '+(R[0].gj?'🚨 ગુજરાતમાં':R[0].where==='out'?'ગુજરાત બહાર':'અજાણ')+(R[0].ll?' — '+R[0].ll:'')]);}
     const P=pairOf(id);if(P.length)kv.push([n.kind==='phone'?'IMEI (ફાઇલ મુજબ)':'મોબાઇલ (ફાઇલ મુજબ)',P.map(t=>t.full||t.label).join(', ')]);
     for(const t of O.filter(t=>t.kind==='other')){const o=t.o;if(o.addr)kv.push(['સરનામું',o.addr]);if(o.rel)kv.push(['સંબંધ',o.rel]);if(o.note)kv.push(['નોંધ',o.note]);}}
   else if(n.kind==='case'){const x=n.x;kv.push(['વિભાગ',REG_DEF[n.reg]?.label||'']);if(x.r.incDT||x.r.pdate)kv.push(['તારીખ',x.r.incDT||x.r.pdate]);kv.push(['આરોપી',(x.r.acc||[]).map(p=>stripAge(p.name)).filter(Boolean).join(', ')||'—']);if((x.r.want||[]).length)kv.push(['બાકી',(x.r.want||[]).map(p=>stripAge(p.name)).join(', ')]);}
@@ -2733,9 +2908,9 @@ function nodeCardHTML(id,inGraph){const n=NET.nodes.get(id);if(!n)return '';cons
   const ref=n.ref||(n.kind==='vehicle'?'v:'+n.key:n.kind==='case'?'c:'+n.ck:n.kind==='phone'?'ph:'+n.key:'');
   return `<div class="card nsel"><h3 style="margin:0 0 6px">${esc(nodeTitle(n))}${nodeBadges(n)}${NET.common.has(id)?' <span class="cb">કોમન</span>':''}</h3>
     ${kv.length?`<div class="kvg">${kv.map(([k,v])=>`<b>${esc(k)}</b><span>${esc(v)}</span>`).join('')}</div>`:''}
-    ${conn.length?`<div class="phgrp">${n.id.startsWith('v:')?'આ કોની સાથે જોડાયેલ છે':'સીધા જોડાયેલ વ્યક્તિ'}</div>${conn.map(e=>{const t=NET.nodes.get(e.to);return `<div class="occ" style="margin:3px 0;cursor:pointer" data-nn="${esc(e.to)}">${esc(nodeTitle(t))}${nodeBadges(t)} <small class="muted">${t.x&&t.kind!=='case'?esc(caseShort(t.x))+' • ':''}${esc(e.rel==='pair'?relText(e.to,e):e.lab)}</small><button class="btn sm" style="float:right;padding:2px 8px" data-nact="edit" data-id="${esc(e.to)}" title="સુધારો">✏️</button></div>`;}).join('')}`:''}
+    ${conn.length?`<div class="phgrp">${n.id.startsWith('v:')?'આ કોની સાથે જોડાયેલ છે':'સીધા જોડાયેલ વ્યક્તિ'}</div>${conn.map(e=>{const t=NET.nodes.get(e.to);return `<div class="occ" style="margin:3px 0;cursor:pointer" data-nn="${esc(e.to)}">${esc(nodeTitle(t))}${nodeBadges(t)}${relTag(t)} <small class="muted">${t.x&&t.kind!=='case'?esc(caseShort(t.x))+' • ':''}${esc(e.rel==='pair'?relText(e.to,e):e.lab)}</small><button class="btn sm" style="float:right;padding:2px 8px" data-nact="edit" data-id="${esc(e.to)}" title="સુધારો">✏️</button>${canUnlink(id,e.to)?`<button class="btn sm danger" style="float:right;padding:2px 8px;margin-right:4px" data-unl="${esc(id)}" data-id="${esc(e.to)}" title="આ જોડાણ કાઢો">🗑️</button>`:''}</div>`;}).join('')}`:''}
     ${ref?`<div class="phgrp">🖼️ ફોટા</div>${photoStrip(ref,{ck:n.ck||'',kind:isPerson(n)?'person':n.kind==='vehicle'?'veh':n.kind==='case'?'mudd':'phone'})}`:''}
-    <div class="row gap" style="margin-bottom:0">${id!==netRoot||!inGraph?`<button class="btn sm pri" data-nact="root" data-id="${esc(id)}">🌳 અહીંથી ઝાડ</button>`:''}${inGraph?'':`<button class="btn sm" data-nact="graph" data-id="${esc(id)}">🕸️ જાળ</button>`}<button class="btn sm" data-nact="edit" data-id="${esc(id)}">✏️ ${n.id.startsWith('v:')?'સુધારો / વિગત ઉમેરો':'સુધારો'}</button>${n.x?`<button class="btn sm" data-nact="reg" data-id="${esc(id)}">📑 રજીસ્ટરમાં</button>`:''}${n.kind!=='case'?`<button class="btn sm" data-nact="watch" data-id="${esc(id)}">👁️ વોચલિસ્ટમાં</button>`:''}${n.kind==='phone'?`<button class="btn sm" data-nact="sms" data-id="${esc(id)}">📩 SMS તપાસ</button>`:''}</div></div>`;}
+    <div class="row gap" style="margin-bottom:0">${id!==netRoot||!inGraph?`<button class="btn sm pri" data-nact="root" data-id="${esc(id)}">🌳 અહીંથી ઝાડ</button>`:''}${inGraph?'':`<button class="btn sm" data-nact="graph" data-id="${esc(id)}">🕸️ જાળ</button>`}<button class="btn sm" data-nact="edit" data-id="${esc(id)}">✏️ ${n.id.startsWith('v:')?'સુધારો / વિગત ઉમેરો':'સુધારો'}</button>${n.id.startsWith('v:')&&(DEL_F[n.kind]||n.kind==='custom')?`<button class="btn sm danger" data-vdel="${esc(id)}">🗑️ ${n.kind==='vehicle'?'ગાડી':'નંબર'} બધેથી કાઢો</button>`:''}${n.x?`<button class="btn sm" data-nact="reg" data-id="${esc(id)}">📑 રજીસ્ટરમાં</button>`:''}${n.kind!=='case'?`<button class="btn sm" data-nact="watch" data-id="${esc(id)}">👁️ વોચલિસ્ટમાં</button>`:''}${n.kind==='phone'?`<button class="btn sm" data-nact="sms" data-id="${esc(id)}">📩 SMS તપાસ</button>`:''}</div></div>`;}
 function nodeModal(id){buildNet();if(!NET.nodes.has(id))return;openModal(nodeCardHTML(id,false).replace('class="card nsel"','class="nsel" style="border:0"'),{wide:false});}
 async function nodeAction(a,id){const n=NET.nodes.get(id);if(!n)return;document.querySelectorAll('.ov').forEach(o=>o.close());
   if(a==='root'){openNet(id);return;}
@@ -2770,7 +2945,11 @@ async function unlinkNode(a,b){buildNet();const A=NET.nodes.get(a),B=NET.nodes.g
     if(P.kind==='other'){const o=settings.others.find(x=>x.id===P.o.id);if(!o)continue;const b4=(o[f]||[]).length;o[f]=(o[f]||[]).filter(keep);if(o[f].length<b4){o.updatedAt=Date.now();n++;}}
     else{const F=findRow(P.ck);if(!F)continue;const {d,unit,row}=F;const L=(row.r[P.kind]||[]).map(x=>JSON.parse(JSON.stringify(x)));const p=L[P.i];if(!p)continue;const b4=(p[f]||[]).length;p[f]=(p[f]||[]).filter(keep);if(f2&&PI.length)p[f2]=(p[f2]||[]).filter(keep2);if(p[f].length<b4){d.caseEdit=d.caseEdit||{};const ce=d.caseEdit[unit]=d.caseEdit[unit]||{};ce[P.kind]=L;d.updatedAt=Date.now();await saveDoc(d);n++;}}}
   if(E.some(e=>true))await saveOthers();buildIndex();renderAll();if($('#tab-net').classList.contains('on'))renderNet();toast(n?'🗑️ જોડાણ કાઢી નાખ્યું':'કંઈ બદલાયું નહીં',n?'ok':'');}
-document.addEventListener('click',e=>{const u=e.target.closest('[data-unl]');if(!u)return;e.stopPropagation();unlinkNode(u.dataset.unl,u.dataset.id);},true);
+document.addEventListener('click',e=>{const u=e.target.closest('[data-unl]');if(!u)return;e.stopPropagation();document.querySelectorAll('.ov').forEach(o=>{if(o.contains(u))o.close();});unlinkNode(u.dataset.unl,u.dataset.id);},true);
+document.addEventListener('click',async e=>{const v=e.target.closest('[data-vdel]');if(!v)return;e.stopPropagation();buildNet();const n=NET.nodes.get(v.dataset.vdel);if(!n)return;const val=n.full||n.label;
+  const who=(NET.adj.get(n.id)||[]).map(x=>NET.nodes.get(x.to)).filter(isPerson).map(t=>t.label);
+  if(!confirm(`"${val}" ને બધેથી કાઢી નાખવો છે?\n\n${who.length?'• '+uniq(who).slice(0,8).join('\n• ')+'\n':''}• ફાઇલોમાંથી પણ\n\n(⚙️ સેટિંગ → "🗑️ કાઢી નાખેલ" માં નોંધ રહેશે)`))return;
+  document.querySelectorAll('.ov').forEach(o=>o.close());await deleteValueEverywhere(n.kind,val);if($('#tab-net').classList.contains('on'))renderNet();},true);
 
 /* નંબર / IMEI / ગાડી — સુધારો: માલિક હોય તો તેની વિગત ખોલો, નહીં તો નવો માલિક (અન્ય વ્યક્તિ) બનાવો */
 function valuePreset(id){const n=NET.nodes.get(id);const pre={mob:[],imei:[],veh:[]};const put=(t,v)=>{if(t.kind==='phone')pre.mob.push(t.key);else if(t.kind==='imei')pre.imei.push(t.full||t.label);else if(t.kind==='vehicle')pre.veh.push(t.label);};
@@ -2909,13 +3088,127 @@ function personRows(o){buildNet();const id='o:'+o.id;const J=a=>(a||[]).join('\n
   const up=[];for(const v of (NET.adj.get(id)||[]).filter(e=>e.out&&OWN_SET.has(e.rel)).map(e=>e.to))for(const e of (NET.adj.get(v)||[]))if(!e.out&&BREL.has(e.rel)&&e.to!==id){const t=NET.nodes.get(e.to);up.push(t.label+' ('+NET.nodes.get(v).label+')');}
   add('⬆️ ઉપરની પાર્ટી (જેના B-પાર્ટીમાં આનો નંબર છે)',uniq(up).join('\n'));
   const own=new Set((o.mob||[]).concat(o.wa||[]).map(n=>'v:phone|'+valKey('phone',n)));const lg=smsLog.filter(e=>e.kind==='reply'&&own.has('v:phone|'+e.num)).slice(-5).reverse();
-  if(lg.length)add('📍 છેલ્લાં SMS લોકેશન',lg.map(e=>fmtDate(e.at)+' — '+(e.gj?'ગુજરાતમાં':e.where==='out'?'ગુજરાત બહાર':'અજાણ')+(e.ll?' — '+e.ll:'')).join('\n'));
+  if(lg.length)add('📍 છેલ્લાં SMS લોકેશન',lg.map(e=>fmtDate(e.at)+' — '+smsWhereTag(e,1)+(e.ll?' — '+e.ll:'')).join('\n'));
   add('📎 ફાઇલો',docs.filter(d=>d.owner===id).map(d=>d.name).join('\n'));return rows;}
 function personExport(id,fmt){const o=(settings.others||[]).find(x=>x.id===id);if(!o)return;const rows=personRows(o);const nm=(o.name||'vyakti').replace(/[\\/:*?"<>|]+/g,'_');
   if(fmt==='xlsx'){const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet([['અન્ય વ્યક્તિ — '+(o.name||'')],['વિગત','માહિતી'],...rows]);ws['!cols']=[{wch:30},{wch:70}];XLSX.utils.book_append_sheet(wb,ws,'વિગત');
     const bp=(o.bmob||[]).map(n=>{const k=valKey('phone',n);const P=pairOf('v:phone|'+k);const O=ownersOf('v:phone|'+k).filter(t=>t.id!=='o:'+o.id);return {'B-પાર્ટી મોબાઇલ':n,'IMEI':P.map(t=>t.full||t.label).join(', '),'કોનો (માલિક)':O.map(t=>t.label).join(', ')};});
     if(bp.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(bp),'B-પાર્ટી');XLSX.writeFile(wb,`${nm}.xlsx`);return;}
-  tableExport(fmt,{title:'અન્ય વ્યક્તિ — '+(o.name||'નામ અજાણ'),sub:`તા. ${fmtDate(Date.now()).split(',')[0]}`,G:{head:['વિગત','માહિતી'],body:rows,merges:[]},file:nm,pageSize:'a4',font:13,width:1100});}
+  personReport(o,fmt,nm);}
+/* ===== 🎨 વ્યક્તિ અહેવાલ — ફોટા સાથે રંગીન Word / PDF ===== */
+async function rpImg(src,w,h){try{const im=await loadImg(src);const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);
+  const r=Math.max(w/im.width,h/im.height);const sw=w/r,sh=h/r;x.drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,0,w,h);return c.toDataURL('image/jpeg',0.86);}catch(_){return '';}}
+async function personReportData(o){buildNet();const id='o:'+o.id;const self=id;
+  const ownName=n=>{try{return ownersOf('v:phone|'+valKey('phone',n)).filter(t=>t.id!==self).map(t=>t.label);}catch(_){return [];}};
+  const bmob=(o.bmob||[]).map(n=>{let P=[];try{P=pairOf('v:phone|'+valKey('phone',n)).map(t=>t.full||t.label);}catch(_){}return {n,imei:P,own:ownName(n)};});
+  const r=otherRows().find(x=>x.o.id===o.id);const links=r?r.L.map(t=>({name:t.label,cs:caseShort(t.x),st:t.kind==='acc'?'પકડાયેલ':'બાકી',reg:t.reg})):[];
+  const up=[];for(const v of (NET.adj.get(id)||[]).filter(e=>e.out&&OWN_SET.has(e.rel)).map(e=>e.to))for(const e of (NET.adj.get(v)||[]))if(!e.out&&BREL.has(e.rel)&&e.to!==id){const t=NET.nodes.get(e.to);if(t)up.push({who:t.label,via:NET.nodes.get(v).label});}
+  const own=new Set((o.mob||[]).concat(o.wa||[]).map(n=>valKey('phone',n)));const sms=smsLog.filter(e=>e.kind==='reply'&&own.has(e.num)).sort((a,b)=>b.at-a.at);
+  const files=docs.filter(d=>d.owner===id).map(d=>d.name);
+  const ph=PH.of(id);let main='';const mp=PH.first(id,['person'])||ph[0];
+  if(mp){let src=mp.thumb;try{const b=await phFull(mp.id);if(b)src=await blobToDataURL(b);}catch(_){}main=await rpImg(src,360,450);}
+  const gal=[];for(const p of ph.filter(p=>p!==mp).slice(0,15)){const u=await rpImg(p.thumb,240,240);if(u)gal.push({u,k:(PK[p.kind]||PK.other)[1]});}
+  return {o,bmob,links,up:uniq(up.map(x=>x.who+' ('+x.via+')')),sms,files,main,gal};}
+function personReportHTML(D,img){const {o}=D;const e=esc;const today=fmtDate(Date.now());
+  const C={blue:['#1d4ed8','#eff6ff'],amber:['#b45309','#fffbeb'],violet:['#6d28d9','#f5f3ff'],red:['#b91c1c','#fef2f2'],green:['#047857','#ecfdf5'],slate:['#334155','#f1f5f9'],pink:['#be185d','#fdf2f8'],teal:['#0f766e','#f0fdfa']};
+  const chip=(v,c,big)=>`<span style="display:inline-block;background:#fff;border:1.5px solid ${c[0]};color:#0f172a;border-radius:14px;padding:${big?'3px 10px':'1px 8px'};margin:2px 4px 2px 0;font-weight:700;font-size:${big?14:12.5}px">${v}</span>`;
+  const sec=(t,c,inner)=>`<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 12px;border:1.5px solid ${c[0]}"><tr><td style="background:${c[0]};color:#fff;font-weight:bold;font-size:15px;padding:6px 12px">${t}</td></tr><tr><td style="background:${c[1]};padding:9px 12px;font-size:13px;line-height:1.55">${inner}</td></tr></table>`;
+  const kv=(k,v)=>v?`<tr><td style="padding:4px 8px;color:#475569;font-weight:bold;white-space:nowrap;vertical-align:top;border-bottom:1px solid #e2e8f0;width:110px">${k}</td><td style="padding:4px 8px;border-bottom:1px solid #e2e8f0;font-size:13.5px">${v}</td></tr>`:'';
+  const B=[];
+  /* ---- માથું ---- */
+  B.push(`<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 12px"><tr><td style="background:#0b3b7a;color:#fff;padding:14px 18px;border-bottom:5px solid #f59e0b"><div style="font-size:12px;color:#bfdbfe;letter-spacing:.5px">🛡️ વ્યૂહરચના • વ્યક્તિ અહેવાલ (અન્ય વ્યક્તિ)</div><div style="font-size:28px;font-weight:800;margin-top:2px">${e(o.name||'નામ અજાણ')}</div>${o.rel?`<div style="margin-top:4px">${String(o.rel).split(/\s*,\s*/).filter(Boolean).map(x=>`<span style="display:inline-block;background:#f59e0b;color:#111;border-radius:12px;padding:1px 10px;margin:2px 4px 0 0;font-weight:700;font-size:12.5px">${e(x)}</span>`).join('')}</div>`:''}</td><td style="background:#0b3b7a;color:#dbeafe;padding:14px 18px;text-align:right;font-size:12px;vertical-align:top;border-bottom:5px solid #f59e0b;white-space:nowrap">અહેવાલ તા.<br><b style="color:#fff;font-size:13px">${e(today)}</b></td></tr></table>`);
+  /* ---- ફોટો + મુખ્ય વિગત ---- */
+  const ph=D.main?`<img src="${img('main')}" width="180" height="225" style="width:180px;height:225px;border:4px solid #fff;outline:2px solid #1d4ed8;border-radius:10px;display:block">`:`<table width="180" height="225" cellspacing="0" style="background:#dbeafe;border:2px dashed #1d4ed8;border-radius:10px"><tr><td align="center" style="font-size:64px;font-weight:800;color:#1d4ed8;height:225px">${e((o.name||'?').trim().charAt(0)||'?')}<div style="font-size:11px;font-weight:400">ફોટો નથી</div></td></tr></table>`;
+  B.push(`<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 12px;border:1.5px solid #cbd5e1;background:#f8fafc"><tr><td width="196" style="padding:8px;vertical-align:top">${ph}</td><td style="padding:8px 8px 8px 4px;vertical-align:top"><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:#fff;border:1px solid #e2e8f0">
+    ${kv('📱 મોબાઇલ',(o.mob||[]).map(x=>chip(e(x),C.blue,1)).join(''))}${kv('💬 વોટ્સએપ',(o.wa||[]).map(x=>chip(e(x),C.green,1)).join(''))}${kv('🔢 IMEI',(o.imei||[]).map(x=>chip(e(x),C.slate)).join(''))}
+    ${kv('🚗 ગાડી',(o.veh||[]).map(x=>`<span style="display:inline-block;background:#fde047;border:2px solid #111;color:#111;border-radius:5px;padding:1px 8px;margin:2px 5px 2px 0;font-weight:800;font-family:monospace;font-size:13.5px;letter-spacing:.5px">${e(x)}</span>`).join(''))}
+    ${kv('🏠 સરનામું',e(o.addr||''))}${kv('📝 નોંધ',e(o.note||''))}${kv('🌐 સોશિયલ',(o.socials||[]).map(x=>`<b>${e(x.name||'')}</b>${x.link?' <span style="color:#1d4ed8">'+e(x.link)+'</span>':''}`).join('<br>'))}</table></td></tr></table>`);
+  /* ---- આંકડા ---- */
+  const T=[['📱','મોબાઇલ',(o.mob||[]).length+(o.wa||[]).length,'#2563eb'],['🚗','ગાડી',(o.veh||[]).length,'#d97706'],['📞','B-પાર્ટી મો.',(o.bmob||[]).length,'#7c3aed'],['📟','B-પાર્ટી IMEI',(o.bimei||[]).length,'#0891b2'],['🔗','આરોપી જોડાણ',D.links.length,'#dc2626'],['📍','SMS લોકેશન',D.sms.length,'#059669']];
+  B.push(`<table width="100%" cellspacing="5" cellpadding="0" style="margin:0 0 8px;border-collapse:separate"><tr>${T.map(([i,l,n,c])=>`<td align="center" style="background:${c};color:#fff;border-radius:10px;padding:8px 4px;width:16%"><div style="font-size:24px;font-weight:800;line-height:1.1">${n}</div><div style="font-size:11.5px">${i} ${l}</div></td>`).join('')}</tr></table>`);
+  /* ---- આરોપી સાથે જોડાણ ---- */
+  if(D.links.length)B.push(sec(`🔗 કોની સાથે જોડાયેલ (આરોપી) — ${D.links.length}`,C.red,`<table width="100%" cellspacing="0" cellpadding="4" style="border-collapse:collapse;background:#fff">${D.links.map((l,i)=>`<tr style="border-bottom:1px solid #fecaca"><td width="24" style="color:#b91c1c;font-weight:bold">${i+1}.</td><td style="font-weight:bold">${e(l.name)}</td><td>${e(l.cs)}</td><td width="90" align="right"><span style="background:${l.st==='બાકી'?'#fee2e2':'#dcfce7'};color:${l.st==='બાકી'?'#b91c1c':'#166534'};border-radius:10px;padding:1px 8px;font-weight:bold;font-size:12px">${l.st}</span></td></tr>`).join('')}</table>`));
+  if(D.up.length)B.push(sec(`⬆️ ઉપરની પાર્ટી — જેના B-પાર્ટીમાં આનો નંબર છે (${D.up.length})`,C.teal,D.up.map(x=>chip(e(x),C.teal)).join('')));
+  /* ---- B-પાર્ટી (અલ્પવિરામથી — ઓછા પાનાં) ---- */
+  const BM=D.bmob;const CH=180;
+  for(let i=0;i<BM.length;i+=CH){const part=BM.slice(i,i+CH);
+    B.push(sec(`📞 B-પાર્ટી મોબાઇલ — ${BM.length}${BM.length>CH?` (${i+1}–${Math.min(i+CH,BM.length)})`:''}`,C.violet,`<div style="font-family:'Noto Sans Gujarati',sans-serif;font-size:13px;word-spacing:1px">${part.map(x=>`<span style="white-space:nowrap"><b>${e(x.n)}</b>${x.own.length?` <span style="color:#be185d;font-weight:bold">[${e(x.own.slice(0,2).join(', '))}]</span>`:''}${x.imei.length?` <span style="color:#64748b;font-size:11.5px">(IMEI ${e(x.imei.join(', '))})</span>`:''}</span>`).join(', ')}</div>${i===0&&BM.some(x=>x.own.length)?`<div style="font-size:11px;color:#64748b;margin-top:4px">[ ગુલાબી ] = એ નંબર બીજા કોનો છે તે (એપમાં નોંધાયેલ)</div>`:''}`));}
+  const BI=o.bimei||[];for(let i=0;i<BI.length;i+=150)B.push(sec(`📟 B-પાર્ટી IMEI — ${BI.length}${BI.length>150?` (${i+1}–${Math.min(i+150,BI.length)})`:''}`,['#0e7490','#ecfeff'],`<div style="font-size:12.5px">${BI.slice(i,i+150).map(x=>`<span style="white-space:nowrap">${e(x)}</span>`).join(', ')}</div>`));
+  /* ---- SMS લોકેશન ---- */
+  if(D.sms.length)B.push(sec(`📍 SMS લોકેશન — છેલ્લાં ${Math.min(10,D.sms.length)} (કુલ ${D.sms.length})`,C.green,`<table width="100%" cellspacing="0" cellpadding="4" style="border-collapse:collapse;background:#fff;font-size:12.5px"><tr style="background:#d1fae5;font-weight:bold"><td>તારીખ-સમય</td><td>નંબર</td><td>સ્થિતિ</td><td>Cell ID / સરનામું</td><td>Lat, Long</td></tr>${D.sms.slice(0,10).map(x=>`<tr style="border-bottom:1px solid #d1fae5${x.gj?';background:#fef2f2':''}"><td style="white-space:nowrap">${e(fmtDate(x.at))}</td><td>${e(x.num)}</td><td style="font-weight:bold;color:${x.gj?'#b91c1c':'#334155'}">${e(smsWhereTag(x,1))}</td><td>${e([smsCellTxt(x),x.loc].filter(Boolean).join(' • ')||'—')}</td><td style="font-family:monospace">${e(x.ll||'—')}</td></tr>`).join('')}</table>`));
+  if(D.files.length)B.push(sec(`📎 જોડેલી ફાઇલો — ${D.files.length}`,C.slate,D.files.map(f=>chip('📄 '+e(f),C.slate)).join('')));
+  if(D.gal.length){const rows=[];for(let i=0;i<D.gal.length;i+=5)rows.push(D.gal.slice(i,i+5));
+    B.push(sec(`🖼️ બીજા ફોટા — ${D.gal.length}`,C.pink,`<table cellspacing="6" cellpadding="0">${rows.map(r=>`<tr>${r.map((g,j)=>`<td align="center" style="font-size:11px;color:#9d174d"><img src="${img('g'+D.gal.indexOf(g))}" width="118" height="118" style="width:118px;height:118px;border:2px solid #be185d;border-radius:8px;display:block"><div>${e(g.k)}</div></td>`).join('')}</tr>`).join('')}</table>`));}
+  B.push(`<div style="text-align:center;color:#94a3b8;font-size:11px;margin-top:6px;border-top:1px dashed #cbd5e1;padding-top:6px">— વ્યૂહરચના દ્વારા તૈયાર • ${e(today)} • ગોપનીય —</div>`);
+  return B;}
+/* સાચી .docx (Word / WPS / Google Docs / LibreOffice બધામાં ફોટા સાથે ખૂલે) */
+function personDocx(D){const o=D.o;const X=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));const today=fmtDate(Date.now());
+  const F='Nirmala UI';const W=10466;let imgN=0;const media=[];
+  const r=(t,{b,sz=10.5,c,shd,bdr,br}={})=>`<w:r><w:rPr><w:rFonts w:ascii="${F}" w:hAnsi="${F}" w:cs="${F}" w:eastAsia="${F}"/>${b?'<w:b/><w:bCs/>':''}${c?`<w:color w:val="${c}"/>`:''}<w:sz w:val="${Math.round(sz*2)}"/><w:szCs w:val="${Math.round(sz*2)}"/>${shd?`<w:shd w:val="clear" w:color="auto" w:fill="${shd}"/>`:''}${bdr?`<w:bdr w:val="single" w:sz="6" w:space="0" w:color="${bdr}"/>`:''}</w:rPr>${br?'<w:br/>':''}<w:t xml:space="preserve">${X(t)}</w:t></w:r>`;
+  const p=(runs,{al,a=60,bf=0,kn}={})=>`<w:p><w:pPr>${kn?'<w:keepNext/>':''}<w:spacing w:before="${bf}" w:after="${a}" w:line="264" w:lineRule="auto"/>${al?`<w:jc w:val="${al}"/>`:''}</w:pPr>${runs}</w:p>`;
+  const tc=(inner,{w,fill,va='top',span,mar=90}={})=>`<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/>${span?`<w:gridSpan w:val="${span}"/>`:''}${fill?`<w:shd w:val="clear" w:color="auto" w:fill="${fill}"/>`:''}<w:tcMar><w:top w:w="${mar}" w:type="dxa"/><w:left w:w="${mar+30}" w:type="dxa"/><w:bottom w:w="${mar}" w:type="dxa"/><w:right w:w="${mar+30}" w:type="dxa"/></w:tcMar><w:vAlign w:val="${va}"/></w:tcPr>${inner&&/<w:p[ >]|<w:p\/>/.test(inner.slice(-200))?inner:(inner||'')+'<w:p/>'}</w:tc>`;
+  const tbl=(rows,ws,{bc='FFFFFF',bs=0,inner=false,cs=0}={})=>{const B=k=>`<w:${k} w:val="${bs?'single':'nil'}" w:sz="${bs}" w:space="0" w:color="${bc}"/>`;return `<w:tbl><w:tblPr><w:tblW w:w="${ws.reduce((a,b)=>a+b,0)}" w:type="dxa"/>${cs?`<w:tblCellSpacing w:w="${cs}" w:type="dxa"/>`:''}<w:tblLayout w:type="fixed"/><w:tblBorders>${B('top')}${B('left')}${B('bottom')}${B('right')}${inner?B('insideH').replace('w:val="single"','w:val="single"'):'<w:insideH w:val="nil"/>'}<w:insideV w:val="nil"/></w:tblBorders></w:tblPr><w:tblGrid>${ws.map(w=>`<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid>${rows}</w:tbl>`;};
+  const tr=c=>`<w:tr><w:trPr><w:cantSplit/></w:trPr>${c}</w:tr>`;const gap=p('',{a:120});
+  const img=(u,wpx,hpx)=>{if(!u)return '';const id=++imgN;media.push({id,u});const cx=Math.round(wpx*9525),cy=Math.round(hpx*9525);
+    return `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="${id}" name="ફોટો ${id}"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="${id}" name="img${id}.jpeg"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rIdImg${id}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:ln w="28575"><a:solidFill><a:srgbClr val="1D4ED8"/></a:solidFill></a:ln></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;};
+  const sec=(title,col,tint,body)=>tbl(tr(tc(p(r(title,{b:1,sz:12,c:'FFFFFF'}),{a:0,kn:1}),{w:W,fill:col,mar:70}))+tr(tc(body,{w:W,fill:tint})),[W],{bc:col,bs:12})+gap;
+  const chips=(L,col,fill='FFFFFF',sz=10.5)=>L.map(v=>r(' '+v+' ',{b:1,sz,shd:fill,bdr:col})).join(r('  '));
+  const B=[];
+  /* માથું */
+  B.push(tbl(tr(tc(p(r('🛡️ વ્યૂહરચના • વ્યક્તિ અહેવાલ (અન્ય વ્યક્તિ)',{sz:9,c:'BFDBFE'}),{a:20})+p(r(o.name||'નામ અજાણ',{b:1,sz:24,c:'FFFFFF'}),{a:40})+(o.rel?p(String(o.rel).split(/\s*,\s*/).filter(Boolean).map(x=>r(' '+x+' ',{b:1,sz:10,shd:'F59E0B'})).join(r('  ')),{a:0}):''),{w:7800,fill:'0B3B7A',mar:140})
+    +tc(p(r('અહેવાલ તા.',{sz:9,c:'DBEAFE'}),{al:'right',a:20})+p(r(today,{b:1,sz:10,c:'FFFFFF'}),{al:'right',a:0}),{w:W-7800,fill:'0B3B7A',mar:140}))
+    +`<w:tr><w:trPr><w:trHeight w:val="100" w:hRule="exact"/></w:trPr>${tc(p('',{a:0}),{w:W,span:2,fill:'F59E0B',mar:0})}</w:tr>`,[7800,W-7800])+gap);
+  /* ફોટો + વિગત */
+  const kvRow=(k,v,w2)=>v?tr(tc(p(r(k,{b:1,sz:10,c:'475569'}),{a:0}),{w:1700,fill:'F8FAFC'})+tc(p(v,{a:0}),{w:w2})):'';
+  const plate=L=>L.map(v=>r(' '+v+' ',{b:1,sz:11,shd:'FDE047',bdr:'111111'})).join(r('  '));
+  const w2=W-3200-1700;
+  const kv=tbl([kvRow('📱 મોબાઇલ',chips(o.mob||[],'1D4ED8','EFF6FF',11.5),w2),kvRow('💬 વોટ્સએપ',chips(o.wa||[],'047857','ECFDF5',11.5),w2),kvRow('🔢 IMEI',chips(o.imei||[],'334155','F1F5F9'),w2),kvRow('🚗 ગાડી',plate(o.veh||[]),w2),kvRow('🏠 સરનામું',r(o.addr||''),w2),kvRow('📝 નોંધ',r(o.note||''),w2),kvRow('🌐 સોશિયલ',(o.socials||[]).map((x,i)=>r(x.name||'',{b:1,br:i>0})+(x.link?r('  '+x.link,{c:'1D4ED8'}):'')).join(''),w2)].join(''),[1700,w2],{bc:'E2E8F0',bs:4,inner:true});
+  const photo=D.main?p(img(D.main,180,225),{al:'center',a:0}):p(r((o.name||'?').trim().charAt(0)||'?',{b:1,sz:48,c:'1D4ED8'}),{al:'center',a:0})+p(r('ફોટો નથી',{sz:8,c:'64748B'}),{al:'center',a:0});
+  B.push(tbl(tr(tc(photo,{w:3200,fill:D.main?'F8FAFC':'DBEAFE',va:'center'})+tc(kv+'<w:p/>',{w:W-3200,fill:'F8FAFC'})),[3200,W-3200],{bc:'CBD5E1',bs:8})+gap);
+  /* આંકડા */
+  const T=[['મોબાઇલ',(o.mob||[]).length+(o.wa||[]).length,'2563EB'],['ગાડી',(o.veh||[]).length,'D97706'],['B-પાર્ટી મો.',(o.bmob||[]).length,'7C3AED'],['B-પાર્ટી IMEI',(o.bimei||[]).length,'0891B2'],['આરોપી જોડાણ',D.links.length,'DC2626'],['SMS લોકેશન',D.sms.length,'059669']];const tw=Math.floor((W-60*7)/6);
+  B.push(tbl(tr(T.map(([l,n,c])=>tc(p(r(String(n),{b:1,sz:20,c:'FFFFFF'}),{al:'center',a:0})+p(r(l,{sz:9,c:'FFFFFF'}),{al:'center',a:0}),{w:tw,fill:c,va:'center',mar:60})).join('')),T.map(()=>tw),{cs:60})+gap);
+  if(D.links.length)B.push(sec(`🔗 કોની સાથે જોડાયેલ (આરોપી) — ${D.links.length}`,'B91C1C','FEF2F2',D.links.map((l,i)=>p(r(`${i+1}. `,{b:1,c:'B91C1C'})+r(l.name,{b:1})+r('   '+l.cs+'   ')+r(' '+l.st+' ',{b:1,sz:9.5,shd:l.st==='બાકી'?'FEE2E2':'DCFCE7',c:l.st==='બાકી'?'B91C1C':'166534'}),{a:40})).join('')));
+  if(D.up.length)B.push(sec(`⬆️ ઉપરની પાર્ટી — જેના B-પાર્ટીમાં આનો નંબર છે (${D.up.length})`,'0F766E','F0FDFA',p(chips(D.up,'0F766E'),{a:0})));
+  if(D.bmob.length)B.push(sec(`📞 B-પાર્ટી મોબાઇલ — ${D.bmob.length}`,'6D28D9','F5F3FF',p(D.bmob.map((x,i)=>r(x.n,{b:1,sz:10.5})+(x.own.length?r(' ['+x.own.slice(0,2).join(', ')+']',{b:1,sz:9.5,c:'BE185D'}):'')+(x.imei.length?r(' (IMEI '+x.imei.join(', ')+')',{sz:8.5,c:'64748B'}):'')+(i<D.bmob.length-1?r(', '):'')).join(''),{a:20})+(D.bmob.some(x=>x.own.length)?p(r('[ ગુલાબી ] = એ નંબર બીજા કોનો છે તે (એપમાં નોંધાયેલ)',{sz:8,c:'64748B'}),{a:0}):'')));
+  if((o.bimei||[]).length)B.push(sec(`📟 B-પાર્ટી IMEI — ${o.bimei.length}`,'0E7490','ECFEFF',p(r(o.bimei.join(', '),{sz:10}),{a:0})));
+  if(D.sms.length){const ws=[2000,1500,1900,3166,1900];const hd=['તારીખ-સમય','નંબર','સ્થિતિ','Cell ID / સરનામું','Lat, Long'];
+    const rows=tr(hd.map((h,i)=>tc(p(r(h,{b:1,sz:9.5}),{a:0}),{w:ws[i],fill:'D1FAE5',mar:50})).join(''))+D.sms.slice(0,10).map(x=>tr([fmtDate(x.at),x.num,smsWhereTag(x,1),[smsCellTxt(x),x.loc].filter(Boolean).join(' • ')||'—',x.ll||'—'].map((v,i)=>tc(p(r(v,{sz:9.5,b:i===2,c:i===2&&x.gj?'B91C1C':''}),{a:0}),{w:ws[i],fill:x.gj?'FEF2F2':'FFFFFF',mar:50})).join(''))).join('');
+    B.push(sec(`📍 SMS લોકેશન — છેલ્લાં ${Math.min(10,D.sms.length)} (કુલ ${D.sms.length})`,'047857','ECFDF5',tbl(rows,ws,{bc:'A7F3D0',bs:4,inner:true})+'<w:p/>'));}
+  if(D.files.length)B.push(sec(`📎 જોડેલી ફાઇલો — ${D.files.length}`,'334155','F1F5F9',D.files.map(f=>p(r('📄 '+f),{a:20})).join('')));
+  if(D.gal.length){const cw=Math.floor((W-240)/5);let rows='';for(let i=0;i<D.gal.length;i+=5){const g=D.gal.slice(i,i+5);rows+=tr(g.map(x=>tc(p(img(x.u,120,120),{al:'center',a:0})+p(r(x.k,{sz:8.5,c:'9D174D'}),{al:'center',a:0}),{w:cw,mar:40})).join('')+Array(5-g.length).fill(0).map(()=>tc('',{w:cw})).join(''));}
+    B.push(sec(`🖼️ બીજા ફોટા — ${D.gal.length}`,'BE185D','FDF2F8',tbl(rows,Array(5).fill(cw))+'<w:p/>'));}
+  B.push(p(r(`— વ્યૂહરચના દ્વારા તૈયાર • ${today} • ગોપનીય —`,{sz:8.5,c:'94A3B8'}),{al:'center'}));
+  const NS='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
+  const doc=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${NS}><w:body>${B.join('')}<w:sectPr><w:footerReference w:type="default" r:id="rIdFt"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720" w:header="360" w:footer="360" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  const ftr=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr ${NS}><w:p><w:pPr><w:jc w:val="center"/></w:pPr>${r(`${o.name||''} — વ્યક્તિ અહેવાલ • પાનું `,{sz:8,c:'94A3B8'})}<w:r><w:rPr><w:sz w:val="16"/><w:color w:val="94A3B8"/></w:rPr><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:rPr><w:sz w:val="16"/><w:color w:val="94A3B8"/></w:rPr><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r><w:r><w:rPr><w:sz w:val="16"/><w:color w:val="94A3B8"/></w:rPr><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:rPr><w:sz w:val="16"/><w:color w:val="94A3B8"/></w:rPr><w:t>1</w:t></w:r><w:r><w:rPr><w:sz w:val="16"/><w:color w:val="94A3B8"/></w:rPr><w:fldChar w:fldCharType="end"/></w:r></w:p></w:ftr>`;
+  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdFt" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>${media.map(m=>`<Relationship Id="rIdImg${m.id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img${m.id}.jpeg"/>`).join('')}</Relationships>`;
+  const ct=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>`;
+  const root=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
+  const enc=t=>new TextEncoder().encode(t);const b64u8=u=>{const b=atob(u.split(',')[1]);const a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a;};
+  const C=XLSX.CFB;const z=C.utils.cfb_new();const add=(n,d)=>C.utils.cfb_add(z,'/'+n,d);
+  add('[Content_Types].xml',enc(ct));add('_rels/.rels',enc(root));add('word/document.xml',enc(doc));add('word/footer1.xml',enc(ftr));add('word/_rels/document.xml.rels',enc(rels));media.forEach(m=>add(`word/media/img${m.id}.jpeg`,b64u8(m.u)));
+  const out=C.write(z,{type:'array',fileType:'zip'});return new Blob([out],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});}
+async function personReport(o,fmt,nm){progress(true,5,'🎨 અહેવાલ બની રહ્યો છે…');
+  try{const D=await personReportData(o);const date=new Date().toISOString().slice(0,10);
+    if(fmt==='doc'){const blob=personDocx(D);download(`${nm}-ahewal-${date}.docx`,blob);toast('📝 રંગીન Word અહેવાલ તૈયાર (ફોટા સાથે)','ok',5000);return;}
+    /* PDF — A4 ઊભું, વિભાગ પાના વચ્ચે તૂટે નહીં */
+    if(!window.html2canvas||!window.jspdf){await loadRepLibs();}
+    const blocks=personReportHTML(D,k=>k==='main'?D.main:D.gal[+k.slice(1)].u);
+    const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:'pt',format:'a4',orientation:'portrait'});const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight(),M=20;
+    const W=760,pageH=Math.floor((ph-2*M-10)/(pw-2*M)*W);
+    const host=document.createElement('div');host.style.cssText=`position:fixed;left:-99999px;top:0;width:${W}px;background:#fff;color:#0f172a;font-family:"Noto Sans Gujarati","Nirmala UI",sans-serif;font-size:13px;line-height:1.4`;document.body.appendChild(host);
+    try{await document.fonts?.ready;const mk=n=>{const d=document.createElement('div');d.style.cssText='background:#fff;width:'+W+'px';if(n)d.innerHTML=`<div style="display:flex;justify-content:space-between;border-bottom:3px solid #0b3b7a;padding:2px 0 4px;margin-bottom:10px;font-size:12px;color:#0b3b7a;font-weight:bold"><span>🛡️ ${esc(o.name||'')} — વ્યક્તિ અહેવાલ (ચાલુ)</span><span>${esc(fmtDate(Date.now()))}</span></div>`;host.appendChild(d);return d;};
+      const pages=[];let cur=mk(0);pages.push(cur);
+      for(const b of blocks){const w=document.createElement('div');w.innerHTML=b;cur.appendChild(w);if(cur.offsetHeight>pageH&&cur.children.length>1){w.remove();cur=mk(1);pages.push(cur);cur.appendChild(w);}}
+      await Promise.all([...host.querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r;})));
+      for(let i=0;i<pages.length;i++){progress(true,(i+1)/pages.length*100,`📄 PDF પાનું ${i+1} / ${pages.length}`);
+        const cv=await html2canvas(pages[i],{scale:2,backgroundColor:'#fff',windowWidth:W});const w=pw-2*M,h=cv.height/cv.width*w;
+        if(i)pdf.addPage('a4','portrait');pdf.addImage(cv.toDataURL('image/jpeg',0.88),'JPEG',M,M,w,Math.min(h,ph-2*M-10));
+        pdf.setFontSize(8);pdf.setTextColor(120);pdf.text(`${i+1} / ${pages.length}`,pw/2-8,ph-10);}
+      download(`${nm}-ahewal-${date}.pdf`,pdf.output('blob'));toast(`📄 રંગીન PDF અહેવાલ તૈયાર — ${pages.length} પાનાં`,'ok',5000);}
+    finally{host.remove();}
+  }catch(e){console.error(e);toast('અહેવાલ ભૂલ: '+e.message,'err',6000);}finally{progress(false);}}
 function exportMenu(title,cb){const ov=openModal(`<h2>🖨️ ${esc(title)}</h2><div class="muted" style="margin-bottom:10px">કયા રૂપમાં કાઢવું છે?</div><div class="row gap"><button class="btn pri" data-xf="xlsx">📊 Excel</button><button class="btn pri" data-xf="doc">📝 Word</button><button class="btn pri" data-xf="pdf">📄 PDF</button></div>`);
   ov.addEventListener('click',e=>{const b=e.target.closest('[data-xf]');if(!b)return;ov.close();cb(b.dataset.xf);});}
 document.addEventListener('click',e=>{const x=e.target.closest('[data-oexp]');if(!x)return;e.preventDefault();e.stopPropagation();const o=(settings.others||[]).find(z=>z.id===x.dataset.oexp);exportMenu((o&&o.name)||'વ્યક્તિ',f=>personExport(x.dataset.oexp,f));},true);
@@ -3129,7 +3422,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=25;
+const APP_VERSION=32;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
@@ -3341,6 +3634,13 @@ $('#wAdd').onclick=()=>{const t=$('#wIn').value.trim();if(t.length<3){toast('ઓ
 $('#watchList').onclick=e=>{const b=e.target.closest('[data-wdel]');if(b){settings.watch=settings.watch.filter(w=>w.id!==b.dataset.wdel);saveSettings();renderAll();renderWatch();}};
 $('#setList').onchange=e=>{const k=e.target.dataset.set;if(!k)return;settings[k]=e.target.checked;saveSettings();if(k==='syncPhotos'){if(SYNC.on)syncStart();return;}
   if(k==='engNames'){docs.forEach(d=>extractDoc(d));docs.forEach(d=>DB.put('docs',d).catch(()=>{}));}buildIndex();renderAll();};
+document.addEventListener('click',async e=>{const t=e.target;const g1=t.closest('[data-igdel]'),ga=t.closest('[data-igdelall]'),rs=t.closest('[data-delrs]'),fg=t.closest('[data-delfg]'),fa=t.closest('[data-delfgall]');if(!(g1||ga||rs||fg||fa))return;e.stopPropagation();
+  if(g1||ga){const L=g1?[g1.dataset.igdel]:[...settings.ignore];if(!confirm(`${GU_D(L.length)} અવગણેલા નંબર / નામ એપમાંથી કાયમ કાઢવા છે?\n(અન્ય વ્યક્તિ, રજીસ્ટર અને ફાઇલો — બધેથી)`))return;progress(true,5,'🗑️ કાઢી રહ્યા છીએ…');
+    for(let i=0;i<L.length;i++){const [ty,...r]=L[i].split('|');const v=r.join('|');progress(true,(i+1)/L.length*100,`🗑️ ${i+1} / ${L.length}`);if(ty==='name'){settings.deleted=(settings.deleted||[]);for(const d of docs){const b4=d.entities.length;d.entities=d.entities.filter(x=>x.type+'|'+x.key!==L[i]);if(d.entities.length<b4){d.removed=uniq([...(d.removed||[]),L[i]]);await saveDoc(d);}}settings.ignore=settings.ignore.filter(k=>k!==L[i]);settings.deleted.push({t:ty,k:v,v,at:Date.now()});}else{await deleteValueEverywhere(ty,v,{silent:true});if(ty==='aadhaar'&&/^91[6-9]\d{9}$/.test(v))await deleteValueEverywhere('phone',v.slice(2),{silent:true});}}
+    progress(false);await saveSettings();buildIndex();renderAll();renderSettings();toast(`🗑️ ${GU_D(L.length)} કાયમ કાઢ્યા — "કાઢી નાખેલ" યાદીમાં નોંધ`,'ok',6000);return;}
+  if(rs){const [ty,...r]=rs.dataset.delrs.split('|');await restoreDeleted(ty,r.join('|'));return;}
+  if(fg){settings.deleted=(settings.deleted||[]).filter(x=>x.t+'|'+x.k!==fg.dataset.delfg);await saveSettings();renderSettings();return;}
+  if(fa&&confirm('કાઢી નાખેલની યાદી ખાલી કરવી છે? (નંબર એપમાં પાછા નહીં આવે)')){settings.deleted=[];await saveSettings();renderSettings();}},true);
 $('#ignList').onclick=e=>{const b=e.target.closest('[data-unign]');if(b){settings.ignore=settings.ignore.filter(k=>k!==b.dataset.unign);saveSettings();buildIndex();renderAll();renderSettings();}};
 $('#bExp').onclick=async()=>{const photos=[];for(const p of PH.m.values()){const b=await DB.get('blobs','ph_'+p.id).catch(()=>null);photos.push({...p,data:b?await blobToDataURL(b):''});}
   download(`vyuhrachna-backup-${new Date().toISOString().slice(0,10)}.json`,new Blob([JSON.stringify({app:'vyuhrachna',v:4,exported:Date.now(),settings,docs,photos})],{type:'application/json'}));};
@@ -3382,7 +3682,8 @@ document.body.classList.add('home');
   try{dedupeOthers();}catch(e){console.warn(e);}
   try{const r=localStorage.getItem('tk_reg');if(REG_DEF[r])curReg=r;}catch(_){}
   rebuildCols();
-  docs=await DB.all('docs').catch(()=>[]);docs.forEach(d=>docMap.set(d.id,d));await phLoad();
+  docs=await DB.all('docs').catch(()=>[]);docs.forEach(d=>docMap.set(d.id,d));settings.ignore=uniq((settings.ignore||[]).map(k=>/^aadhaar\|91[6-9]\d{9}$/.test(k)?'phone|'+k.slice(10):k));
+  for(const d of docs)if((d.entities||[]).some(e=>e.type==='aadhaar'&&/^91[6-9]\d{9}$/.test(e.key))){try{extractDoc(d);await DB.put('docs',d);}catch(_){}}await phLoad();
   buildIndex();renderAll();
   /* રીફ્રેશ પછી જે પેજ પર હતા ત્યાં જ પાછા */
   try{const nv=JSON.parse(sessionStorage.getItem('tk_nav')||'null');if(nv&&nv.t&&nv.t!=='dash'&&document.getElementById('tab-'+nv.t)){
