@@ -2086,14 +2086,12 @@ async function syncStart(){
     if(firebase.auth&&!LOGIN_MODE){try{await firebase.auth().signInAnonymously();}catch(e){console.warn('anon auth',e);}}
     syncStopListeners();SYNC.db=firebase.firestore();SYNC.team=team;
     const base=SYNC.db.collection('dataMilan').doc(team);SYNC.docsCol=base.collection('docs');SYNC.partsCol=base.collection('parts');SYNC.metaRef=base.collection('meta').doc('config');
-    const snap=await SYNC.docsCol.get();const remote=new Map(snap.docs.map(x=>[x.id,x.data().updatedAt||0]));
+    /* રીડ બચાવો: અલગ get() નહીં — પહેલો onSnapshot જ આખી યાદી આપે છે (પહેલાં દરેક ફાઇલ બે વાર વંચાતી) */
     SYNC.on=true;SYNC.ready=false;
-    for(const d of docs)if(!remote.has(d.id)||(d.updatedAt||0)>remote.get(d.id))syncPush(d);
-    const m=await SYNC.metaRef.get().catch(()=>null);if(m&&!m.exists)syncPushMeta();
-    SYNC.unsub.push(SYNC.docsCol.onSnapshot(s=>applyRemoteDocs(s),e=>setSync('error',e.message)));
-    SYNC.unsub.push(SYNC.metaRef.onSnapshot(s=>applyRemoteMeta(s),()=>{}));
+    await new Promise(res=>{let first=true;SYNC.unsub.push(SYNC.docsCol.onSnapshot(s=>{if(first){first=false;const remote=new Map(s.docs.map(x=>[x.id,x.data().updatedAt||0]));for(const d of docs)if(!remote.has(d.id)||(d.updatedAt||0)>remote.get(d.id))syncPush(d);res();}applyRemoteDocs(s);},e=>{setSync('error',e.message);res();}));setTimeout(res,20000);});
+    {let first=true;SYNC.unsub.push(SYNC.metaRef.onSnapshot(s=>{if(first){first=false;if(!s.exists){syncPushMeta();return;}}applyRemoteMeta(s);},()=>{}));}
     try{await smsSyncStart(base);}catch(e){console.warn(e);}
-    SYNC.photosCol=null;if(settings.syncPhotos){SYNC.photosCol=base.collection('photos');const ps=await SYNC.photosCol.get();const rm=new Map(ps.docs.map(x=>[x.id,x.data().updatedAt||0]));for(const p of PH.m.values())if(!rm.has(p.id)||(p.updatedAt||p.addedAt||0)>rm.get(p.id))syncPhotoPush(p);SYNC.unsub.push(SYNC.photosCol.onSnapshot(s=>applyRemotePhotos(s),()=>{}));}
+    SYNC.photosCol=null;if(settings.syncPhotos){SYNC.photosCol=base.collection('photos');let first=true;SYNC.unsub.push(SYNC.photosCol.onSnapshot(s=>{if(first){first=false;const rm=new Map(s.docs.map(x=>[x.id,x.data().updatedAt||0]));for(const p of PH.m.values())if(!rm.has(p.id)||(p.updatedAt||p.addedAt||0)>rm.get(p.id))syncPhotoPush(p);}applyRemotePhotos(s);},()=>{}));}
     setSync('on');return true;
   }catch(e){console.error(e);SYNC.on=false;setSync('error',e.message);toast('ઓનલાઇન જોડાણ ન થયું: '+e.message,'err',7000);return false;}
 }
@@ -2185,24 +2183,45 @@ const smsSave=()=>{const r=DB.put('kv',smsLog,'smslog').catch(()=>{});smsSyncSoo
 /* ===== SMS લોગ ઓનલાઇન — મોબાઇલમાં આવેલા લોકેશન વેબ / કમ્પ્યુટરમાં પણ ===== */
 const SMS_SYNC_KINDS=new Set(['reply','sent','manualnum']);let smsSyncT=0,smsSynced=new Set(),smsApplying=false;
 function smsSyncSoon(){if(smsApplying||!SYNC.on||!SYNC.smsCol)return;clearTimeout(smsSyncT);smsSyncT=setTimeout(smsSyncPush,1200);}
+/* SMS ઓનલાઇન — રીડ બચાવવા: દર વખતે આખો લોગ નહીં, ફક્ત છેલ્લે જોયા પછી બદલાયેલા જ વંચાય (u = સર્વરનો સમય).
+   કાઢેલો મેસેજ ડિલીટ નહીં પણ {del:1} નિશાની — બીજા ડિવાઇસને પણ ખબર પડે */
+const smsTS=()=>firebase.firestore.FieldValue.serverTimestamp();
+const smsClean=e=>{const o=JSON.parse(JSON.stringify(e));delete o._dirty;delete o.u;return o;};
+let smsIdsT=0;function smsIdsSave(){clearTimeout(smsIdsT);smsIdsT=setTimeout(()=>DB.put('kv',[...smsSynced],'smsSyncIds').catch(()=>{}),800);}
+function smsTomb(id){try{SYNC.smsCol.doc(id).set({id,del:1,u:smsTS()});}catch(_){}}
 async function smsSyncPush(){if(!SYNC.on||!SYNC.smsCol||(typeof readOnly==='function'&&readOnly()))return;
   const loc=smsLog.filter(e=>e&&e.id&&SMS_SYNC_KINDS.has(e.kind)).slice(-4000);const ids=new Set(loc.map(e=>e.id));
-  const add=loc.filter(e=>!smsSynced.has(e.id)),del=[...smsSynced].filter(id=>!ids.has(id));
-  try{for(let i=0;i<add.length;i+=400){const b=SYNC.db.batch();for(const e of add.slice(i,i+400))b.set(SYNC.smsCol.doc(e.id),JSON.parse(JSON.stringify(e)));await b.commit();add.slice(i,i+400).forEach(e=>smsSynced.add(e.id));}
-    for(let i=0;i<del.length;i+=400){const b=SYNC.db.batch();for(const id of del.slice(i,i+400))b.delete(SYNC.smsCol.doc(id));await b.commit();del.slice(i,i+400).forEach(id=>smsSynced.delete(id));}
+  const add=loc.filter(e=>!smsSynced.has(e.id)),del=[...smsSynced].filter(id=>!ids.has(id)&&!smsLog.some(e=>e.id===id));
+  try{for(let i=0;i<add.length;i+=400){const b=SYNC.db.batch();for(const e of add.slice(i,i+400))b.set(SYNC.smsCol.doc(e.id),{...smsClean(e),u:smsTS()});await b.commit();add.slice(i,i+400).forEach(e=>smsSynced.add(e.id));}
+    for(let i=0;i<del.length;i+=400){const b=SYNC.db.batch();for(const id of del.slice(i,i+400))b.set(SYNC.smsCol.doc(id),{id,del:1,u:smsTS()});await b.commit();del.slice(i,i+400).forEach(id=>smsSynced.delete(id));}
     /* સ્થિતિ બદલાય (દા.ત. ⏳ → ✅ ગયો) તો અપડેટ */
-    const ch=loc.filter(e=>e._dirty);for(const e of ch){delete e._dirty;await SYNC.smsCol.doc(e.id).set(JSON.parse(JSON.stringify(e)));}
+    const ch=loc.filter(e=>e._dirty);for(const e of ch){delete e._dirty;await SYNC.smsCol.doc(e.id).set({...smsClean(e),u:smsTS()});}
+    if(add.length||del.length)smsIdsSave();
   }catch(e){console.warn('sms sync',e);}}
-async function smsSyncStart(base){SYNC.smsCol=base.collection('sms');smsSynced=new Set();
-  try{const snap=await SYNC.smsCol.get();const c=smsCfg();const gone=new Set(c.gone||[]);const have=new Set(smsLog.map(e=>e.id));let n=0;
-    const BL=c.blocked||{};for(const d of snap.docs){smsSynced.add(d.id);if(have.has(d.id))continue;const e=d.data();if(e.num&&BL[e.num]&&(e.at||0)<=BL[e.num]+864e5*3650){try{SYNC.smsCol.doc(d.id).delete();}catch(_){}continue;}if(e.kind==='reply'&&(gone.has(smsHash(e.text))||(c.clearedAt&&e.at<=c.clearedAt)))continue;smsLog.push(e);n++;}
-    if(n){smsLog.sort((a,b)=>(a.at||0)-(b.at||0));smsApplying=true;await DB.put('kv',smsLog,'smslog').catch(()=>{});smsApplying=false;}
-    await smsSyncPush();if(n)smsRefreshUI();}catch(e){console.warn('sms sync start',e);}
-  SYNC.unsub.push(SYNC.smsCol.onSnapshot(sn=>{let ch=false;const c=smsCfg();const gone=new Set(c.gone||[]);
-    for(const x of sn.docChanges()){const id=x.doc.id;if(x.type==='removed'){smsSynced.delete(id);const b4=smsLog.length;smsLog=smsLog.filter(e=>e.id!==id);if(smsLog.length<b4)ch=true;continue;}
-      smsSynced.add(id);const e=x.doc.data();if(e.num&&smsBlocked(e.num)){if(!x.doc.metadata.hasPendingWrites)try{x.doc.ref.delete();}catch(_){}continue;}const i=smsLog.findIndex(z=>z.id===id);
-      if(i<0){if(e.kind==='reply'&&(gone.has(smsHash(e.text))||(c.clearedAt&&e.at<=c.clearedAt)))continue;smsLog.push(e);ch=true;if(e.kind==='reply'&&e.gj&&e.at>Date.now()-15*60e3&&!x.doc.metadata.hasPendingWrites)try{gjAlert(e);}catch(_){}}
-      else if(JSON.stringify(smsLog[i])!==JSON.stringify(e)){smsLog[i]=e;ch=true;}}
+async function smsSyncStart(base){SYNC.smsCol=base.collection('sms');
+  const lastU=+(await DB.get('kv','smsU').catch(()=>0))||0;let ids=null;try{ids=await DB.get('kv','smsSyncIds');}catch(_){}
+  smsSynced=new Set(Array.isArray(ids)?ids:[]);let maxU=lastU;const t0=Date.now();
+  const skip=e=>{const c=smsCfg();if(e.num&&smsBlocked(e.num))return true;return e.kind==='reply'&&((c.gone||[]).includes(smsHash(e.text))||(c.clearedAt&&e.at<=c.clearedAt));};
+  const uOf=d=>{try{const u=d.get('u',{serverTimestamps:'estimate'});return u&&u.toMillis?u.toMillis():0;}catch(_){return 0;}};
+  try{if(!lastU||!Array.isArray(ids)){/* પહેલી વાર (કે જૂના વર્ઝનથી) — એક જ વાર આખો લોગ */
+      const snap=await SYNC.smsCol.get();const have=new Set(smsLog.map(e=>e.id));let n=0;smsSynced=new Set();
+      for(const d of snap.docs){const e=d.data();maxU=Math.max(maxU,uOf(d));if(e.del){const k=smsLog.findIndex(z=>z.id===d.id);if(k>=0){smsLog.splice(k,1);n++;}continue;}
+        if(e.num&&smsBlocked(e.num)){smsTomb(d.id);continue;}smsSynced.add(d.id);if(have.has(d.id))continue;if(skip(e))continue;smsLog.push(smsClean(e));n++;}
+      if(!maxU)maxU=t0;await DB.put('kv',maxU,'smsU').catch(()=>{});
+      if(n){smsLog.sort((a,b)=>(a.at||0)-(b.at||0));smsApplying=true;await DB.put('kv',smsLog,'smslog').catch(()=>{});smsApplying=false;}
+      smsIdsSave();await smsSyncPush();if(n)smsRefreshUI();}
+    else await smsSyncPush();
+  }catch(e){console.warn('sms sync start',e);}
+  const from=firebase.firestore.Timestamp.fromMillis(Math.max(0,(maxU||t0)-120000));let uT=0;
+  SYNC.unsub.push(SYNC.smsCol.where('u','>',from).onSnapshot(sn=>{let ch=false;
+    for(const x of sn.docChanges()){const id=x.doc.id;if(x.type==='removed')continue;if(x.doc.metadata.hasPendingWrites)continue;
+      const e=x.doc.data();const u=uOf(x.doc);if(u>maxU)maxU=u;
+      if(e.del){if(smsSynced.delete(id))smsIdsSave();const b4=smsLog.length;smsLog=smsLog.filter(z=>z.id!==id);if(smsLog.length<b4)ch=true;continue;}
+      if(e.num&&smsBlocked(e.num)){smsTomb(id);continue;}
+      if(!smsSynced.has(id)){smsSynced.add(id);smsIdsSave();}const ce=smsClean(e);const k=smsLog.findIndex(z=>z.id===id);
+      if(k<0){if(skip(e))continue;smsLog.push(ce);ch=true;if(e.kind==='reply'&&e.gj&&e.at>Date.now()-15*60e3)try{gjAlert(ce);}catch(_){}}
+      else if(JSON.stringify(smsClean(smsLog[k]))!==JSON.stringify(ce)){smsLog[k]=ce;ch=true;}}
+    clearTimeout(uT);uT=setTimeout(()=>DB.put('kv',maxU,'smsU').catch(()=>{}),1500);
     if(ch){smsLog.sort((a,b)=>(a.at||0)-(b.at||0));smsApplying=true;DB.put('kv',smsLog,'smslog').catch(()=>{}).finally(()=>{smsApplying=false;});smsRefreshUI();}},e=>console.warn('sms snap',e)));}
 function smsRefreshUI(){try{if($('#tab-sms').classList.contains('on'))renderSms();if($('#tab-rdash').classList.contains('on'))renderRegDash();if($('#tab-dash').classList.contains('on'))renderHomeStrip();}catch(_){}}
 function smsNumbers(){
@@ -3457,7 +3476,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=36;
+const APP_VERSION=37;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
