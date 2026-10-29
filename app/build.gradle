@@ -10,7 +10,8 @@ android {
         applicationId "com.vyuhrachna.app"
         minSdk 24
         targetSdk 34
-        versionCode ((System.getenv("GITHUB_RUN_NUMBER") ?: "1") as Integer)
+        // દર વખતે મોટો નંબર (મિનિટ મુજબ) — જૂની એપ પર "App not installed" (નીચું વર્ઝન) ન આવે
+        versionCode ((int)(System.currentTimeMillis().intdiv(60000L) - 29000000L))
         versionName "1." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
     }
 

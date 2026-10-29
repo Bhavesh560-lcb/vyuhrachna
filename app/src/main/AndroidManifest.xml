@@ -60,6 +60,10 @@
         </receiver>
 
         <receiver
+            android:name=".SentReceiver"
+            android:exported="false" />
+
+        <receiver
             android:name=".SchedReceiver"
             android:exported="false">
             <intent-filter>

@@ -57,6 +57,21 @@ public class MainActivity extends Activity {
     private ValueCallback<Uri[]> fileCb;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private int reqCounter = 100;
+    private android.os.HandlerThread smsThread;
+    private Handler smsHandler;
+
+    private Handler smsH() {
+        if (smsHandler == null) {
+            smsThread = new android.os.HandlerThread("vyuh-sms");
+            smsThread.start();
+            smsHandler = new Handler(smsThread.getLooper());
+        }
+        return smsHandler;
+    }
+
+    void onSmsStatusNative(String num, String st, String err) {
+        js("window.onSmsStatus&&onSmsStatus(" + JSONObject.quote(num) + "," + JSONObject.quote(st) + "," + JSONObject.quote(err) + ")");
+    }
     private boolean pageReady = false;
     private String pendingShare;
     private String pendingTab;
@@ -306,8 +321,8 @@ public class MainActivity extends Activity {
             ArrayList<String> parts = sm.divideMessage(body);
             ArrayList<PendingIntent> sent = new ArrayList<>();
             for (int k = 0; k < parts.size(); k++) {
-                Intent it = new Intent(ACTION_SENT);
-                it.setPackage(getPackageName());
+                Intent it = new Intent(this, SentReceiver.class);
+                it.setAction(ACTION_SENT);
                 it.putExtra("num", num);
                 it.putExtra("last", k == parts.size() - 1);
                 sent.add(PendingIntent.getBroadcast(this, reqCounter++, it, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT));
@@ -490,7 +505,7 @@ public class MainActivity extends Activity {
                 long gap = Math.max(2000, delayMs);
                 for (int i = 0; i < a.length(); i++) {
                     final JSONObject o = a.getJSONObject(i);
-                    handler.postDelayed(() -> sendOne(o.optString("to"), o.optString("body"), o.optString("num"), subId), i * gap);
+                    smsH().postDelayed(() -> sendOne(o.optString("to"), o.optString("body"), o.optString("num"), subId), i * gap);
                 }
             } catch (Exception e) {
                 js("window.onSmsStatus&&onSmsStatus('','error'," + JSONObject.quote(String.valueOf(e.getMessage())) + ")");
@@ -597,6 +612,34 @@ public class MainActivity extends Activity {
                 }
             } catch (Exception ignored) {}
             for (JSONObject o : map.values()) out.put(o);
+            return out.toString();
+        }
+
+        @JavascriptInterface
+        public String takeStatusLog() {
+            return Store.takeStatusLog(MainActivity.this);
+        }
+
+        /** મોકલેલા / નિષ્ફળ SMS (ફક્ત સ્થિતિ તપાસવા) */
+        @JavascriptInterface
+        public String readSentBox(String sinceMs) {
+            JSONArray out = new JSONArray();
+            if (!has(Manifest.permission.READ_SMS)) return out.toString();
+            long since = 0;
+            try {
+                since = Long.parseLong(sinceMs);
+            } catch (Exception ignored) {}
+            try (Cursor c = getContentResolver().query(Uri.parse("content://sms"),
+                    new String[]{"address", "body", "date", "type"}, "date>? AND type IN (2,4,5,6)", new String[]{String.valueOf(since)}, "date ASC")) {
+                if (c != null) {
+                    while (c.moveToNext() && out.length() < 3000) {
+                        int t = c.getInt(3);
+                        JSONObject o = new JSONObject();
+                        o.put("to", c.getString(0)).put("body", c.getString(1)).put("date", c.getLong(2)).put("type", t == 2 ? "sent" : t == 5 ? "failed" : "queued");
+                        out.put(o);
+                    }
+                }
+            } catch (Exception ignored) {}
             return out.toString();
         }
 

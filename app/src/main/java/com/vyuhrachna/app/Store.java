@@ -127,6 +127,21 @@ public final class Store {
         } catch (Exception ignored) {}
     }
 
+    static synchronized void addStatus(Context c, String num, String st, String err) {
+        try {
+            JSONArray a = new JSONArray(prefs(c).getString("statusLog", "[]"));
+            a.put(new JSONObject().put("num", num).put("st", st).put("err", err).put("ts", System.currentTimeMillis()));
+            while (a.length() > 1000) a.remove(0);
+            prefs(c).edit().putString("statusLog", a.toString()).apply();
+        } catch (Exception ignored) {}
+    }
+
+    static synchronized String takeStatusLog(Context c) {
+        String s = prefs(c).getString("statusLog", "[]");
+        prefs(c).edit().putString("statusLog", "[]").apply();
+        return s;
+    }
+
     static synchronized String takeSentLog(Context c) {
         String s = prefs(c).getString("sentLog", "[]");
         prefs(c).edit().putString("sentLog", "[]").apply();
