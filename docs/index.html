@@ -542,7 +542,7 @@ body.locked{overflow:hidden}
     <div class="toolbar"><input class="inp grow" id="smsAskQ" placeholder="નંબર / નામ / #ક્રમ શોધો…"><select class="inp" id="smsAskS" style="padding:5px 8px"><option value="no">ક્રમ મુજબ</option><option value="new">છેલ્લું અપડેટ પહેલાં</option><option value="cnt">સૌથી વધુ લોકેશન</option></select></div>
     <div class="occ" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center" id="smsAskDt"><b>📅 મંગાવ્યાનો સમય:</b> <span class="muted" style="font-size:12.5px">થી</span><input class="inp" type="datetime-local" id="smsAskFrom" style="padding:4px 6px"><span class="muted" style="font-size:12.5px">સુધી</span><input class="inp" type="datetime-local" id="smsAskTo" style="padding:4px 6px">
       <button class="chip mchip" data-askd="today">આજે</button><button class="chip mchip" data-askd="yest">ગઈકાલે</button><button class="chip mchip" data-askd="3">3 દિવસ</button><button class="chip mchip" data-askd="7">7 દિવસ</button><button class="chip mchip" data-askd="30">30 દિવસ</button><button class="btn sm" data-askd="clr">✕ બધી તારીખ</button><span id="smsAskDtInfo" style="font-size:12.5px"></span></div>
-    <div class="seg" id="smsAskF" style="margin:6px 0"></div>
+    <div class="seg" id="smsAskF" style="margin:6px 0"></div><div id="smsBlk" style="margin:4px 0"></div>
     <div class="tablewrap" style="max-height:60vh;overflow:auto" id="smsAskBox"></div></div>
   <div class="card" style="margin-top:12px;border-top:4px solid var(--pri)" id="smsSelCard"><h3>☑️ પસંદ કરેલા નંબર (<span id="smsSelN">0</span>)</h3><div class="muted" style="font-size:12.5px;margin:-4px 0 8px">ફક્ત આ નંબરના જ લોકેશન રિપ્લાય સેવ થશે. નીચે "📤 એક વાર મોકલો" અથવા "⏱️ બધાને દર … મિનિટે" સમય પસંદ કરી "▶️ સમય મુજબ મોકલો".</div><div id="smsSelBox"></div></div>
   <div class="card" style="margin-top:12px"><h3>② કંપનીનો રિપ્લાય ઉમેરો</h3>
@@ -1569,7 +1569,7 @@ async function dataEdit(r){buildNet();if(r.type==='name'){if(r.man[0]){otherForm
 /* એક નંબર / IMEI / ગાડી બધેથી કાયમ કાઢો: અન્ય વ્યક્તિ, રજીસ્ટરના આરોપી, ફાઇલો — અને "કાઢી નાખેલ" યાદીમાં નોંધ */
 const DEL_F={phone:['mob','wa','bmob'],imei:['imei','bimei'],vehicle:['veh']};
 function delKeyOf(type,x){x=String(x??'');if(type==='phone')return normVal('mob',x);if(type==='imei')return String(normVal('imei',x)).slice(0,14);if(type==='vehicle')return normVal('veh',x);return keyFor(type,x);}
-async function deleteValueEverywhere(type,val,{silent=false}={}){const rk=delKeyOf(type,val);if(!rk)return 0;let n=0;const F=DEL_F[type]||[];
+async function deleteValueEverywhere(type,val,{silent=false}={}){const rk=delKeyOf(type,val);if(!rk)return 0;if(type==='phone')try{smsBlock([val]);}catch(_){}let n=0;const F=DEL_F[type]||[];
   for(const o of (settings.others||[]))for(const f of F){const a=o[f]||[];const b=a.filter(x=>delKeyOf(type,x)!==rk);if(b.length<a.length){o[f]=b;o.updatedAt=Date.now();n+=a.length-b.length;}}
   if(type==='custom')for(const o of (settings.others||[])){const b=(o.socials||[]).filter(x=>keyFor('custom',socKey(x))!==rk);if(b.length<(o.socials||[]).length){n++;o.socials=b;}}
   /* રજીસ્ટરના આરોપી */
@@ -1583,7 +1583,7 @@ async function deleteValueEverywhere(type,val,{silent=false}={}){const rk=delKey
   settings.ignore=(settings.ignore||[]).filter(k=>!(k.split('|')[0]===type&&delKeyOf(type,k.split('|').slice(1).join('|'))===rk));
   settings.deleted=(settings.deleted||[]).filter(x=>!(x.t===type&&x.k===rk));settings.deleted.push({t:type,k:rk,v:String(val),at:Date.now()});if(settings.deleted.length>3000)settings.deleted=settings.deleted.slice(-3000);
   await saveOthers();buildIndex();renderAll();if(!silent)toast(`🗑️ ${val} બધેથી કાઢી નાખ્યો`,'ok');return n;}
-async function restoreDeleted(t,k){const x=(settings.deleted||[]).find(z=>z.t===t&&z.k===k);settings.deleted=(settings.deleted||[]).filter(z=>!(z.t===t&&z.k===k));
+async function restoreDeleted(t,k){if(t==='phone')try{smsUnblock([k]);}catch(_){}const x=(settings.deleted||[]).find(z=>z.t===t&&z.k===k);settings.deleted=(settings.deleted||[]).filter(z=>!(z.t===t&&z.k===k));
   for(const d of docs){const b4=(d.removed||[]).length;d.removed=(d.removed||[]).filter(r=>!(r.split('|')[0]===t&&delKeyOf(t,r.split('|').slice(1).join('|'))===k));if(d.removed.length<b4){extractDoc(d);d.updatedAt=Date.now();await saveDoc(d);}}
   await saveOthers();buildIndex();renderAll();renderSettings();toast(`↩ ${x?x.v:k} ફાઇલોમાં પાછો આવ્યો (વ્યક્તિમાંથી કાઢેલ હોય તો ત્યાં જાતે ઉમેરવો)`,'ok',6000);}
 async function dataDelete(r){
@@ -2172,8 +2172,15 @@ async function smsLoad(){try{smsLog=(await DB.get('kv','smslog'))||[];}catch(_){
   /* જૂના રિપ્લાય નવા નિયમથી ફરી તપાસો (Lat/Long, ટાવર કોડ) */
   let ch=false;for(const e of smsLog){if(e.kind!=='reply'||e.v2)continue;const p=parseReply(e.text);Object.assign(e,{cgi:p.cgi,cell:p.cell,ll:p.ll,gj:p.gj,gjWhy:p.gjWhy,where:p.where,mm:p.mm,v2:1});ch=true;}if(ch)smsSave();}
 /* ટીક કરેલા + આપમેળે મોકલાતા + છેલ્લા 48 કલાકમાં SMS મોકલેલા નંબર — ફક્ત તેમના જ રિપ્લાય સેવ થશે */
-function smsWatched(){const c=smsCfg();const w=new Set(smsSel);const lim=Date.now()-48*3600e3;smsLog.forEach(e=>{if(e.kind==='sent'&&e.at>lim&&e.num)w.add(e.num);});return w;}
-let smsSelSig='';function smsSaveSel(){const c=smsCfg();const a=[...smsSel].sort();const sig=a.join(',');if(sig===smsSelSig)return;smsSelSig=sig;c.sel=a;saveSettings();smsPushNative();smsPushSchedule();}
+function smsWatched(){const c=smsCfg();const B=c.blocked||{};const w=new Set(smsSel);const lim=Date.now()-48*3600e3;smsLog.forEach(e=>{if(e.kind==='sent'&&e.at>lim&&e.num&&!B[e.num])w.add(e.num);});return w;}
+/* 🚫 કાઢી નાખેલ નંબર — તેના SMS જવાબ ફરી ક્યારેય સેવ ન થાય (ફરી પસંદ કરો તો જ ચાલુ) */
+const smsBlocked=n=>{const B=smsCfg().blocked||{};return !!(n&&B[String(n).replace(/\D/g,'').slice(-10)]);};
+function smsBlock(nums,why){const c=smsCfg();c.blocked=c.blocked||{};nums=uniq(nums.map(n=>String(n||'').replace(/\D/g,'').slice(-10)).filter(n=>n.length===10));if(!nums.length)return 0;const S=new Set(nums);
+  nums.forEach(n=>{c.blocked[n]=Date.now();smsSel.delete(n);if(c.every)delete c.every[n];if(c.serial)delete c.serial[n];});
+  const E=smsLog.filter(e=>S.has(e.num)&&(e.kind==='sent'||e.kind==='reply'||e.kind==='manualnum'));smsForget(E.filter(e=>e.kind==='reply'));const ids=new Set(E.map(e=>e.id));smsLog=smsLog.filter(e=>!ids.has(e.id));
+  saveSettings();smsSave();try{smsSaveSel();smsPushNative();smsPushSchedule();}catch(_){}return E.length;}
+function smsUnblock(nums){const c=smsCfg();if(!c.blocked)return;let ch=false;nums.forEach(n=>{n=String(n||'').replace(/\D/g,'').slice(-10);if(c.blocked[n]){delete c.blocked[n];ch=true;}});if(ch)saveSettings();}
+let smsSelSig='';function smsSaveSel(){const c=smsCfg();const a=[...smsSel].sort();const sig=a.join(',');if(sig===smsSelSig)return;smsSelSig=sig;if(c.blocked)smsUnblock(a);c.sel=a;saveSettings();smsPushNative();smsPushSchedule();}
 const smsSave=()=>{const r=DB.put('kv',smsLog,'smslog').catch(()=>{});smsSyncSoon();return r;};
 /* ===== SMS લોગ ઓનલાઇન — મોબાઇલમાં આવેલા લોકેશન વેબ / કમ્પ્યુટરમાં પણ ===== */
 const SMS_SYNC_KINDS=new Set(['reply','sent','manualnum']);let smsSyncT=0,smsSynced=new Set(),smsApplying=false;
@@ -2188,12 +2195,12 @@ async function smsSyncPush(){if(!SYNC.on||!SYNC.smsCol||(typeof readOnly==='func
   }catch(e){console.warn('sms sync',e);}}
 async function smsSyncStart(base){SYNC.smsCol=base.collection('sms');smsSynced=new Set();
   try{const snap=await SYNC.smsCol.get();const c=smsCfg();const gone=new Set(c.gone||[]);const have=new Set(smsLog.map(e=>e.id));let n=0;
-    for(const d of snap.docs){smsSynced.add(d.id);if(have.has(d.id))continue;const e=d.data();if(e.kind==='reply'&&(gone.has(smsHash(e.text))||(c.clearedAt&&e.at<=c.clearedAt)))continue;smsLog.push(e);n++;}
+    const BL=c.blocked||{};for(const d of snap.docs){smsSynced.add(d.id);if(have.has(d.id))continue;const e=d.data();if(e.num&&BL[e.num]&&(e.at||0)<=BL[e.num]+864e5*3650){try{SYNC.smsCol.doc(d.id).delete();}catch(_){}continue;}if(e.kind==='reply'&&(gone.has(smsHash(e.text))||(c.clearedAt&&e.at<=c.clearedAt)))continue;smsLog.push(e);n++;}
     if(n){smsLog.sort((a,b)=>(a.at||0)-(b.at||0));smsApplying=true;await DB.put('kv',smsLog,'smslog').catch(()=>{});smsApplying=false;}
     await smsSyncPush();if(n)smsRefreshUI();}catch(e){console.warn('sms sync start',e);}
   SYNC.unsub.push(SYNC.smsCol.onSnapshot(sn=>{let ch=false;const c=smsCfg();const gone=new Set(c.gone||[]);
     for(const x of sn.docChanges()){const id=x.doc.id;if(x.type==='removed'){smsSynced.delete(id);const b4=smsLog.length;smsLog=smsLog.filter(e=>e.id!==id);if(smsLog.length<b4)ch=true;continue;}
-      smsSynced.add(id);const e=x.doc.data();const i=smsLog.findIndex(z=>z.id===id);
+      smsSynced.add(id);const e=x.doc.data();if(e.num&&smsBlocked(e.num)){if(!x.doc.metadata.hasPendingWrites)try{x.doc.ref.delete();}catch(_){}continue;}const i=smsLog.findIndex(z=>z.id===id);
       if(i<0){if(e.kind==='reply'&&(gone.has(smsHash(e.text))||(c.clearedAt&&e.at<=c.clearedAt)))continue;smsLog.push(e);ch=true;if(e.kind==='reply'&&e.gj&&e.at>Date.now()-15*60e3&&!x.doc.metadata.hasPendingWrites)try{gjAlert(e);}catch(_){}}
       else if(JSON.stringify(smsLog[i])!==JSON.stringify(e)){smsLog[i]=e;ch=true;}}
     if(ch){smsLog.sort((a,b)=>(a.at||0)-(b.at||0));smsApplying=true;DB.put('kv',smsLog,'smslog').catch(()=>{}).finally(()=>{smsApplying=false;});smsRefreshUI();}},e=>console.warn('sms snap',e)));}
@@ -2258,12 +2265,13 @@ function renderSms(){
 }
 let SCHED_NEXT={};
 function smsAskRows(L,incSel){L=L||smsNumbers();const NB=new Map(L.map(o=>[o.n,o]));const nm=n=>{const e=[...smsLog].reverse().find(x=>x.num===n&&x.name);return e?e.name:'';};
-  return [...smsAsked()].filter(n=>incSel||!smsSel.has(n)).map(n=>{const E=smsLog.filter(e=>e.num===n);const S=E.filter(e=>e.kind==='sent').sort((a,b)=>a.at-b.at);const Rp=E.filter(e=>e.kind==='reply').sort((a,b)=>a.at-b.at);
+  return [...smsAsked()].filter(n=>(incSel||!smsSel.has(n))&&!smsBlocked(n)).map(n=>{const E=smsLog.filter(e=>e.num===n);const S=E.filter(e=>e.kind==='sent').sort((a,b)=>a.at-b.at);const Rp=E.filter(e=>e.kind==='reply').sort((a,b)=>a.at-b.at);
     const rep=Rp[Rp.length-1];const k=!rep?'wait':rep.gj?'gj':rep.where||'unk';const o=NB.get(n)||{n,people:[{name:nm(n)||'—'}]};
     return {n,o,no:smsNo(n),S,Rp,rep,k,ever:Rp.some(e=>e.gj),pts:Rp.filter(e=>e.ll).length,last:Math.max(0,...E.map(e=>e.at))};});}
 function renderSmsAsked({who,repTd,L}){const box=$('#smsAskBox');if(!box)return;const rg=smsAskRange();let A=smsAskRows(L,!!rg);
   if(rg){A=A.map(x=>{const S=x.S.filter(e=>e.at>=rg.f&&e.at<=rg.t);const Rp=smsRpIn(x,rg);const rep=Rp[Rp.length-1];return {...x,S,Rp,rep,k:!rep?'wait':rep.gj?'gj':rep.where||'unk',ever:Rp.some(e=>e.gj),pts:Rp.filter(e=>e.ll).length};}).filter(x=>x.S.length||x.Rp.length);}
   $('#smsAskN').textContent=GU_D(A.length);
+  {const BL=Object.keys(smsCfg().blocked||{});$('#smsBlk').innerHTML=BL.length?`<details><summary class="muted" style="cursor:pointer;font-size:12.5px">🚫 કાઢી નાખેલ ${GU_D(BL.length)} નંબર — તેના SMS જવાબ સેવ થતા નથી</summary><div style="margin-top:4px">${BL.map(n=>`<span class="chip" style="--c:#94a3b8">${n}<button class="x" data-unblk="${n}" title="ફરી ચાલુ કરો">↩</button></span>`).join('')}</div></details>`:'';}
   {const fi=$('#smsAskFrom'),ti=$('#smsAskTo');const toL=t=>{const d=new Date(t-new Date().getTimezoneOffset()*6e4);return d.toISOString().slice(0,16);};if(document.activeElement!==fi)fi.value=smsAskFr?toL(smsAskFr):'';if(document.activeElement!==ti)ti.value=smsAskT?toL(smsAskT):'';
     $('#smsAskDtInfo').innerHTML=rg?`<span class="tag" style="background:#fde68a;color:#78350f">📅 ${esc(fmtDate(rg.f))} → ${esc(fmtDate(rg.t))} • ${GU_D(A.length)} નંબર • ${GU_D(A.reduce((a,x)=>a+x.Rp.length,0))} જવાબ</span>`:'<span class="muted">બધી તારીખ</span>';}
   const cnt=f=>A.filter(f).length;const FL=[['','બધા',()=>1],['gj','🚨 હાલ ગુજરાતમાં',x=>x.k==='gj'],['ever','🚨 ક્યારેક ગુજરાતમાં',x=>x.ever],['out','📍 બહાર',x=>x.k==='out'],['off','📴 બંધ',x=>x.k==='off'],['unk','📶 Cell ID / અજાણ',x=>x.k==='unk'],['wait','⏳ જવાબ નથી',x=>x.k==='wait']];
@@ -2352,7 +2360,7 @@ function smsLastUpdateModal(r,only){r=r||{};const W=smsWatched();const nums=only
   const ov=openModal(`<h2>${only?(only.length===1?`📜 ${noTag(only[0])}${esc(only[0])} — બધા મેસેજ`:`📜 નંબર (${GU_D(rows.length)})`):`🔄 છેલ્લું અપડેટ — પસંદ કરેલ નંબર (${GU_D(rows.length)})`}</h2>${info?`<div class="occ" style="font-size:13px">${info}</div>`:''}${sum}<div id="luList">${rows.length?rows.map(x=>`<div data-luk="${x.k}">${card(x)}</div>`).join(''):'<div class="empty">કોઈ નંબર પસંદ કરેલ નથી</div>'}</div>`);
   ov.addEventListener('click',ev=>{const f=ev.target.closest('[data-luf]');if(f){ov.querySelectorAll('[data-luk]').forEach(d=>d.style.display=!f.dataset.luf||d.dataset.luk===f.dataset.luf?'':'none');return;}});
   if($('#tab-sms').classList.contains('on'))renderSms();}
-window.onSchedSent=()=>{if(!NATIVE)return;let a=[];try{a=JSON.parse(AndroidSMS.takeSentLog()||'[]');}catch(_){}for(const x of a)smsLog.push({id:uid(),kind:'sent',num:x.num,at:x.ts,to:x.to,text:x.body,status:x.ok?'sent':'error',auto:true,err:x.err||''});if(a.length){smsSave();}smsReadSchedule();if($('#tab-sms').classList.contains('on'))renderSms();};
+window.onSchedSent=()=>{if(!NATIVE)return;let a=[];try{a=JSON.parse(AndroidSMS.takeSentLog()||'[]');}catch(_){}for(const x of a)if(!smsBlocked(x.num))smsLog.push({id:uid(),kind:'sent',num:x.num,at:x.ts,to:x.to,text:x.body,status:x.ok?'sent':'error',auto:true,err:x.err||''});if(a.length){smsSave();}smsReadSchedule();if($('#tab-sms').classList.contains('on'))renderSms();};
 function smsBody(n){const c=smsCfg();const op=c.ops[n]||'other';return (c.tpl[op]||c.tpl.other||'{NUM}').replace(/\{NUM\}/g,n);}
 function smsTo(n){const c=smsCfg();const op=c.ops[n]||'other';return (c.to[op]||c.to.other||'').replace(/\s/g,'');}
 function smsHref(to,body){const iOS=/iPhone|iPad|iPod/.test(navigator.userAgent);return `sms:${to}${iOS?'&':'?'}body=${encodeURIComponent(body)}`;}
@@ -2419,7 +2427,7 @@ function parseReply(text){
 }
 /* કાઢેલા મેસેજ ફરી ન આવે: તેની ઓળખ (hash) યાદ રાખો */
 function smsHash(t){t=String(t||'').replace(/\s+/g,' ').trim().slice(0,400);let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return (h>>>0).toString(36)+'.'+t.length;}
-function smsForget(list){const c=smsCfg();const g=new Set(c.gone||[]);for(const e of list)if(e&&e.text)g.add(smsHash(e.text));c.gone=[...g].slice(-4000);saveSettings();}
+function smsForget(list){const c=smsCfg();const g=new Set(c.gone||[]);for(const e of list)if(e&&e.text){g.add(smsHash(e.text));g.add(smsHash(String(e.text).replace(/\n\[\d{10}\]\s*$/,'')));}c.gone=[...g].slice(-4000);saveSettings();}
 function isAckSms(t,p){t=String(t||'');p=p||parseReply(t);if(p.ll||p.cell||p.cgi||p.lac||p.loc||p.off)return false;return /RECEIVED\s*REQUEST|REQUEST\s*(ID|RECEIVED|ACCEPTED|REGISTERED)|REQ\s*ID|WILL\s*BE\s*(SENT|PROCESSED)|UNDER\s*PROCESS/i.test(t);}
 function smsSenderOK(from){const c=smsCfg();const N=x=>String(x||'').toUpperCase().replace(/[^A-Z0-9]/g,'');const f=N(from);if(!f)return false;
   const ks=uniq([...String(c.from||'').split(/[,\n]/),...Object.values(c.to||{})].map(N).filter(k=>k.length>=3));
@@ -2432,10 +2440,11 @@ async function smsAddReply(text,silent,meta){
     if(!smsOn())return null;
     if(!smsSenderOK(meta.from))return null;
     const W=smsWatched();const nums=uniq((String(text).match(/(?<!\d)(?:\+?91[\s-]?)?([6-9]\d{9})(?!\d)/g)||[]).map(x=>x.replace(/\D/g,'').slice(-10)));
-    if(nums.length){if(!nums.some(n=>W.has(n)))return null;}
+    if(nums.length){if(!nums.some(n=>W.has(n)))return null;if(nums.every(n=>smsBlocked(n)||!W.has(n))&&nums.some(smsBlocked))return null;}
     else{/* નંબર વગરનો રિપ્લાય: એ જ કંપનીને 2 કલાકમાં મોકલેલા છેલ્લા નંબરનો ગણો */
       const ts=+meta.ts||Date.now();const lim=ts-2*3600e3;const last=[...smsLog].reverse().find(e=>e.kind==='sent'&&e.at>lim&&e.at<=ts+60000&&W.has(e.num));if(!last)return null;text=String(text)+'\n['+last.num+']';}}
   const p=parseReply(text);
+  if(meta&&smsBlocked(p.num))return null;
   /* "Received Request for … Request ID …" જેવી ફક્ત સ્વીકૃતિ — લોકેશન નથી, સેવ ન કરો */
   if(isAckSms(text,p))return null;
   const e={v2:1,id:uid(),kind:'reply',at:(meta&&meta.ts)||Date.now(),from:(meta&&meta.from)||'',text:String(text).trim(),...p};
@@ -2510,13 +2519,14 @@ function smsEvents(){
   $('#smsAskXls').onclick=()=>{const rg=smsAskRange();let XS=smsAskRows(null,!!rg);if(rg)XS=XS.map(x=>{const S=x.S.filter(e=>e.at>=rg.f&&e.at<=rg.t);const Rp=smsRpIn(x,rg);return {...x,S,Rp,rep:Rp[Rp.length-1],ever:Rp.some(e=>e.gj),pts:Rp.filter(e=>e.ll).length};}).filter(x=>x.S.length||x.Rp.length);
     const rows=XS.sort((a,b)=>a.no-b.no).map(x=>({'ક્રમ':x.no,'મોબાઇલ':x.n,'કોણ':x.o.people.map(p=>p.name).filter(Boolean).join(', '),'મંગાવેલ (વાર)':x.S.length,'જવાબ':x.Rp.length,'લોકેશન (Lat/Long)':x.pts,'ક્યારેક ગુજરાતમાં':x.ever?'હા':'','પહેલું મંગાવેલ':x.S[0]?fmtDate(x.S[0].at):'','છેલ્લું મંગાવેલ':x.S.length?fmtDate(x.S[x.S.length-1].at):'','છેલ્લો જવાબ':x.rep?fmtDate(x.rep.at):'','છેલ્લી સ્થિતિ':x.rep?smsWhereTag(x.rep,1):'જવાબ નથી','CGI / Cell ID':x.rep?smsCellTxt(x.rep):'','Lat,Long':x.rep?x.rep.ll||'':'','છેલ્લો મેસેજ':x.rep?x.rep.text:'','બધા લોકેશન (સમય — સ્થિતિ — સ્થળ)':x.Rp.map(e=>fmtDate(e.at)+' — '+smsWhereTag(e,1)+(e.ll?' — '+e.ll:'')+(smsCellTxt(e)?' — '+smsCellTxt(e):'')).join('\n')}));
     if(!rows.length){toast('યાદી ખાલી છે','err');return;}const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'મંગાવેલ નંબર');XLSX.writeFile(wb,`vyuhrachna-mangavel-number-${new Date().toISOString().slice(0,10)}.xlsx`);};
+  $('#smsBlk').addEventListener('click',e=>{const b=e.target.closest('[data-unblk]');if(!b)return;smsUnblock([b.dataset.unblk]);renderSms();toast(`↩ ${b.dataset.unblk} — ફરી જવાબ સેવ થશે (પસંદ કરો / SMS મોકલો)`,'ok',4000);});
   $('#smsAskBox').addEventListener('change',e=>{if(e.target.id==='smsAskAll')document.querySelectorAll('#smsAskBox [data-asksel]').forEach(x=>x.checked=e.target.checked);});
   $('#smsAskBox').addEventListener('click',e=>{const r=e.target.closest('[data-askre]');if(r){smsSel.add(r.dataset.askre);smsSaveSel();renderSms();toast(`↩ ${r.dataset.askre} ફરી પસંદ કરેલામાં`,'ok',2500);return;}
     const am=e.target.closest('[data-askmap]');if(am){const rg=smsAskRange();smsMap(am.dataset.askmap,rg?{nums:[am.dataset.askmap],from:rg.f,to:rg.t,pad:2*36e5}:null);return;}
     const h=e.target.closest('[data-askhis]');if(h){smsLastUpdateModal({hist:1},[h.dataset.askhis]);return;}
     const d=e.target.closest('[data-askdel]');if(d){const n=d.dataset.askdel;const E=smsLog.filter(x=>x.num===n&&(x.kind==='sent'||x.kind==='reply'));
-      if(!confirm(`${n} — આ નંબરનો આખો SMS લોગ (${E.length} મેસેજ) કાઢી નાખવો છે?\n\nનંબર પાછો "① નંબર પસંદ કરો" માં જશે. કાઢેલા જવાબ ફરી Inbox માંથી નહીં આવે.`))return;
-      smsForget(E.filter(x=>x.kind==='reply'));const ids=new Set(E.map(x=>x.id));smsLog=smsLog.filter(x=>!ids.has(x.id));const c=smsCfg();if(c.serial)delete c.serial[n];saveSettings();smsSave();renderSms();toast(`🗑️ ${n} નો લોગ કાઢ્યો`,'ok');}});
+      if(!confirm(`${n} — આ નંબર SMS તપાસમાંથી કાઢી નાખવો છે?\n\n• તેના ${E.length} મેસેજ કાઢી નાખાશે\n• "ફરી તપાસો" / Inbox માંથી પણ તેના જવાબ ફરી નહીં આવે\n• આપમેળે SMS પણ બંધ\n\n(ફરી જોઈએ તો ① યાદીમાંથી ફરી ✔ કરો — ત્યારે ચાલુ થશે)`))return;
+      smsBlock([n]);renderSms();toast(`🚫 ${n} કાઢ્યો — હવે તેના લોકેશન નહીં આવે`,'ok',5000);}});
   $('#smsWant').onclick=()=>{smsSel=new Set(smsNumbers().filter(o=>o.people.some(p=>p.g==='want')).map(o=>o.n));renderSms();};
   $('#smsClr').onclick=()=>{smsSel.clear();renderSms();};
   document.addEventListener('click',e=>{if(!e.target.closest('#smsSelBox'))return;const u=e.target.closest('[data-unsel]');if(u){smsSel.delete(u.dataset.unsel);renderSms();return;}
@@ -3447,7 +3457,7 @@ function onlineSettingsHTML(){const u=ONL.user||{};return `<div class="kvg"><b>�
   <p class="muted" style="font-size:12.5px;margin-bottom:0">કોઈ પણ મોબાઇલ / કમ્પ્યુટરમાં આ જ ઇમેઇલ-પાસવર્ડથી ખોલશો તો બધો ડેટા (કેસ, ફાઇલો, ફોટા, અન્ય વ્યક્તિ, સેટિંગ) આવશે. ઇન્ટરનેટ ન હોય ત્યારે પણ એપ ચાલે છે; નેટ આવતાં ફેરફાર આપમેળે મોકલાય છે.</p>`;}
 
 /* ===== અપડેટ સૂચના / ફરજિયાત અપડેટ ===== */
-const APP_VERSION=35;
+const APP_VERSION=36;
 const UPD={remote:null,base:'',timer:null,busy:false};
 function updBases(){
   const l=[];const add=u=>{if(u&&/^https?:\/\//.test(u)){u=u.replace(/[^/]*$/,'');if(!l.includes(u))l.push(u);}};
